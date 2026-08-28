@@ -1,0 +1,156 @@
+@prefix ax5:  <https://agenticx5.com/ont/compliance#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix dct:  <http://purl.org/dc/terms/> .
+
+#################################################################
+# AX5 Multi-Jurisdiction Compliance Ontology
+# Version 0.2.0
+#
+# Principe directeur : on n'écrase JAMAIS un concept juridictionnel
+# dans un concept canonique unique. On garde chaque concept dans son
+# régime, et on modélise le RAPPORT entre eux comme une entité de
+# première classe.
+#################################################################
+
+ax5: a owl:Ontology ;
+    dct:title "AX5 Multi-Jurisdiction Compliance Ontology"@en ;
+    owl:versionInfo "0.2.0" ;
+    dct:description "Canonical anchors + jurisdiction-scoped concepts + first-class mappings."@en .
+
+#################################################################
+# 1. JURIDICTION ET INSTRUMENTS
+#################################################################
+
+ax5:Jurisdiction a owl:Class ;
+    rdfs:label "Jurisdiction"@en ;
+    rdfs:comment "A regulatory regime with authority over a territory."@en .
+
+ax5:RegulatoryInstrument a owl:Class ;
+    rdfs:label "Regulatory Instrument"@en ;
+    rdfs:comment "A law, regulation or standard. E.g. RSST, 29 CFR 1910, ISO 45001."@en .
+
+ax5:Requirement a owl:Class ;
+    rdfs:label "Requirement"@en ;
+    rdfs:comment "A single obligation stated by an instrument."@en .
+
+ax5:hasJurisdiction a owl:ObjectProperty ;
+    rdfs:domain ax5:RegulatoryInstrument ; rdfs:range ax5:Jurisdiction .
+
+ax5:statedIn a owl:ObjectProperty ;
+    rdfs:label "stated in"@en ;
+    rdfs:domain ax5:Requirement ; rdfs:range ax5:RegulatoryInstrument .
+
+ax5:citation a owl:DatatypeProperty ;
+    rdfs:comment "Exact clause reference. Non-negotiable for compliance answers."@en ;
+    rdfs:domain ax5:Requirement ; rdfs:range xsd:string .
+
+#################################################################
+# 2. CONCEPTS : ANCRE CANONIQUE + PORTÉE JURIDICTIONNELLE
+#
+# DÉCISION DE MODÉLISATION CLÉ :
+# AnchorConcept ne remplace pas les concepts juridictionnels.
+# Il sert de point de pivot pour la traversée inter-régimes.
+# La spécificité légale reste dans JurisdictionalConcept.
+#################################################################
+
+ax5:AnchorConcept a owl:Class ;
+    rdfs:subClassOf skos:Concept ;
+    rdfs:label "Anchor Concept"@en ;
+    rdfs:comment "Jurisdiction-neutral pivot. Carries NO legal force by itself."@en .
+
+ax5:JurisdictionalConcept a owl:Class ;
+    rdfs:subClassOf skos:Concept ;
+    rdfs:label "Jurisdictional Concept"@en ;
+    rdfs:comment "A concept as legally defined within ONE regime."@en .
+
+ax5:scopedTo a owl:ObjectProperty ;
+    rdfs:domain ax5:JurisdictionalConcept ; rdfs:range ax5:Jurisdiction .
+
+ax5:anchoredTo a owl:ObjectProperty ;
+    rdfs:domain ax5:JurisdictionalConcept ; rdfs:range ax5:AnchorConcept .
+
+ax5:threshold a owl:DatatypeProperty ;
+    rdfs:comment "Reporting/applicability threshold. Differs across regimes — that is the point."@en ;
+    rdfs:domain ax5:JurisdictionalConcept ; rdfs:range xsd:decimal .
+
+ax5:thresholdUnit a owl:DatatypeProperty ;
+    rdfs:domain ax5:JurisdictionalConcept ; rdfs:range xsd:string .
+
+#################################################################
+# 3. LE MAPPING COMME ENTITÉ DE PREMIÈRE CLASSE
+#
+# skos:closeMatch est un simple triplet : il ne peut porter ni
+# confiance, ni auteur, ni base, ni date. Or ce sont exactement les
+# attributs dont une réponse de conformité a besoin.
+# Donc le mapping devient une entité. Même raison qu'un BOMEdge.
+#################################################################
+
+ax5:ConceptMapping a owl:Class ;
+    rdfs:subClassOf prov:Entity ;
+    rdfs:label "Concept Mapping"@en ;
+    rdfs:comment "A reified, evidenced assertion that two jurisdictional concepts relate."@en .
+
+ax5:mapsFrom a owl:ObjectProperty ;
+    rdfs:domain ax5:ConceptMapping ; rdfs:range ax5:JurisdictionalConcept .
+
+ax5:mapsTo a owl:ObjectProperty ;
+    rdfs:domain ax5:ConceptMapping ; rdfs:range ax5:JurisdictionalConcept .
+
+ax5:mappingRelation a owl:ObjectProperty ;
+    rdfs:comment "One of skos:exactMatch, closeMatch, broadMatch, narrowMatch, relatedMatch."@en ;
+    rdfs:domain ax5:ConceptMapping .
+
+ax5:confidence a owl:DatatypeProperty ;
+    rdfs:domain ax5:ConceptMapping ; rdfs:range xsd:decimal .
+
+ax5:basis a owl:DatatypeProperty ;
+    rdfs:comment "Why this mapping was asserted. Free text, but mandatory."@en ;
+    rdfs:domain ax5:ConceptMapping ; rdfs:range xsd:string .
+
+ax5:reviewStatus a owl:DatatypeProperty ;
+    rdfs:comment "draft | machine-proposed | human-reviewed | disputed"@en ;
+    rdfs:domain ax5:ConceptMapping ; rdfs:range xsd:string .
+
+#################################################################
+# 4. DANGERS, MESURES DE MAÎTRISE, TÂCHES
+#################################################################
+
+ax5:Hazard a owl:Class ; rdfs:label "Hazard"@en .
+ax5:ControlMeasure a owl:Class ; rdfs:label "Control Measure"@en .
+ax5:WorkActivity a owl:Class ; rdfs:label "Work Activity"@en .
+ax5:Worksite a owl:Class ; rdfs:label "Worksite"@en .
+
+ax5:presentsHazard a owl:ObjectProperty ;
+    rdfs:domain ax5:WorkActivity ; rdfs:range ax5:Hazard .
+
+ax5:mitigatedBy a owl:ObjectProperty ;
+    rdfs:domain ax5:Hazard ; rdfs:range ax5:ControlMeasure .
+
+ax5:mandatedBy a owl:ObjectProperty ;
+    rdfs:domain ax5:ControlMeasure ; rdfs:range ax5:Requirement .
+
+ax5:addressesHazard a owl:ObjectProperty ;
+    rdfs:domain ax5:Requirement ; rdfs:range ax5:Hazard .
+
+ax5:locatedIn a owl:ObjectProperty ;
+    rdfs:domain ax5:Worksite ; rdfs:range ax5:Jurisdiction .
+
+#################################################################
+# 5. BITEMPORALITÉ
+#
+# validFrom/validTo   = temps de VALIDITÉ (vrai dans le monde)
+# recordedAt/retractedAt = temps de TRANSACTION (connu du système)
+#
+# Sans le second axe, impossible de répondre à
+# « qu'est-ce que le système savait le 3 mars ? »
+#################################################################
+
+ax5:validFrom a owl:DatatypeProperty ; rdfs:range xsd:date .
+ax5:validTo a owl:DatatypeProperty ; rdfs:range xsd:date .
+ax5:recordedAt a owl:DatatypeProperty ; rdfs:range xsd:dateTime .
+ax5:retractedAt a owl:DatatypeProperty ; rdfs:range xsd:dateTime .
