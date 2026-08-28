@@ -1,3 +1,4 @@
+[![Validate ontology](https://github.com/Preventera/ax5-compliance-ontology/actions/workflows/validate.yml/badge.svg)](https://github.com/Preventera/ax5-compliance-ontology/actions/workflows/validate.yml)
 # AX5 Compliance Ontology — projet d'apprentissage
 
 **Objectif double.** Apprendre RDF, SHACL et SPARQL par la pratique, sur un domaine que tu connais déjà — et produire du même coup l'artéfact que tu défendras devant le panel Kinaxis.
