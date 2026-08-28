@@ -1,0 +1,262 @@
+@prefix ax5:  <https://agenticx5.com/ont/compliance#> .
+@prefix ex:   <https://agenticx5.com/data/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+
+#################################################################
+# ATTENTION PÉDAGOGIQUE
+# Ce fichier contient 5 ERREURS DÉLIBÉRÉES.
+# Le validateur SHACL doit toutes les trouver.
+# Cherche les commentaires « ERREUR n » après avoir lancé validate.py.
+#################################################################
+
+### JURIDICTIONS ###############################################
+
+ex:JUR-QC a ax5:Jurisdiction ; rdfs:label "Québec (CNESST)"@en .
+ex:JUR-US a ax5:Jurisdiction ; rdfs:label "United States (OSHA)"@en .
+ex:JUR-UK a ax5:Jurisdiction ; rdfs:label "United Kingdom (HSE)"@en .
+ex:JUR-INT a ax5:Jurisdiction ; rdfs:label "International (ISO)"@en .
+
+### INSTRUMENTS ################################################
+
+ex:INS-RSST a ax5:RegulatoryInstrument ;
+    rdfs:label "Règlement sur la santé et la sécurité du travail"@fr ;
+    ax5:hasJurisdiction ex:JUR-QC .
+
+ex:INS-1910 a ax5:RegulatoryInstrument ;
+    rdfs:label "29 CFR 1910"@en ;
+    ax5:hasJurisdiction ex:JUR-US .
+
+ex:INS-CSR a ax5:RegulatoryInstrument ;
+    rdfs:label "Confined Spaces Regulations 1997"@en ;
+    ax5:hasJurisdiction ex:JUR-UK .
+
+ex:INS-45001 a ax5:RegulatoryInstrument ;
+    rdfs:label "ISO 45001"@en ;
+    ax5:hasJurisdiction ex:JUR-INT .
+
+### CONCEPTS ANCRES ############################################
+
+ex:ANC-ConfinedSpace a ax5:AnchorConcept ;
+    skos:prefLabel "Confined space"@en ;
+    skos:definition "An enclosed or partially enclosed space not designed for continuous occupancy."@en .
+
+ex:ANC-RecordableInjury a ax5:AnchorConcept ;
+    skos:prefLabel "Recordable injury"@en .
+
+ex:ANC-EnergyIsolation a ax5:AnchorConcept ;
+    skos:prefLabel "Hazardous energy isolation"@en .
+
+ex:ANC-PsychosocialRisk a ax5:AnchorConcept ;
+    skos:prefLabel "Psychosocial risk"@en ;
+    skos:definition "Work-related risk to mental health."@en .
+
+### CONCEPTS JURIDICTIONNELS ###################################
+# Noter les seuils divergents : c'est le coeur du problème.
+
+ex:CPT-QC-EspaceClos a ax5:JurisdictionalConcept ;
+    skos:prefLabel "Espace clos"@fr ;
+    ax5:scopedTo ex:JUR-QC ;
+    ax5:anchoredTo ex:ANC-ConfinedSpace .
+
+ex:CPT-US-PermitRequiredCS a ax5:JurisdictionalConcept ;
+    skos:prefLabel "Permit-required confined space"@en ;
+    ax5:scopedTo ex:JUR-US ;
+    ax5:anchoredTo ex:ANC-ConfinedSpace .
+
+ex:CPT-UK-ConfinedSpace a ax5:JurisdictionalConcept ;
+    skos:prefLabel "Confined space"@en ;
+    ax5:scopedTo ex:JUR-UK ;
+    ax5:anchoredTo ex:ANC-ConfinedSpace .
+
+ex:CPT-QC-LesionEnregistrable a ax5:JurisdictionalConcept ;
+    skos:prefLabel "Lésion professionnelle déclarable"@fr ;
+    ax5:scopedTo ex:JUR-QC ;
+    ax5:anchoredTo ex:ANC-RecordableInjury ;
+    ax5:threshold "1"^^xsd:decimal ;
+    ax5:thresholdUnit "day away from work" .
+
+ex:CPT-US-RecordableCase a ax5:JurisdictionalConcept ;
+    skos:prefLabel "OSHA recordable case"@en ;
+    ax5:scopedTo ex:JUR-US ;
+    ax5:anchoredTo ex:ANC-RecordableInjury ;
+    ax5:threshold "0"^^xsd:decimal ;
+    ax5:thresholdUnit "medical treatment beyond first aid" .
+
+ex:CPT-QC-Cadenassage a ax5:JurisdictionalConcept ;
+    skos:prefLabel "Cadenassage"@fr ;
+    ax5:scopedTo ex:JUR-QC ;
+    ax5:anchoredTo ex:ANC-EnergyIsolation .
+
+ex:CPT-US-LOTO a ax5:JurisdictionalConcept ;
+    skos:prefLabel "Lockout/Tagout"@en ;
+    ax5:scopedTo ex:JUR-US ;
+    ax5:anchoredTo ex:ANC-EnergyIsolation .
+
+# ERREUR 1 : concept sans ax5:scopedTo -> un concept juridictionnel
+# hors juridiction n'a aucun sens. SHACL doit le rejeter.
+ex:CPT-ORPHAN-Something a ax5:JurisdictionalConcept ;
+    skos:prefLabel "Orphan concept"@en ;
+    ax5:anchoredTo ex:ANC-ConfinedSpace .
+
+### MAPPINGS ###################################################
+
+ex:MAP-001 a ax5:ConceptMapping ;
+    rdfs:label "QC espace clos <-> US permit-required CS"@en ;
+    ax5:mapsFrom ex:CPT-QC-EspaceClos ;
+    ax5:mapsTo ex:CPT-US-PermitRequiredCS ;
+    ax5:mappingRelation skos:closeMatch ;
+    ax5:confidence "0.72"^^xsd:decimal ;
+    ax5:basis "US definition adds a permit trigger absent from the QC definition; scope overlaps but is not coextensive." ;
+    ax5:reviewStatus "human-reviewed" ;
+    prov:wasAttributedTo ex:AGT-MDeshaies ;
+    ax5:recordedAt "2026-03-02T14:00:00"^^xsd:dateTime .
+
+ex:MAP-002 a ax5:ConceptMapping ;
+    rdfs:label "QC espace clos <-> UK confined space"@en ;
+    ax5:mapsFrom ex:CPT-QC-EspaceClos ;
+    ax5:mapsTo ex:CPT-UK-ConfinedSpace ;
+    ax5:mappingRelation skos:closeMatch ;
+    ax5:confidence "0.81"^^xsd:decimal ;
+    ax5:basis "Both anchor on enclosure and non-continuous occupancy; UK adds specified risk criteria." ;
+    ax5:reviewStatus "human-reviewed" ;
+    prov:wasAttributedTo ex:AGT-MDeshaies ;
+    ax5:recordedAt "2026-03-02T14:05:00"^^xsd:dateTime .
+
+ex:MAP-003 a ax5:ConceptMapping ;
+    rdfs:label "QC cadenassage <-> US LOTO"@en ;
+    ax5:mapsFrom ex:CPT-QC-Cadenassage ;
+    ax5:mapsTo ex:CPT-US-LOTO ;
+    ax5:mappingRelation skos:closeMatch ;
+    ax5:confidence "0.88"^^xsd:decimal ;
+    ax5:basis "Procedurally near-identical; QC requires a written procedure per machine, US per energy source." ;
+    ax5:reviewStatus "human-reviewed" ;
+    prov:wasAttributedTo ex:AGT-MDeshaies ;
+    ax5:recordedAt "2026-03-02T14:10:00"^^xsd:dateTime .
+
+# ERREUR 2 : exactMatch déclaré avec une confiance de 0.55.
+# Politique interne : un exactMatch exige >= 0.95.
+ex:MAP-004 a ax5:ConceptMapping ;
+    rdfs:label "QC lésion déclarable <-> US recordable case"@en ;
+    ax5:mapsFrom ex:CPT-QC-LesionEnregistrable ;
+    ax5:mapsTo ex:CPT-US-RecordableCase ;
+    ax5:mappingRelation skos:exactMatch ;
+    ax5:confidence "0.55"^^xsd:decimal ;
+    ax5:basis "Thresholds differ materially: QC counts day-away, US counts medical treatment." ;
+    ax5:reviewStatus "machine-proposed" ;
+    prov:wasAttributedTo ex:AGT-Extractor ;
+    ax5:recordedAt "2026-03-02T14:20:00"^^xsd:dateTime .
+
+# ERREUR 3 : mapping intra-juridictionnel (QC vers QC).
+# Un mapping ne relie que des régimes DIFFÉRENTS.
+ex:MAP-005 a ax5:ConceptMapping ;
+    rdfs:label "QC espace clos <-> QC cadenassage"@en ;
+    ax5:mapsFrom ex:CPT-QC-EspaceClos ;
+    ax5:mapsTo ex:CPT-QC-Cadenassage ;
+    ax5:mappingRelation skos:relatedMatch ;
+    ax5:confidence "0.40"^^xsd:decimal ;
+    ax5:basis "Both appear in entry procedures." ;
+    ax5:reviewStatus "draft" ;
+    prov:wasAttributedTo ex:AGT-Extractor ;
+    ax5:recordedAt "2026-03-02T14:25:00"^^xsd:dateTime .
+
+# ERREUR 4 : mapping sans ax5:basis ni auteur.
+# Une assertion non justifiée n'est pas auditable.
+ex:MAP-006 a ax5:ConceptMapping ;
+    rdfs:label "UK confined space <-> US permit-required CS"@en ;
+    ax5:mapsFrom ex:CPT-UK-ConfinedSpace ;
+    ax5:mapsTo ex:CPT-US-PermitRequiredCS ;
+    ax5:mappingRelation skos:closeMatch ;
+    ax5:confidence "0.77"^^xsd:decimal ;
+    ax5:reviewStatus "machine-proposed" .
+
+### AGENTS (PROV-O) ############################################
+
+ex:AGT-MDeshaies a prov:Person ; rdfs:label "Mario Deshaies"@en .
+ex:AGT-Extractor a prov:SoftwareAgent ; rdfs:label "AX5 clause extractor v2"@en .
+
+### DANGERS / MESURES / TÂCHES #################################
+
+ex:HAZ-Asphyxiation a ax5:Hazard ; rdfs:label "Oxygen-deficient atmosphere"@en .
+ex:HAZ-StoredEnergy a ax5:Hazard ; rdfs:label "Unexpected energization"@en .
+ex:HAZ-Burnout a ax5:Hazard ; rdfs:label "Chronic work overload"@en .
+
+ex:CTL-AtmoTesting a ax5:ControlMeasure ;
+    rdfs:label "Continuous atmospheric monitoring"@en ;
+    ax5:mandatedBy ex:REQ-QC-EspaceClos-Test, ex:REQ-US-1910146-Test .
+
+ex:CTL-LockDevice a ax5:ControlMeasure ;
+    rdfs:label "Individual lock and key control"@en ;
+    ax5:mandatedBy ex:REQ-QC-Cadenassage-Proc .
+
+ex:ACT-TankEntry a ax5:WorkActivity ;
+    rdfs:label "Process tank entry"@en ;
+    ax5:presentsHazard ex:HAZ-Asphyxiation, ex:HAZ-StoredEnergy .
+
+ex:SITE-Bromont a ax5:Worksite ;
+    rdfs:label "Bromont plant"@en ;
+    ax5:locatedIn ex:JUR-QC .
+
+ex:SITE-Toledo a ax5:Worksite ;
+    rdfs:label "Toledo plant"@en ;
+    ax5:locatedIn ex:JUR-US .
+
+ex:HAZ-Asphyxiation ax5:mitigatedBy ex:CTL-AtmoTesting .
+ex:HAZ-StoredEnergy ax5:mitigatedBy ex:CTL-LockDevice .
+
+### EXIGENCES ##################################################
+
+ex:REQ-QC-EspaceClos-Test a ax5:Requirement ;
+    rdfs:label "Atmospheric testing before entry (QC)"@en ;
+    ax5:statedIn ex:INS-RSST ;
+    ax5:citation "RSST, s. 302" ;
+    ax5:addressesHazard ex:HAZ-Asphyxiation ;
+    ax5:validFrom "2021-01-01"^^xsd:date ;
+    ax5:recordedAt "2026-01-15T09:00:00"^^xsd:dateTime .
+
+ex:REQ-US-1910146-Test a ax5:Requirement ;
+    rdfs:label "Pre-entry atmospheric testing (US)"@en ;
+    ax5:statedIn ex:INS-1910 ;
+    ax5:citation "29 CFR 1910.146(c)(5)(ii)(C)" ;
+    ax5:addressesHazard ex:HAZ-Asphyxiation ;
+    ax5:validFrom "1993-04-15"^^xsd:date ;
+    ax5:recordedAt "2026-01-15T09:05:00"^^xsd:dateTime .
+
+ex:REQ-QC-Cadenassage-Proc a ax5:Requirement ;
+    rdfs:label "Written lockout procedure per machine (QC)"@en ;
+    ax5:statedIn ex:INS-RSST ;
+    ax5:citation "RSST, s. 188.6" ;
+    ax5:addressesHazard ex:HAZ-StoredEnergy ;
+    ax5:validFrom "2016-01-14"^^xsd:date ;
+    ax5:recordedAt "2026-01-15T09:10:00"^^xsd:dateTime .
+
+# Exigence retirée : validTo renseigné. Utile pour la requête bitemporelle.
+ex:REQ-QC-Ancienne a ax5:Requirement ;
+    rdfs:label "Superseded lockout provision (QC)"@en ;
+    ax5:statedIn ex:INS-RSST ;
+    ax5:citation "RSST, s. 185 (repealed)" ;
+    ax5:addressesHazard ex:HAZ-StoredEnergy ;
+    ax5:validFrom "2001-06-01"^^xsd:date ;
+    ax5:validTo "2016-01-13"^^xsd:date ;
+    ax5:recordedAt "2026-01-15T09:12:00"^^xsd:dateTime .
+
+# ERREUR 5 : exigence sans citation.
+# En conformité, une obligation non citable est inutilisable.
+ex:REQ-UK-CS-RiskAssess a ax5:Requirement ;
+    rdfs:label "Confined space risk assessment (UK)"@en ;
+    ax5:statedIn ex:INS-CSR ;
+    ax5:addressesHazard ex:HAZ-Asphyxiation ;
+    ax5:validFrom "1997-01-28"^^xsd:date ;
+    ax5:recordedAt "2026-01-15T09:15:00"^^xsd:dateTime .
+
+# Exigence SANS danger rattaché -> déclenche un WARNING, pas une VIOLATION.
+# Choix d'architecte : la donnée source est incomplète, bloquer coûterait
+# plus cher que le défaut.
+ex:REQ-INT-45001-Consult a ax5:Requirement ;
+    rdfs:label "Worker consultation and participation"@en ;
+    ax5:statedIn ex:INS-45001 ;
+    ax5:citation "ISO 45001:2018, cl. 5.4" ;
+    ax5:validFrom "2018-03-12"^^xsd:date ;
+    ax5:recordedAt "2026-01-15T09:20:00"^^xsd:dateTime .
