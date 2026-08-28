@@ -1,0 +1,228 @@
+@prefix ax5:  <https://agenticx5.com/ont/compliance#> .
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+#################################################################
+# SHACL SHAPES — les contrats de données de l'ontologie AX5
+#
+# Rappel du « pourquoi SHACL et pas OWL » :
+# OWL travaille en monde ouvert. Une cardinalité OWL ne REJETTE rien,
+# elle fait INFÉRER. Déclarer maxCardinality 1 sur un identifiant ne
+# bloque pas deux valeurs : ça fait conclure au raisonneur qu'elles
+# désignent la même chose. SHACL est le seul des deux qui puisse dire
+# « ce champ DOIT être là ».
+#################################################################
+
+
+### SHAPE 1 — Exigence ##########################################
+# Une obligation sans citation n'est pas utilisable en conformité.
+# C'est un blocage dur.
+
+ax5:RequirementShape a sh:NodeShape ;
+    sh:targetClass ax5:Requirement ;
+
+    sh:property [
+        sh:path ax5:statedIn ;
+        sh:minCount 1 ; sh:maxCount 1 ;
+        sh:class ax5:RegulatoryInstrument ;
+        sh:severity sh:Violation ;
+        sh:message "Requirement must be stated in exactly one regulatory instrument." ;
+    ] ;
+
+    sh:property [
+        sh:path ax5:citation ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 3 ;
+        sh:severity sh:Violation ;
+        sh:message "Requirement must carry an exact clause citation. A compliance answer without a citation is unusable." ;
+    ] ;
+
+    sh:property [
+        sh:path ax5:validFrom ;
+        sh:minCount 1 ; sh:maxCount 1 ;
+        sh:datatype xsd:date ;
+        sh:severity sh:Violation ;
+        sh:message "Requirement must have a validFrom date (valid-time axis)." ;
+    ] ;
+
+    sh:property [
+        sh:path ax5:recordedAt ;
+        sh:minCount 1 ;
+        sh:datatype xsd:dateTime ;
+        sh:severity sh:Violation ;
+        sh:message "Requirement must have recordedAt (transaction-time axis). Without it you cannot answer 'what did we know on date X'." ;
+    ] ;
+
+    # DÉCISION D'ARCHITECTE : Warning, pas Violation.
+    # Les sources réglementaires ne rattachent pas toujours une
+    # obligation à un danger identifiable. Bloquer l'ingestion
+    # coûterait plus cher que tolérer le trou et le suivre.
+    sh:property [
+        sh:path ax5:addressesHazard ;
+        sh:minCount 1 ;
+        sh:severity sh:Warning ;
+        sh:message "Requirement has no linked hazard. Tolerated, but tracked as a coverage gap." ;
+    ] .
+
+
+### SHAPE 2 — Concept juridictionnel ############################
+
+ax5:JurisdictionalConceptShape a sh:NodeShape ;
+    sh:targetClass ax5:JurisdictionalConcept ;
+
+    sh:property [
+        sh:path ax5:scopedTo ;
+        sh:minCount 1 ; sh:maxCount 1 ;
+        sh:class ax5:Jurisdiction ;
+        sh:severity sh:Violation ;
+        sh:message "A jurisdictional concept must belong to exactly one jurisdiction. Otherwise it has no legal meaning." ;
+    ] ;
+
+    sh:property [
+        sh:path ax5:anchoredTo ;
+        sh:minCount 1 ; sh:maxCount 1 ;
+        sh:class ax5:AnchorConcept ;
+        sh:severity sh:Violation ;
+        sh:message "A jurisdictional concept must anchor to exactly one anchor concept." ;
+    ] ;
+
+    sh:property [
+        sh:path skos:prefLabel ;
+        sh:minCount 1 ;
+        sh:severity sh:Violation ;
+        sh:message "Concept must have a preferred label." ;
+    ] .
+
+
+### SHAPE 3 — Mapping ###########################################
+# Le mapping est une ASSERTION. Une assertion sans base ni auteur
+# n'est pas auditable, donc pas admissible.
+
+ax5:ConceptMappingShape a sh:NodeShape ;
+    sh:targetClass ax5:ConceptMapping ;
+
+    sh:property [
+        sh:path ax5:mapsFrom ;
+        sh:minCount 1 ; sh:maxCount 1 ;
+        sh:class ax5:JurisdictionalConcept ;
+        sh:severity sh:Violation ;
+        sh:message "Mapping must have exactly one source concept." ;
+    ] ;
+
+    sh:property [
+        sh:path ax5:mapsTo ;
+        sh:minCount 1 ; sh:maxCount 1 ;
+        sh:class ax5:JurisdictionalConcept ;
+        sh:severity sh:Violation ;
+        sh:message "Mapping must have exactly one target concept." ;
+    ] ;
+
+    sh:property [
+        sh:path ax5:mappingRelation ;
+        sh:minCount 1 ; sh:maxCount 1 ;
+        sh:in ( skos:exactMatch skos:closeMatch skos:broadMatch skos:narrowMatch skos:relatedMatch ) ;
+        sh:severity sh:Violation ;
+        sh:message "Mapping relation must be one of the five SKOS mapping relations." ;
+    ] ;
+
+    sh:property [
+        sh:path ax5:confidence ;
+        sh:minCount 1 ; sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ; sh:maxInclusive 1.0 ;
+        sh:severity sh:Violation ;
+        sh:message "Mapping must carry a confidence between 0 and 1." ;
+    ] ;
+
+    sh:property [
+        sh:path ax5:basis ;
+        sh:minCount 1 ;
+        sh:minLength 10 ;
+        sh:severity sh:Violation ;
+        sh:message "Mapping must state its basis. An unjustified cross-jurisdiction assertion is not auditable." ;
+    ] ;
+
+    sh:property [
+        sh:path prov:wasAttributedTo ;
+        sh:minCount 1 ;
+        sh:severity sh:Violation ;
+        sh:message "Mapping must be attributed to an agent (human or software). Provenance is not optional." ;
+    ] ;
+
+    sh:property [
+        sh:path ax5:reviewStatus ;
+        sh:minCount 1 ;
+        sh:in ( "draft" "machine-proposed" "human-reviewed" "disputed" ) ;
+        sh:severity sh:Violation ;
+        sh:message "Mapping must have a valid review status." ;
+    ] .
+
+
+### SHAPE 4 — SHACL-SPARQL : politique exactMatch ###############
+# Les composants standards ne peuvent pas exprimer une règle qui
+# CROISE deux propriétés du même noeud. Il faut du SHACL-SPARQL.
+#
+# Règle métier : on ne déclare pas une équivalence exacte entre deux
+# régimes avec une confiance faible. C'est ainsi qu'on produit une
+# réponse fluide et fausse.
+
+ax5:ExactMatchConfidenceShape a sh:NodeShape ;
+    sh:targetClass ax5:ConceptMapping ;
+    sh:sparql [
+        sh:severity sh:Violation ;
+        sh:message "exactMatch requires confidence >= 0.95. Asserting exact equivalence on weak evidence is how you produce a fluent, wrong compliance answer." ;
+        sh:prefixes ax5: ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this <https://agenticx5.com/ont/compliance#mappingRelation>
+                      <http://www.w3.org/2004/02/skos/core#exactMatch> .
+                $this <https://agenticx5.com/ont/compliance#confidence> ?c .
+                FILTER (?c < 0.95)
+            }
+        """ ;
+    ] .
+
+
+### SHAPE 5 — SHACL-SPARQL : pas de mapping intra-régime ########
+# Un mapping relie DEUX juridictions. Relier deux concepts du même
+# régime, c'est une relation sémantique ordinaire, pas un mapping.
+# Cette règle exige de traverser deux arcs — impossible sans SPARQL.
+
+ax5:CrossJurisdictionShape a sh:NodeShape ;
+    sh:targetClass ax5:ConceptMapping ;
+    sh:sparql [
+        sh:severity sh:Violation ;
+        sh:message "Mapping links two concepts in the SAME jurisdiction. A mapping crosses regimes by definition." ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this <https://agenticx5.com/ont/compliance#mapsFrom> ?a .
+                $this <https://agenticx5.com/ont/compliance#mapsTo> ?b .
+                ?a <https://agenticx5.com/ont/compliance#scopedTo> ?j .
+                ?b <https://agenticx5.com/ont/compliance#scopedTo> ?j .
+            }
+        """ ;
+    ] .
+
+
+### SHAPE 6 — SHACL-SPARQL : cohérence bitemporelle #############
+
+ax5:TemporalCoherenceShape a sh:NodeShape ;
+    sh:targetClass ax5:Requirement ;
+    sh:sparql [
+        sh:severity sh:Violation ;
+        sh:message "validTo must be strictly after validFrom." ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this <https://agenticx5.com/ont/compliance#validFrom> ?f .
+                $this <https://agenticx5.com/ont/compliance#validTo> ?t .
+                FILTER (?t <= ?f)
+            }
+        """ ;
+    ] .
