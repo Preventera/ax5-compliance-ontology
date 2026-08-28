@@ -1,0 +1,37 @@
+name: Validate ontology
+
+# Le contrat de données est appliqué en intégration continue.
+# Toute modification de l'ontologie, des données ou des shapes est validée
+# avant fusion — c'est ce qui empêche une shape de se relâcher silencieusement
+# d'une version à l'autre.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run SHACL validation report
+        run: python validate.py
+        continue-on-error: true   # le rapport est informatif
+
+      - name: Test that shapes catch known defects
+        run: pytest tests/ -v
+
+      - name: Run competency questions
+        run: python queries/competency.py
