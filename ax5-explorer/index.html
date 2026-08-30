@@ -6,210 +6,407 @@
 <title>AX5 — Explorateur d'ontologie de conformité</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=Inter:wght@400;500&family=Spectral:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root{
-  --void:#150A22; --surface:#1F1133; --raised:#2A1845; --line:#3A2458;
-  --cyan:#2DD4E8; --lime:#C3F53C; --violet:#B57BF7;
-  --ink:#EFEAF7; --muted:#A294BC; --dim:#7A6B94;
-  --alert:#FF6B7A; --warn:#FFB84D;
-  --display:'Space Grotesk',sans-serif; --body:'Inter',sans-serif; --data:'JetBrains Mono',monospace;
+  /* papier de gazette officielle — froid, pas crème */
+  --paper:#EDECE6; --raised:#F7F6F2; --surface:#F7F6F2; --sunk:#E4E3DC;
+  --rule:#D3D2C9; --rule2:#BCBAAF;
+  /* encre d'imprimerie, pas du noir */
+  --ink:#1B1E24; --muted:#4E535B; --dim:#7C8189;
+  /* la couverture reste sombre : c'est là que vit le logo */
+  --cover:#191024; --cover-ink:#EDE9F5; --cover-dim:#9B8FB2;
+  /* accents encrés — le violet ne sert qu'aux correspondances */
+  --violet:#5E3FA6; --violet-soft:#EDE7F8;
+  --oxide:#9E3527; --oxide-soft:#F6E4E1;
+  --ochre:#96660A; --ochre-soft:#F7EDD8;
+  --verdigris:#2A6250; --verdigris-soft:#E2EFE9;
+  --seal:#1F4E79;
+  /* alias conservés pour le JS existant */
+  --void:var(--paper); --line:var(--rule); --line2:var(--rule2);
+  --cyan:var(--seal); --lime:var(--verdigris); --alert:var(--oxide); --warn:var(--ochre); --ok:var(--verdigris);
+  --display:'Space Grotesk',sans-serif; --body:'Inter',sans-serif;
+  --serif:'Spectral',Georgia,serif; --data:'JetBrains Mono',monospace;
+  --nav:238px; --insp:356px; --hdr:70px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--void);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
-.wrap{max-width:1180px;margin:0 auto;padding:0 28px}
+html{scroll-behavior:smooth}
+body{background:var(--paper);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.62;-webkit-font-smoothing:antialiased}
+a{color:var(--seal)}
+:focus-visible{outline:2px solid var(--seal);outline-offset:2px;border-radius:3px}
+.skip{position:absolute;left:-9999px;top:0;background:var(--violet);color:#fff;padding:10px 16px;z-index:100;border-radius:0 0 6px 0}
+.skip:focus{left:0}
 
 /* ---------- header ---------- */
-header{border-bottom:1px solid var(--line);padding:22px 0;position:sticky;top:0;background:rgba(21,10,34,.94);backdrop-filter:blur(12px);z-index:20}
-.bar{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
-.mark{width:42px;height:42px;border-radius:10px;flex-shrink:0}
-.brand{flex:1;min-width:200px}
-.brand h1{font-family:var(--display);font-size:17px;font-weight:500;letter-spacing:-.01em}
-.brand p{font-size:12.5px;color:var(--dim);font-family:var(--data)}
-.lang{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
-.lang button{background:none;border:0;color:var(--muted);font-family:var(--data);font-size:12px;padding:7px 13px;cursor:pointer;transition:.15s}
-.lang button[aria-pressed=true]{background:var(--violet);color:var(--void);font-weight:500}
-.lang button:focus-visible{outline:2px solid var(--cyan);outline-offset:-2px}
+header{height:var(--hdr);position:fixed;top:0;left:0;right:0;background:var(--cover);
+  z-index:30;display:flex;align-items:center;padding:0 22px;gap:16px;color:var(--cover-ink)}
+.mark{width:38px;height:38px;border-radius:8px;flex-shrink:0}
+.brand{flex:1;min-width:0}
+.brand h1{font-family:var(--display);font-size:15.5px;font-weight:500;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand p{font-size:11.5px;color:var(--cover-dim);font-family:var(--data)}
+.hstat{display:flex;gap:14px;font-family:var(--data);font-size:11.5px;white-space:nowrap}
+.hstat b{font-weight:500}
+.hstat{color:var(--cover-dim)} .hstat .v{color:#E88C80} .hstat .w{color:#E8B860}
+.lang{display:flex;border:1px solid #3B2C55;border-radius:6px;overflow:hidden;flex-shrink:0}
+.lang button{background:none;border:0;color:var(--cover-dim);font-family:var(--data);font-size:12px;padding:7px 12px;cursor:pointer}
+.lang button[aria-pressed=true]{background:#B18CF0;color:var(--cover);font-weight:500}
 
-/* ---------- hero ---------- */
-.hero{padding:52px 0 38px;border-bottom:1px solid var(--line)}
-.hero h2{font-family:var(--display);font-size:clamp(26px,4vw,40px);font-weight:500;line-height:1.15;letter-spacing:-.025em;max-width:20ch}
-.hero h2 em{font-style:normal;color:var(--lime)}
-.hero p{margin-top:18px;color:var(--muted);max-width:60ch;font-size:15.5px}
-.tally{display:flex;gap:26px;margin-top:26px;flex-wrap:wrap}
-.tally div{font-family:var(--data);font-size:12px;color:var(--dim)}
-.tally b{display:block;font-size:21px;color:var(--cyan);font-weight:500}
-.tally .bad b{color:var(--alert)}
-.tally .mid b{color:var(--warn)}
+/* ---------- layout ---------- */
+.shell{display:grid;grid-template-columns:var(--nav) minmax(0,1fr) var(--insp);
+  gap:0;padding-top:var(--hdr);min-height:100vh;align-items:start}
 
-/* ---------- lexique ---------- */
-.lex{border-bottom:1px solid var(--line)}
-.lex details{padding:26px 0}
-.lex summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:11px;
-  font-family:var(--display);font-size:17px;font-weight:500;color:var(--ink);transition:.15s}
-.lex summary::-webkit-details-marker{display:none}
-.lex summary:hover{color:var(--cyan)}
-.lex summary:focus-visible{outline:2px solid var(--cyan);outline-offset:4px;border-radius:4px}
-.lex summary .caret{font-family:var(--data);font-size:13px;color:var(--violet);transition:transform .2s}
-.lex details[open] summary .caret{transform:rotate(90deg)}
-.lex .hint{font-family:var(--data);font-size:11.5px;color:var(--dim);margin-left:auto}
-.terms{display:grid;grid-template-columns:repeat(auto-fit,minmax(292px,1fr));gap:15px;margin-top:24px}
-.term-card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px}
-.term-card .code{font-family:var(--data);font-size:12px;color:var(--cyan);letter-spacing:.02em}
-.term-card .plain{font-family:var(--display);font-size:16px;font-weight:500;margin:6px 0 9px}
-.term-card p{font-size:14px;color:var(--muted);line-height:1.65}
-.term-card .ex{margin-top:11px;padding-top:11px;border-top:1px solid var(--line);
-  font-size:13px;color:var(--lime);font-family:var(--data);line-height:1.55}
-.lex .rule{margin-top:19px;padding:15px 17px;background:var(--raised);border-left:2px solid var(--violet);
-  border-radius:0;font-size:14.5px;color:var(--ink)}
+/* ---------- nav ---------- */
+nav{position:sticky;top:var(--hdr);height:calc(100vh - var(--hdr));overflow-y:auto;
+  border-right:1px solid var(--rule);padding:22px 13px 40px;background:var(--sunk)}
+.ngroup{font-family:var(--data);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--dim);margin:20px 8px 8px}
+.ngroup:first-child{margin-top:0}
+nav button{display:flex;width:100%;align-items:center;gap:9px;background:none;border:0;text-align:left;
+  color:var(--muted);font-family:var(--body);font-size:14px;padding:8px 10px;border-radius:7px;cursor:pointer}
+nav button:hover{background:var(--raised);color:var(--ink)}
+nav button[aria-current=true]{background:var(--raised);color:var(--ink);font-weight:500;box-shadow:inset 3px 0 0 var(--violet)}
+nav .cnt{margin-left:auto;font-family:var(--data);font-size:11px;color:var(--dim)}
+nav button[aria-current=true] .cnt{color:var(--violet)}
+nav a.sec{display:block;color:var(--muted);font-size:13.5px;padding:7px 10px;border-radius:7px;text-decoration:none}
+nav a.sec:hover{background:var(--raised);color:var(--ink)}
 
-/* ---------- sections ---------- */
-section{padding:42px 0;border-bottom:1px solid var(--line)}
-.eyebrow{font-family:var(--data);font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--dim);margin-bottom:9px}
-h3{font-family:var(--display);font-size:21px;font-weight:500;letter-spacing:-.015em}
-.lede{color:var(--muted);margin-top:9px;max-width:66ch;font-size:14.5px}
+/* ---------- main ---------- */
+main{padding:30px 30px 70px;min-width:0}
+.lede{color:var(--muted);max-width:70ch;font-size:14.5px}
+h2{font-family:var(--display);font-size:23px;font-weight:500;letter-spacing:-.02em;margin-bottom:8px}
+h3{font-family:var(--display);font-size:18px;font-weight:500;letter-spacing:-.015em}
+section{scroll-margin-top:calc(var(--hdr) + 16px);padding:34px 0;border-top:1px solid var(--rule)}
+section:first-of-type{border-top:0;padding-top:6px}
+.eyebrow{font-family:var(--data);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-bottom:8px}
 
-/* ---------- anchor picker ---------- */
-.picker{display:flex;gap:9px;flex-wrap:wrap;margin-top:22px}
-.picker button{background:var(--surface);border:1px solid var(--line);color:var(--muted);
-  font-family:var(--display);font-size:14px;padding:9px 17px;border-radius:9px;cursor:pointer;transition:.15s}
-.picker button:hover{border-color:var(--violet);color:var(--ink)}
-.picker button:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
-.picker button[aria-pressed=true]{background:var(--raised);border-color:var(--cyan);color:var(--ink)}
+/* intro */
+.intro h2{font-size:clamp(22px,3vw,31px);line-height:1.2;max-width:22ch}
+.intro h2 em{font-style:normal;color:var(--violet)}
+.intro p{margin-top:14px}
 
-/* ---------- jurisdiction cards ---------- */
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(268px,1fr));gap:15px;margin-top:26px}
-.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:19px;position:relative}
-.card.flag{border-color:var(--alert)}
-.jur{font-family:var(--data);font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--cyan);margin-bottom:8px}
-.card.flag .jur{color:var(--alert)}
-.term{font-family:var(--display);font-size:18px;font-weight:500;line-height:1.3}
-.meta{margin-top:15px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--data);font-size:12.5px;color:var(--muted)}
-.meta div{display:flex;justify-content:space-between;gap:12px;padding:3px 0}
-.meta span:first-child{color:var(--dim)}
-.meta b{color:var(--lime);font-weight:500;text-align:right}
-.badge{display:inline-block;font-family:var(--data);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;
-  padding:3px 8px;border-radius:5px;background:rgba(255,107,122,.13);color:var(--alert);border:1px solid rgba(255,107,122,.35);margin-top:13px}
+/* ---------- shape legend (signature) ---------- */
+.legend{background:var(--raised);border:1px solid var(--rule);border-radius:3px;padding:21px 23px;margin-top:24px}
+.legend h3{font-size:16px;margin-bottom:4px}
+.legend p{font-family:var(--serif);font-size:15.5px;line-height:1.6;color:var(--muted);margin-bottom:18px;max-width:66ch}
+.legend svg{width:100%;height:auto;max-width:660px;display:block}
+.lgd{display:flex;gap:20px;flex-wrap:wrap;margin-top:16px;padding-top:15px;border-top:1px solid var(--line);
+  font-family:var(--data);font-size:11.5px;color:var(--muted);align-items:center}
+.lgd>span{display:inline-flex;align-items:center;gap:7px;white-space:nowrap}
+.sw{width:14px;height:14px;flex:0 0 14px;display:inline-block;border:1.5px solid var(--muted);background:var(--paper)}
+.sw.round{border-radius:50%}
+.sw.card{border-radius:2px;border-color:var(--violet);background:var(--violet-soft)}
+.sw.rect{border-radius:1px;width:18px;flex-basis:18px;height:12px}
 
-/* ---------- mapping bridges (signature) ---------- */
-.bridge{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:19px 21px;margin-top:13px}
-.bridge.flag{border-color:var(--alert);background:rgba(255,107,122,.05)}
-.span{display:flex;align-items:center;gap:13px;flex-wrap:wrap;font-family:var(--display);font-size:15px}
-.node{color:var(--ink)}
-.rel{font-family:var(--data);font-size:11px;letter-spacing:.07em;text-transform:uppercase;
-  padding:3px 9px;border-radius:5px;background:var(--raised);color:var(--violet);border:1px solid var(--line);white-space:nowrap}
-.bridge.flag .rel{color:var(--alert);border-color:rgba(255,107,122,.4)}
+/* ---------- cards ---------- */
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:13px;margin-top:20px}
+.card{background:var(--raised);border:1px solid var(--rule);border-radius:3px;padding:17px;
+  text-align:left;cursor:pointer;font-family:var(--body);color:var(--ink);width:100%}
+.card:hover{border-color:var(--rule2)}
+.card[aria-pressed=true]{border-color:var(--seal);box-shadow:inset 0 0 0 1px var(--seal)}
+.card.flag{border-left:3px solid var(--oxide)}
+.card .jur{font-family:var(--data);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--seal);margin-bottom:7px}
+.card.flag .jur{color:var(--oxide)}
+.card .term{font-family:var(--display);font-size:16.5px;font-weight:500;line-height:1.3}
+.card .thr{margin-top:12px;padding-top:11px;border-top:1px solid var(--rule);font-family:var(--data);font-size:12px;color:var(--muted)}
+.card .thr b{color:var(--verdigris);font-weight:500;font-size:14px}
 
-/* circuit-trace confidence meter */
-.trace{display:flex;align-items:center;gap:11px;margin-top:15px}
-.segs{display:flex;gap:3px;flex:1;min-width:130px}
-.seg{height:9px;flex:1;border-radius:1.5px;background:var(--raised)}
-.seg.on{background:var(--cyan)}
-.bridge.flag .seg.on{background:var(--alert)}
-.pct{font-family:var(--data);font-size:12.5px;color:var(--cyan);min-width:38px;text-align:right}
-.bridge.flag .pct{color:var(--alert)}
+/* ---------- mapping records ---------- */
+.rec{background:var(--raised);border:1px solid var(--rule);border-radius:3px;padding:17px 19px;margin-top:11px;
+  text-align:left;cursor:pointer;width:100%;font-family:var(--body);color:var(--ink);
+  border-left:3px solid var(--violet)}
+.rec:hover{border-color:var(--rule2);border-left-color:var(--violet)}
+.rec[aria-pressed=true]{background:var(--violet-soft);border-color:var(--violet);border-left-color:var(--violet)}
+.rec.flag{border-left-color:var(--oxide)}
+.rec .span{display:flex;align-items:center;gap:11px;flex-wrap:wrap;font-family:var(--display);font-size:14.5px}
+.rel{font-family:var(--data);font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;
+  padding:3px 9px;border-radius:3px;background:var(--violet-soft);color:var(--violet);border:1px solid #D8CDEE;white-space:nowrap}
+.rec.flag .rel{color:var(--oxide);background:var(--oxide-soft);border-color:#E4C3BD}
+.trace{display:flex;align-items:center;gap:11px;margin-top:13px}
+.segs{display:flex;gap:3px;flex:1;min-width:110px}
+.seg{height:8px;flex:1;border-radius:1px;background:var(--sunk)}
+.seg.on{background:var(--seal)} .rec.flag .seg.on{background:var(--oxide)}
+.pct{font-family:var(--data);font-size:12px;color:var(--seal);min-width:36px;text-align:right}
+.rec.flag .pct{color:var(--oxide)}
+.tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
 
-.prov{margin-top:15px;padding-top:14px;border-top:1px solid var(--line);display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(178px,1fr));gap:13px;font-family:var(--data);font-size:12px}
-.prov dt{color:var(--dim);font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;margin-bottom:3px}
-.prov dd{color:var(--muted);line-height:1.5}
-.prov dd.none{color:var(--alert)}
-.why{margin-top:13px;font-size:13px;color:var(--alert);font-family:var(--body);
-  padding-left:12px;border-left:2px solid var(--alert)}
+/* provenance badge — shape + text, never colour alone */
+.pb{display:inline-flex;align-items:center;gap:6px;font-family:var(--data);font-size:10.5px;
+  letter-spacing:.05em;padding:3px 9px;border-radius:5px;white-space:nowrap}
+.pb.human{border:1px solid var(--verdigris);color:var(--verdigris);background:var(--verdigris-soft);border-radius:3px}
+.pb.machine{border:1px dashed var(--ochre);color:var(--ochre);background:var(--ochre-soft);border-radius:3px}
+.pb.draft{border:1px dotted var(--dim);color:var(--dim);border-radius:3px}
+.pb .ic{font-size:11px;line-height:1}
+.sev{display:inline-flex;align-items:center;gap:6px;font-family:var(--data);font-size:10.5px;
+  letter-spacing:.05em;text-transform:uppercase;padding:3px 9px;border-radius:5px;white-space:nowrap}
+.sev.v{border:1px solid var(--oxide);color:var(--oxide);background:var(--oxide-soft);border-radius:3px;font-weight:500}
+.sev.w{border:1px solid var(--ochre);color:var(--ochre);background:var(--ochre-soft);border-radius:3px;font-weight:500}
 
 /* ---------- requirements ---------- */
-.req{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:17px 19px;margin-top:11px;
-  display:flex;gap:17px;align-items:flex-start;flex-wrap:wrap}
-.req.flag{border-color:var(--alert)}
-.req.warn{border-color:var(--warn)}
-.req-main{flex:1;min-width:230px}
+.req{background:var(--raised);border:1px solid var(--rule);border-radius:3px;padding:16px 18px;margin-top:10px;
+  text-align:left;cursor:pointer;width:100%;font-family:var(--body);color:var(--ink);
+  display:flex;gap:15px;align-items:flex-start;flex-wrap:wrap}
+.req:hover{border-color:var(--rule2)}
+.req[aria-pressed=true]{border-color:var(--seal);box-shadow:inset 0 0 0 1px var(--seal)}
+.req.flag{border-left:3px solid var(--oxide)}
+.req.warn{border-left:3px solid var(--ochre)}
+.req-main{flex:1;min-width:210px}
 .req-title{font-family:var(--display);font-size:15px;font-weight:500}
-.cite{font-family:var(--data);font-size:12.5px;color:var(--lime);margin-top:5px}
-.cite.missing{color:var(--alert)}
-.dates{font-family:var(--data);font-size:11.5px;color:var(--dim);white-space:nowrap;padding-top:3px}
-.chip{font-family:var(--data);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:5px;white-space:nowrap}
-.chip.v{background:rgba(255,107,122,.13);color:var(--alert);border:1px solid rgba(255,107,122,.35)}
-.chip.w{background:rgba(255,184,77,.11);color:var(--warn);border:1px solid rgba(255,184,77,.32)}
+.cite{font-family:var(--data);font-size:12px;color:var(--seal);margin-top:5px}
+.cite.missing{color:var(--oxide)}
+.dates{font-family:var(--data);font-size:11px;color:var(--dim);white-space:nowrap;padding-top:3px}
+
+/* ---------- table view ---------- */
+.tblwrap{margin-top:18px}
+.tblwrap[hidden]{display:none}
+table{width:100%;border-collapse:collapse;font-size:13px}
+caption{text-align:left;font-family:var(--data);font-size:11.5px;color:var(--dim);padding-bottom:10px}
+th,td{text-align:left;padding:9px 11px;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font-family:var(--data);font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--dim);font-weight:400}
+td{color:var(--muted)}
+td.k{font-family:var(--data);font-size:12px;color:var(--ink)}
+.tbtn{background:var(--raised);border:1px solid var(--rule2);color:var(--muted);font-family:var(--data);
+  font-size:11.5px;padding:7px 13px;border-radius:3px;cursor:pointer;margin-top:16px}
+.tbtn:hover{color:var(--ink);border-color:var(--seal)}
+
+/* ---------- inspector ---------- */
+aside{position:sticky;top:var(--hdr);height:calc(100vh - var(--hdr));overflow-y:auto;
+  border-left:1px solid var(--rule);padding:22px 20px 50px;background:var(--sunk)}
+.ihead{font-family:var(--data);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);
+  padding-bottom:11px;border-bottom:1px solid var(--rule2);margin-bottom:16px}
+.ikind{font-family:var(--data);font-size:10.5px;letter-spacing:.07em;color:var(--violet);
+  background:var(--violet-soft);border:1px solid #D8CDEE;border-radius:3px;padding:3px 9px;display:inline-block;margin-bottom:10px}
+.ititle{font-family:var(--display);font-size:18px;font-weight:500;line-height:1.3;margin-bottom:14px}
+.ifield{padding:11px 0;border-top:1px solid var(--rule)}
+.ifield dt{font-family:var(--data);font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--dim);margin-bottom:4px}
+.ifield dd{font-size:13.5px;color:var(--muted);line-height:1.55}
+.ifield dd.mono{font-family:var(--data);font-size:12px}
+.ifield dd.none{color:var(--oxide);font-family:var(--data);font-size:12px}
+.ifield dd.good{color:var(--verdigris);font-family:var(--data);font-size:12px}
+.iwhy{margin-top:14px;padding:12px 14px;border-left:2px solid var(--oxide);background:var(--oxide-soft);font-size:13.5px;line-height:1.55}
+.iwhy.warn{border-left-color:var(--ochre);background:var(--ochre-soft)}
+.iempty{color:var(--dim);font-size:13.5px;line-height:1.65}
+.lineage{font-family:var(--data);font-size:11.5px;color:var(--muted);line-height:2}
+.lineage span{color:var(--dim)}
+
+/* ---------- couverture ---------- */
+.covbar{display:flex;gap:26px;flex-wrap:wrap;margin-top:20px;padding:15px 18px;
+  background:var(--raised);border:1px solid var(--rule);border-radius:3px}
+.covbar div{font-family:var(--data);font-size:11.5px;color:var(--dim)}
+.covbar b{display:block;font-size:19px;font-weight:500;color:var(--ink);margin-bottom:2px}
+.covbar .gap b{color:var(--ochre)}
+.covbar .unrev b{color:var(--oxide)}
+.cov{background:var(--raised);border:1px solid var(--rule);border-radius:3px;padding:16px 18px;margin-top:10px;
+  text-align:left;cursor:pointer;width:100%;font-family:var(--body);color:var(--ink);
+  border-left:3px solid var(--violet)}
+.cov:hover{border-color:var(--rule2)}
+.cov[aria-pressed=true]{background:var(--violet-soft);border-color:var(--violet)}
+.cov.flag{border-left-color:var(--oxide)}
+.cov .link{display:flex;align-items:center;gap:11px;flex-wrap:wrap;font-family:var(--display);font-size:14.5px}
+.cov .doc{color:var(--muted)}
+.deg{font-family:var(--data);font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;
+  padding:3px 9px;border-radius:3px;background:var(--violet-soft);color:var(--violet);
+  border:1px solid #D8CDEE;white-space:nowrap}
+.cov.flag .deg{color:var(--oxide);background:var(--oxide-soft);border-color:#E4C3BD}
+.gap{background:var(--ochre-soft);border:1px solid #E8D5AC;border-left:3px solid var(--ochre);
+  border-radius:3px;padding:14px 17px;margin-top:10px}
+.gap .g-title{font-family:var(--display);font-size:14.5px;font-weight:500;color:var(--ink)}
+.gap .g-cite{font-family:var(--data);font-size:12px;color:var(--ochre);margin-top:4px}
+.gap .g-why{font-size:13px;color:var(--muted);margin-top:8px;line-height:1.55}
+
+/* ---------- editorial ---------- */
+.ed{max-width:68ch;margin-top:16px}
+.ed p{color:var(--ink);font-family:var(--serif);font-size:16.5px;line-height:1.66;margin-bottom:14px}
+.ed p:last-child{margin-bottom:0}
+.ed strong{color:var(--ink);font-weight:500}
+.lede{font-family:var(--serif);font-size:16px;line-height:1.6;color:var(--muted)}
+.pull{border-left:2px solid var(--violet);padding:4px 0 4px 16px;margin:18px 0;
+  font-family:var(--serif);font-style:italic;font-size:18px;line-height:1.5;color:var(--ink);max-width:54ch}
+.stakes{background:var(--violet-soft);border:1px solid #D8CDEE;border-radius:3px;padding:17px 19px;margin-top:20px}
+.stakes h4{font-family:var(--display);font-size:13px;font-weight:500;margin-bottom:8px;color:var(--violet);letter-spacing:.02em}
+.stakes p{font-size:13.5px;color:var(--muted);margin:0}
+.snote{font-size:13.5px;color:var(--muted);max-width:68ch;margin-top:10px}
+
+/* ---------- export ---------- */
+.expbar{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-top:22px;
+  padding-top:16px;border-top:1px solid var(--rule)}
+.expbar .lbl{font-family:var(--data);font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--dim);margin-right:4px}
+.ebtn{background:var(--raised);border:1px solid var(--rule2);color:var(--muted);font-family:var(--data);
+  font-size:11.5px;padding:7px 13px;border-radius:3px;cursor:pointer}
+.ebtn:hover{color:var(--ink);border-color:var(--seal);background:#fff}
+.expnote{font-size:12.5px;color:var(--dim);margin-top:10px;max-width:64ch;line-height:1.6}
 
 /* ---------- footer ---------- */
-footer{padding:34px 0 46px;font-family:var(--data);font-size:11.5px;color:var(--dim);line-height:1.85}
+footer{grid-column:1 / -1;border-top:1px solid var(--rule2);padding:26px 30px 42px;background:var(--sunk);
+  font-family:var(--data);font-size:11.5px;color:var(--dim);line-height:1.9}
 footer a{color:var(--muted)}
-footer .rights{margin-top:11px}
+footer .rights{margin-top:10px}
 
-@media (prefers-reduced-motion:reduce){*{transition:none!important}}
-@media (max-width:640px){.wrap{padding:0 18px}.hero{padding:36px 0 28px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto}}
+@media (max-width:1180px){
+  :root{--nav:200px;--insp:300px}
+}
+@media (max-width:960px){
+  .shell{grid-template-columns:1fr}
+  nav,aside{position:static;height:auto;border:0;border-bottom:1px solid var(--line)}
+  nav{padding:16px 20px}
+  aside{background:none;border-top:1px solid var(--line);padding:22px 20px 40px}
+  main{padding:24px 20px 40px}
+  header{position:static}
+  .shell{padding-top:0}
+  section{scroll-margin-top:16px}
+}
 </style>
 </head>
 <body>
 
+<a class="skip" href="#main" data-i18n="skip">Passer au contenu</a>
+
 <header>
-  <div class="wrap bar">
-    <img class="mark" src="logo.png" alt="AgenticX5">
-    <div class="brand">
-      <h1 data-i18n="brand">Explorateur d'ontologie de conformité</h1>
-      <p>ax5-compliance-ontology · v0.2.0</p>
-    </div>
-    <div class="lang" role="group" aria-label="Langue / Language">
-      <button id="fr" aria-pressed="true" onclick="setLang('fr')">FR</button>
-      <button id="en" aria-pressed="false" onclick="setLang('en')">EN</button>
-    </div>
+  <img class="mark" src="logo.png" alt="AgenticX5">
+  <div class="brand">
+    <h1 data-i18n="brand">Explorateur d'ontologie de conformité</h1>
+    <p>ax5-compliance-ontology · v0.3.0</p>
+  </div>
+  <div class="hstat" aria-live="polite">
+    <span><b class="v" id="nv">6</b> <span data-i18n="tViol">violations</span></span>
+    <span><b class="w" id="nw">1</b> <span data-i18n="tWarn">avertissement</span></span>
+  </div>
+  <div class="lang" role="group" aria-label="Langue / Language">
+    <button id="fr" aria-pressed="true" onclick="setLang('fr')">FR</button>
+    <button id="en" aria-pressed="false" onclick="setLang('en')">EN</button>
   </div>
 </header>
 
-<div class="wrap">
+<div class="shell">
 
-  <div class="hero">
-    <h2 data-i18n="heroTitle"></h2>
-    <p data-i18n="heroBody"></p>
-    <div class="tally">
-      <div><b>4</b><span data-i18n="tJur">juridictions</span></div>
-      <div><b>8</b><span data-i18n="tCpt">concepts locaux</span></div>
-      <div><b>6</b><span data-i18n="tMap">correspondances</span></div>
-      <div class="bad"><b>6</b><span data-i18n="tViol">violations</span></div>
-      <div class="mid"><b>1</b><span data-i18n="tWarn">avertissement</span></div>
-    </div>
-  </div>
+  <nav aria-label="Navigation">
+    <div class="ngroup" data-i18n="nTerms">Termes métier</div>
+    <div id="picker" role="group"></div>
+    <div class="ngroup" data-i18n="nViews">Vues</div>
+    <a class="sec" href="#s-open" data-i18n="nOpen">Le problème</a>
+    <a class="sec" href="#s-concepts" data-i18n="h1">Définitions</a>
+    <a class="sec" href="#s-maps" data-i18n="h2">Correspondances</a>
+    <a class="sec" href="#s-reqs" data-i18n="h3">Exigences</a>
+    <a class="sec" href="#s-cov" data-i18n="h4">Couverture</a>
+    <a class="sec" href="#s-lex" data-i18n="lexTitle">Comprendre le modèle</a>
+  </nav>
 
-  <div class="lex">
-    <details>
-      <summary>
-        <span class="caret">▸</span>
-        <span data-i18n="lexTitle">Comprendre le modèle</span>
-        <span class="hint" data-i18n="lexHint">six mots, en langage SST</span>
-      </summary>
-      <div class="terms" id="terms"></div>
-      <div class="rule" data-i18n="lexRule"></div>
-    </details>
-  </div>
+  <main id="main">
 
-  <section>
-    <div class="eyebrow" data-i18n="eb1">Point de départ</div>
-    <h3 data-i18n="h1"></h3>
-    <p class="lede" data-i18n="l1"></p>
-    <div class="picker" id="picker" role="group"></div>
-    <div class="grid" id="cards"></div>
-  </section>
+    <section class="intro">
+      <h2 data-i18n="heroTitle"></h2>
+      <p class="lede" data-i18n="heroBody"></p>
 
-  <section>
-    <div class="eyebrow" data-i18n="eb2">Correspondances</div>
-    <h3 data-i18n="h2"></h3>
-    <p class="lede" data-i18n="l2"></p>
-    <div id="bridges"></div>
-  </section>
+      <div class="legend">
+        <h3 data-i18n="lgTitle"></h3>
+        <p data-i18n="lgBody"></p>
+        <svg viewBox="0 0 660 190" role="img" aria-labelledby="lgt lgd">
+          <title id="lgt" data-i18n="lgSvgT"></title>
+          <desc id="lgd" data-i18n="lgSvgD"></desc>
+          <text id="lg1" x="0" y="16" font-family="JetBrains Mono, monospace" font-size="11" fill="#7C8189"></text>
+          <circle cx="70" cy="52" r="26" fill="#F7F6F2" stroke="#4E535B" stroke-width="1"/>
+          <text x="70" y="56" text-anchor="middle" font-family="Inter, sans-serif" font-size="11" fill="#1B1E24">QC</text>
+          <line x1="98" y1="52" x2="272" y2="52" stroke="#7C8189" stroke-width="1"/>
+          <text x="185" y="44" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#7C8189">closeMatch</text>
+          <circle cx="300" cy="52" r="26" fill="#F7F6F2" stroke="#4E535B" stroke-width="1"/>
+          <text x="300" y="56" text-anchor="middle" font-family="Inter, sans-serif" font-size="11" fill="#1B1E24">US</text>
+          <text id="lg1b" x="348" y="56" font-family="Inter, sans-serif" font-size="12" fill="#7C8189"></text>
 
-  <section>
-    <div class="eyebrow" data-i18n="eb3">Exigences</div>
-    <h3 data-i18n="h3"></h3>
-    <p class="lede" data-i18n="l3"></p>
-    <div id="reqs"></div>
-  </section>
+          <text id="lg2" x="0" y="116" font-family="JetBrains Mono, monospace" font-size="11" fill="#5E3FA6"></text>
+          <circle cx="70" cy="152" r="26" fill="#F7F6F2" stroke="#4E535B" stroke-width="1"/>
+          <text x="70" y="156" text-anchor="middle" font-family="Inter, sans-serif" font-size="11" fill="#1B1E24">QC</text>
+          <line x1="98" y1="152" x2="150" y2="152" stroke="#4E535B" stroke-width="1"/>
+          <rect x="150" y="128" width="120" height="48" rx="3" fill="#EDE7F8" stroke="#5E3FA6" stroke-width="1.5"/>
+          <text x="210" y="146" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#5E3FA6">MAP-001</text>
+          <text x="210" y="162" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#4E535B">0,72 · M.D.</text>
+          <line x1="270" y1="152" x2="274" y2="152" stroke="#4E535B" stroke-width="1"/>
+          <circle cx="300" cy="152" r="26" fill="#F7F6F2" stroke="#4E535B" stroke-width="1"/>
+          <text x="300" y="156" text-anchor="middle" font-family="Inter, sans-serif" font-size="11" fill="#1B1E24">US</text>
+          <text id="lg2b" x="348" y="156" font-family="Inter, sans-serif" font-size="12" fill="#4E535B"></text>
+        </svg>
+        <div class="lgd">
+          <span><i class="sw round"></i><span data-i18n="lgL1">Concept</span></span>
+          <span><i class="sw card"></i><span data-i18n="lgL2">Correspondance</span></span>
+          <span><i class="sw rect"></i><span data-i18n="lgL3">Exigence</span></span>
+          <span>✓ <span data-i18n="lgL4">revue humaine</span></span>
+          <span>◌ <span data-i18n="lgL5">proposé par machine</span></span>
+        </div>
+      </div>
+    </section>
+
+    <section id="s-open">
+      <div class="eyebrow" data-i18n="ebOpen"></div>
+      <h2 data-i18n="opTitle"></h2>
+      <div class="ed" data-i18n="opBody"></div>
+      <div class="pull" data-i18n="opPull"></div>
+      <div class="ed" data-i18n="opBody2"></div>
+      <div class="stakes">
+        <h4 data-i18n="opStakeT"></h4>
+        <p data-i18n="opStakeB"></p>
+      </div>
+    </section>
+
+    <section id="s-concepts">
+      <div class="eyebrow" data-i18n="eb1"></div>
+      <h2 data-i18n="h1"></h2>
+      <p class="lede" data-i18n="l1"></p>
+      <div class="ed" data-i18n="e1"></div>
+      <div class="grid" id="cards"></div>
+    </section>
+
+    <section id="s-maps">
+      <div class="eyebrow" data-i18n="eb2"></div>
+      <h2 data-i18n="h2"></h2>
+      <p class="lede" data-i18n="l2"></p>
+      <div class="ed" data-i18n="e2"></div>
+      <div id="bridges"></div>
+      <button class="tbtn" id="tgl" aria-expanded="false" aria-controls="mtable" onclick="toggleTable()"></button>
+      <div class="tblwrap" id="mtable" hidden></div>
+      <div class="expbar">
+        <span class="lbl" data-i18n="expLbl"></span>
+        <button class="ebtn" onclick="exportData('json')" data-i18n="expJson"></button>
+        <button class="ebtn" onclick="exportData('ttl')" data-i18n="expTtl"></button>
+        <button class="ebtn" onclick="exportData('csv')" data-i18n="expCsv"></button>
+      </div>
+      <p class="expnote" data-i18n="expNote"></p>
+    </section>
+
+    <section id="s-reqs">
+      <div class="eyebrow" data-i18n="eb3"></div>
+      <h2 data-i18n="h3"></h2>
+      <p class="lede" data-i18n="l3"></p>
+      <div class="ed" data-i18n="e3"></div>
+      <div id="reqs"></div>
+    </section>
+
+    <section id="s-cov">
+      <div class="eyebrow" data-i18n="eb4"></div>
+      <h2 data-i18n="h4"></h2>
+      <p class="lede" data-i18n="l4"></p>
+      <div class="ed" data-i18n="e4"></div>
+      <div class="covbar" id="covbar"></div>
+      <div id="covs"></div>
+    </section>
+
+    <section id="s-lex">
+      <div class="eyebrow" data-i18n="ebLex">Lexique</div>
+      <h2 data-i18n="lexTitle"></h2>
+      <p class="lede" data-i18n="lexHint"></p>
+      <div class="grid" id="terms"></div>
+      <div class="legend" style="margin-top:18px"><p style="margin:0" data-i18n="lexRule"></p></div>
+    </section>
+
+  </main>
+
+  <aside aria-label="Inspecteur" aria-live="polite">
+    <div class="ihead" data-i18n="iHead">Inspecteur</div>
+    <div id="insp"></div>
+  </aside>
 
   <footer>
     <div data-i18n="foot"></div>
-    <div class="rights">
-      © 2026 AgenticX5 · Mario Deshaies. <span data-i18n="rights"></span>
-    </div>
-    <div><span data-i18n="lic"></span> · MIT</div>
+    <div class="rights">© 2026 AgenticX5 · Mario Deshaies. <span data-i18n="rights"></span></div>
+    <div><span data-i18n="lic"></span> · MIT · <a href="https://github.com/Preventera/ax5-compliance-ontology">GitHub</a></div>
   </footer>
 
 </div>
@@ -217,21 +414,80 @@ footer .rights{margin-top:11px}
 <script>
 const T = {
  fr:{
+  skip:'Passer au contenu',
   brand:"Explorateur d'ontologie de conformité",
   heroTitle:'Le même mot, <em>quatre</em> obligations différentes.',
-  heroBody:"« Espace clos » ne veut pas dire la même chose au Québec, chez OSHA et au Royaume-Uni. Ce modèle refuse de les fusionner : chaque définition reste dans son régime, et le rapport entre elles est une fiche auditable.",
-  tJur:'juridictions', tCpt:'concepts locaux', tMap:'correspondances', tViol:'violations', tWarn:'avertissement',
-  eb1:'Point de départ', eb2:'Correspondances', eb3:'Exigences',
-  h1:'Choisir un terme métier',
-  l1:"L'ancre est une entrée d'index, sans force légale. La réponse est toujours dans un concept juridictionnel — celui qui porte le seuil et l'obligation.",
+  heroBody:"« Espace clos » ne veut pas dire la même chose au Québec, chez OSHA et au Royaume-Uni. Ce modèle refuse de les fusionner : chaque définition reste dans son régime, et le rapport entre elles est une fiche auditable. Sélectionnez un élément pour ouvrir sa fiche dans l'inspecteur, à droite.",
+  tViol:'violations', tWarn:'avertissement',
+  nTerms:'Termes métier', nViews:'Vues',
+  lgTitle:'Un trait, ou une fiche',
+  lgBody:"La plupart des modèles relient deux concepts par un trait. Un trait dit seulement que A est relié à B : il ne porte ni preuve, ni auteur, ni date, et il ne s'audite pas. Ici, la correspondance est une fiche.",
+  lgSvgT:'Comparaison entre un trait et une fiche de correspondance',
+  lgSvgD:"En haut, deux concepts reliés par un trait portant seulement une étiquette. En bas, les deux mêmes concepts reliés par une fiche rectangulaire qui porte un identifiant, un niveau de confiance et un auteur.",
+  lgLine:'LA PLUPART DES MODÈLES', lgRec:'CE MODÈLE',
+  lgLineNote:'Aucune preuve, aucun auteur', lgRecNote:'Preuve, auteur, date, statut',
+  lgL1:'Concept', lgL2:'Correspondance', lgL3:'Exigence', lgL4:'revue humaine', lgL5:'proposé par machine',
+  eb1:'Point de départ', eb2:'Correspondances', eb3:'Exigences', ebLex:'Lexique',
+  h1:'Définitions par régime',
+  l1:"L'ancre est une entrée d'index, sans force légale. La réponse est toujours dans un concept juridictionnel — celui qui porte le seuil et l'obligation. Aucune définition n'est « la bonne » : chacune s'applique dans son régime.",
   h2:'Ce qui relie les régimes',
-  l2:"Une correspondance n'est pas un trait entre deux cases. Elle porte un degré d'équivalence, un niveau de confiance, une base et un auteur. Quand une réponse est contestée, c'est cette fiche qu'on ouvre.",
+  l2:"Chaque correspondance porte un degré d'équivalence, une confiance, une base et un auteur. Quand une réponse est contestée, c'est cette fiche qu'on ouvre.",
   h3:'Ce que les textes exigent',
   l3:"Une obligation sans référence d'article est invérifiable. Une obligation sans danger rattaché est seulement incomplète — d'où l'avertissement plutôt que le blocage.",
   foot:"Vue en lecture seule. Les données proviennent de data/instances.ttl; les verdicts de conformité proviennent des contraintes SHACL de shapes/ax5-shapes.ttl. Aucune saisie, aucune décision automatisée : la décision SST reste humaine.",
   rights:'Tous droits réservés.', lic:'Code publié sous licence',
-  lexTitle:'Comprendre le modèle', lexHint:'six mots, en langage SST',
+  lexTitle:'Comprendre le modèle', lexHint:"Huit mots, traduits en langage SST. Vous connaissez déjà les huit concepts — ce sont les noms qui sont étrangers.",
   lexRule:"<b>La règle qui tient tout :</b> dès qu'une relation porte ses propres attributs et son propre cycle de vie, ce n'est plus un trait entre deux cases — c'est une fiche. Un trait ne s'audite pas.",
+  iHead:'Inspecteur',
+  iEmpty:"Sélectionnez une définition, une correspondance ou une exigence pour voir sa fiche complète : définition applicable, provenance, validation et lignage.",
+  showTbl:'Afficher la représentation tabulaire', hideTbl:'Masquer la représentation tabulaire',
+  tblCap:'Correspondances de l\'ancre sélectionnée, avec provenance et statut de validation.',
+  cSrc:'Concept source', cRel:'Équivalence', cTgt:'Concept cible', cConf:'Confiance',
+  cProv:'Provenance', cAuth:'Auteur', cStat:'Validation',
+  kConcept:'Concept juridictionnel', kMap:'Fiche de correspondance', kReq:'Exigence', kTerm:'Terme du modèle',
+  noThresh:'non spécifié', threshold:'Seuil', unit:'Unité', jur:'Juridiction',
+  pBasis:'Base documentée', pAuthor:'Attribué à', pStatus:'Statut de revue', pDate:'Saisi le',
+  pRel:'Degré d\'équivalence', pConf:'Niveau de confiance',
+  missing:'absent', noCite:'aucune citation', citation:'Référence',
+  from:'En vigueur depuis', until:"Jusqu'au", lineage:'Lignage', validation:'Validation',
+  vOk:'Aucune violation', wLbl:'Avertissement', vLbl:'Violation',
+  bHuman:'revue humaine', bMachine:'proposé par machine', bDraft:'brouillon',
+  vNoScope:"Concept juridictionnel sans juridiction : aucun seuil, aucune obligation, aucun article. Inutilisable par un agent.",
+  vExact:"Équivalence exacte affirmée sous le seuil de 0,95. exactMatch autorise un agent à substituer un concept à l'autre sans prévenir — sur preuve faible, c'est ainsi qu'on produit une réponse fluide et fausse.",
+  vIntra:"Les deux concepts relèvent du même régime. Une correspondance traverse des juridictions par définition : ici, il n'y a rien à traduire.",
+  vProv:"Sans base ni auteur, l'affirmation n'est pas auditable. La provenance n'est pas optionnelle.",
+  vCite:"Exigence sans référence d'article. Une réponse de conformité que personne ne peut vérifier est inutilisable, même si elle est juste.",
+  wHaz:"Aucun danger rattaché. Toléré : ISO 45001 §5.4 est une exigence de système de gestion, elle ne vise légitimement aucun danger unique. Bloquer rejetterait de la donnée valide.",
+  nOpen:'Le problème', ebOpen:'Gouvernance sémantique',
+  opTitle:'Pourquoi le vocabulaire est un enjeu de conformité',
+  opBody:"<p>Une entreprise québécoise ouvre une usine au Texas. Son conseiller SST doit répondre à une question simple : <strong>nos procédures d'espace clos sont-elles conformes là-bas ?</strong></p><p>La réponse n'est pas simple, parce que le mot ne désigne pas la même chose. Au Québec, un espace clos se définit par l'enceinte et l'occupation non continue. Chez OSHA, la catégorie qui déclenche les obligations lourdes ajoute un critère de permis. Une procédure parfaitement conforme au Québec peut laisser un travailleur entrer sans permis dans un espace qui en exige un aux États-Unis.</p><p>Le réflexe habituel est de créer une définition maison qui couvre les deux. C'est le piège : la définition fusionnée n'a d'autorité nulle part, et l'écart entre les régimes — la seule information qui comptait — a disparu.</p>",
+  opPull:"Un système qui fusionne les définitions produit des réponses fluides et fausses. Il a l'air de fonctionner jusqu'au jour où un inspecteur demande sur quoi vous vous appuyiez.",
+  opBody2:"<p>Ce modèle prend le parti inverse. Chaque définition reste dans son régime, avec son seuil et son article. Le rapport entre deux définitions devient un objet à part entière : une fiche qui dit à quel point elles sont équivalentes, sur quelle base, et qui l'affirme.</p><p>Ce n'est pas une subtilité théorique. C'est ce qui distingue un système qu'on peut défendre en audit d'un système qui produit des réponses invérifiables.</p>",
+  opStakeT:'Ce que ça change pour un agent',
+  opStakeB:"Un agent qui répond à partir d'un concept fusionné ne peut pas signaler qu'il approxime. Un agent qui lit une fiche de correspondance voit le degré d'équivalence et le niveau de confiance — il peut dire « proche, mais les seuils diffèrent » au lieu d'affirmer une équivalence qui n'existe pas.",
+
+  e1:"<p>Les quatre définitions ci-dessous ne sont pas quatre versions d'une même chose. Chacune est une norme applicable dans son territoire, adoptée par une autorité distincte, avec son propre seuil de déclenchement.</p><p>Sur « lésion enregistrable », l'écart est chiffré : le Québec compte un jour d'absence, OSHA compte un soin médical au-delà des premiers soins. Un travailleur soigné et remis au travail le jour même est enregistrable aux États-Unis et ne l'est pas au Québec. Comparer les statistiques des deux sites sans le savoir mène à des conclusions fausses.</p>",
+
+  e2:"<p>Une correspondance est une affirmation, et toute affirmation en conformité doit pouvoir être défendue. C'est pourquoi chaque fiche porte sa base documentaire, son auteur et son statut de revue.</p><p>Le degré d'équivalence n'est pas décoratif. <strong>exactMatch</strong> autorise un agent à substituer un concept à l'autre sans avertir l'utilisateur — c'est une permission, pas une description. Sur une preuve faible, elle produit exactement le type d'erreur qu'on ne détecte qu'après coup. La contrainte exige donc au moins 0,95 de confiance pour ce degré-là.</p>",
+
+  e3:"<p>Une obligation sans référence d'article est invérifiable. En audit, un conseiller SST qui affirme une exigence sans pouvoir pointer le texte perd sa crédibilité en une phrase — et un agent aussi.</p><p>Les deux axes de dates ne sont pas redondants. Après un accident, l'enquêteur ne demande pas seulement quelle règle était en vigueur : il demande <strong>ce que l'employeur savait à ce moment-là</strong>. Un modèle qui ne garde qu'une date ne peut pas répondre à la seconde question.</p>",
+
+  expLbl:'Exporter', expJson:'JSON', expTtl:'Turtle', expCsv:'CSV',
+  expNote:"L'export emporte la sélection courante avec sa provenance intacte — base, auteur, statut de revue et date. Cet outil ne conserve rien : aucune donnée n'est enregistrée dans votre navigateur ni sur un serveur. Un registre de décisions de conformité exige une gouvernance réelle — auteur vérifiable, horodatage fiable, revue — et cela appartient à votre système, pas à une page de consultation.",
+
+  nCov:'Couverture', eb4:'Couverture', h4:'Ce qui n\'est couvert par rien',
+  l4:"Une procédure ne satisfait pas une obligation. Quelqu'un affirme qu'elle la satisfait — et cette affirmation a un auteur, une base et une date.",
+  e4:"<p>C'est la bascule qui rend la question possible. Un lien entre une procédure et un article ne peut pas être faux. Une <strong>revendication</strong> le peut : elle peut être trop optimiste, périmée, ou n'avoir jamais été revue.</p><p>De là découle la question qu'aucun système de gestion ne peut poser : <strong>quelles obligations ne sont couvertes par rien?</strong> Un SGSST liste les procédures qui existent. Il ne peut pas lister celles qui manquent, parce qu'il n'a aucun modèle de ce qui devrait exister — il ne connaît que ce qu'on lui a saisi.</p>",
+  cTotal:'obligations', cCouv:'couvertes', cGap:'sans couverture', cUnrev:'non revues',
+  kCov:'Fiche de couverture', kGap:'Trou de couverture',
+  covers:'couvre', by:'par',
+  gapWhy:"Aucun document interne ne prétend mettre en oeuvre cette obligation. Ce n'est pas une erreur de donnée : l'obligation est correctement encodée. C'est le référentiel qui est incomplet — et c'est l'information utile.",
+  pDegre:'Degré de couverture', pDoc:'Document', pObl:'Obligation',
+  degComplete:'complete', degPartielle:'partielle',
+  vUnrev:"Couverture déclarée complète sans revue humaine. « complete » autorise un agent à considérer l'obligation comme satisfaite et à cesser de la signaler. Sur un jugement automatique, c'est ainsi qu'on déclare conforme ce qui ne l'est pas.",
+  vRegime:"Le document s'applique sur un site d'un autre régime que l'obligation. Une procédure de Bromont ne couvre pas un article d'OSHA, même si elle traite du même sujet.",
+
+  anchors:{cs:'Espace clos',ri:'Lésion enregistrable',ei:'Isolation des énergies',pr:'Risque psychosocial'},
   terms:[
    {code:'Jurisdiction', plain:'Le régime qui fait autorité',
     text:"Québec sous la CNESST, les États-Unis sous OSHA, le Royaume-Uni sous la HSE. Un régime a autorité sur le sens des termes à l'intérieur de son territoire, et nulle part ailleurs.",
@@ -241,52 +497,99 @@ const T = {
     ex:'RSST · 29 CFR 1910 · ISO 45001'},
    {code:'Requirement', plain:"L'article précis",
     text:"L'obligation nommée, avec sa référence exacte. Un conseiller SST qui affirme une obligation sans pouvoir pointer l'article se fait démolir en audit. Un agent aussi — d'où la citation obligatoire.",
-    ex:'RSST, art. 302 — test atmosphérique avant l\'entrée'},
+    ex:'RSST, art. 302 — test atmosphérique'},
    {code:'JurisdictionalConcept', plain:'Le terme, tel que ce régime le définit',
-    text:"« Espace clos » au sens du Québec est une fiche; « confined space » au sens d'OSHA en est une autre. Les définitions et les seuils diffèrent. On ne les fusionne jamais : fusionner détruit la spécificité légale, la seule chose qu'une réponse de conformité doit préserver.",
-    ex:'Lésion déclarable (QC) : 1 jour d\'absence — Recordable case (US) : soin médical'},
+    text:"« Espace clos » au sens du Québec est une fiche; « confined space » au sens d'OSHA en est une autre. Les seuils diffèrent. On ne les fusionne jamais : fusionner détruit la spécificité légale.",
+    ex:'QC : 1 jour d\'absence — US : soin médical'},
    {code:'AnchorConcept', plain:"L'entrée d'index",
-    text:"Le terme du langage commun, sans force légale. Il sert à retrouver les quatre versions juridictionnelles. Ce n'est jamais une réponse — la réponse est toujours dans un concept juridictionnel.",
+    text:"Le terme du langage commun, sans force légale. Il sert à retrouver les quatre versions juridictionnelles. Ce n'est jamais une réponse.",
     ex:'« Espace clos », l\'idée générale'},
    {code:'ConceptMapping', plain:'La fiche de correspondance',
-    text:"Ce qu'un conseiller SST écrit à la main quand une entreprise s'implante aux États-Unis : « au Québec on dit ceci, chez OSHA on dit cela, c'est proche mais pas identique ». Elle porte quatre choses — à quel point c'est équivalent, à quel point on en est sûr, sur quelle base, et qui signe.",
-    ex:'closeMatch · confiance 0,72 · base documentée · M. Deshaies'},
+    text:"Ce qu'un conseiller SST écrit à la main quand une entreprise s'implante aux États-Unis. Elle porte quatre choses — à quel point c'est équivalent, à quel point on en est sûr, sur quelle base, et qui signe.",
+    ex:'closeMatch · 0,72 · base documentée · M.D.'},
    {code:'validFrom / recordedAt', plain:'Les deux axes du temps',
-    text:"Quand la règle est en vigueur, et quand nous l'avons su. Deux choses différentes. Après un accident, l'enquêteur ne demande pas seulement quelle était la règle : il demande ce que l'employeur savait à ce moment-là.",
-    ex:'En vigueur depuis 2021 · saisi au système en 2026'},
+    text:"Quand la règle est en vigueur, et quand nous l'avons su. Après un accident, l'enquêteur demande aussi ce que l'employeur savait à ce moment-là.",
+    ex:'En vigueur 2021 · saisi 2026'},
    {code:'SHACL', plain:'La checklist avant classement',
-    text:"Les contraintes qui vérifient chaque fiche : champs obligatoires, valeurs cohérentes. Deux niveaux — <b>violation</b> quand la donnée produit une réponse fausse, <b>avertissement</b> quand elle est seulement incomplète.",
-    ex:'Sans citation → violation · sans danger rattaché → avertissement'}
-  ],
-  anchors:{cs:'Espace clos',ri:'Lésion enregistrable',ei:"Isolation des énergies",pr:'Risque psychosocial'},
-  noThresh:'non spécifié', threshold:'Seuil', unit:'Unité', anchor:'Ancre', status:'Revue',
-  pBasis:'Base', pAuthor:'Attribué à', pStatus:'Statut', pDate:'Saisi le',
-  missing:'absent', noCite:'aucune citation',
-  from:'depuis', until:"jusqu'au",
-  vNoScope:"Concept juridictionnel sans juridiction : aucun seuil, aucune obligation, aucun article. Inutilisable par un agent.",
-  vExact:"Équivalence exacte affirmée sous le seuil de 0,95. exactMatch autorise un agent à substituer un concept à l'autre sans prévenir — sur preuve faible, c'est ainsi qu'on produit une réponse fluide et fausse.",
-  vIntra:"Les deux concepts relèvent du même régime. Une correspondance traverse des juridictions par définition : ici, il n'y a rien à traduire.",
-  vProv:"Sans base ni auteur, l'affirmation n'est pas auditable. La provenance n'est pas optionnelle.",
-  vCite:"Exigence sans référence d'article. Une réponse de conformité que personne ne peut vérifier est inutilisable, même si elle est juste.",
-  wHaz:"Aucun danger rattaché. Toléré : ISO 45001 §5.4 est une exigence de système de gestion, elle ne vise légitimement aucun danger unique. Bloquer rejetterait de la donnée valide.",
-  lVio:'Violation', lWarn:'Avertissement'
+    text:"Les contraintes qui vérifient chaque fiche. Deux niveaux — <b>violation</b> quand la donnée produit une réponse fausse, <b>avertissement</b> quand elle est seulement incomplète.",
+    ex:'Sans citation → violation'}
+  ]
  },
  en:{
+  skip:'Skip to content',
   brand:'Compliance ontology explorer',
   heroTitle:'Same word, <em>four</em> different obligations.',
-  heroBody:'"Confined space" does not mean the same thing in Québec, under OSHA, and in the UK. This model refuses to merge them: each definition stays inside its own regime, and the relation between them is an auditable record.',
-  tJur:'jurisdictions', tCpt:'local concepts', tMap:'mappings', tViol:'violations', tWarn:'warning',
-  eb1:'Starting point', eb2:'Mappings', eb3:'Requirements',
-  h1:'Pick a business term',
-  l1:'The anchor is an index entry with no legal force. The answer always sits in a jurisdictional concept — the one carrying the threshold and the obligation.',
+  heroBody:'"Confined space" does not mean the same thing in Québec, under OSHA, and in the UK. This model refuses to merge them: each definition stays inside its own regime, and the relation between them is an auditable record. Select any item to open its record in the inspector on the right.',
+  tViol:'violations', tWarn:'warning',
+  nTerms:'Business terms', nViews:'Views',
+  lgTitle:'A line, or a record',
+  lgBody:'Most models connect two concepts with a line. A line only says that A relates to B: it carries no evidence, no author, no date, and it cannot be audited. Here the mapping is a record.',
+  lgSvgT:'Comparison between a line and a mapping record',
+  lgSvgD:'Top: two concepts joined by a line carrying only a label. Bottom: the same two concepts joined by a rectangular record carrying an identifier, a confidence level and an author.',
+  lgLine:'MOST MODELS', lgRec:'THIS MODEL',
+  lgLineNote:'No evidence, no author', lgRecNote:'Evidence, author, date, status',
+  lgL1:'Concept', lgL2:'Mapping', lgL3:'Requirement', lgL4:'human-reviewed', lgL5:'machine-proposed',
+  eb1:'Starting point', eb2:'Mappings', eb3:'Requirements', ebLex:'Glossary',
+  h1:'Definitions by regime',
+  l1:'The anchor is an index entry with no legal force. The answer always sits in a jurisdictional concept — the one carrying the threshold and the obligation. No definition is "the right one": each applies inside its own regime.',
   h2:'What links the regimes',
-  l2:'A mapping is not a line between two boxes. It carries a degree of equivalence, a confidence level, a basis and an author. When an answer is challenged, this is the record you open.',
+  l2:'Every mapping carries a degree of equivalence, a confidence level, a basis and an author. When an answer is challenged, this is the record you open.',
   h3:'What the instruments require',
   l3:'A requirement without a clause citation cannot be verified. A requirement without a linked hazard is merely incomplete — hence a warning rather than a block.',
   foot:'Read-only view. Data comes from data/instances.ttl; compliance verdicts come from the SHACL constraints in shapes/ax5-shapes.ttl. No data entry, no automated decisions: the OHS decision stays with a human.',
   rights:'All rights reserved.', lic:'Code released under the',
-  lexTitle:'Understanding the model', lexHint:'six words, in OHS language',
-  lexRule:"<b>The rule that holds it together:</b> once a relation carries its own attributes and its own lifecycle, it is no longer a line between two boxes — it is a record. A line cannot be audited.",
+  lexTitle:'Understanding the model', lexHint:'Eight words, translated into OHS language. You already know all eight concepts — it is the names that are foreign.',
+  lexRule:'<b>The rule that holds it together:</b> once a relation carries its own attributes and its own lifecycle, it is no longer a line between two boxes — it is a record. A line cannot be audited.',
+  iHead:'Inspector',
+  iEmpty:'Select a definition, a mapping or a requirement to see its full record: applicable definition, provenance, validation and lineage.',
+  showTbl:'Show tabular representation', hideTbl:'Hide tabular representation',
+  tblCap:'Mappings for the selected anchor, with provenance and validation status.',
+  cSrc:'Source concept', cRel:'Equivalence', cTgt:'Target concept', cConf:'Confidence',
+  cProv:'Provenance', cAuth:'Author', cStat:'Validation',
+  kConcept:'Jurisdictional concept', kMap:'Mapping record', kReq:'Requirement', kTerm:'Model term',
+  noThresh:'not specified', threshold:'Threshold', unit:'Unit', jur:'Jurisdiction',
+  pBasis:'Documented basis', pAuthor:'Attributed to', pStatus:'Review status', pDate:'Recorded',
+  pRel:'Degree of equivalence', pConf:'Confidence level',
+  missing:'missing', noCite:'no citation', citation:'Citation',
+  from:'In force since', until:'Until', lineage:'Lineage', validation:'Validation',
+  vOk:'No violation', wLbl:'Warning', vLbl:'Violation',
+  bHuman:'human-reviewed', bMachine:'machine-proposed', bDraft:'draft',
+  vNoScope:'Jurisdictional concept with no jurisdiction: no threshold, no obligation, no clause. Unusable by an agent.',
+  vExact:'Exact equivalence asserted below the 0.95 threshold. exactMatch lets an agent substitute one concept for the other without warning — on weak evidence, that is how you produce a fluent, wrong answer.',
+  vIntra:'Both concepts sit in the same regime. A mapping crosses jurisdictions by definition: here there is nothing to translate.',
+  vProv:'Without a basis or an author the assertion cannot be audited. Provenance is not optional.',
+  vCite:'Requirement with no clause citation. A compliance answer nobody can verify is unusable, even when it is right.',
+  wHaz:'No linked hazard. Tolerated: ISO 45001 §5.4 is a management-system requirement and legitimately targets no single hazard. Blocking would reject valid data.',
+  nOpen:'The problem', ebOpen:'Semantic governance',
+  opTitle:'Why vocabulary is a compliance problem',
+  opBody:"<p>A Québec company opens a plant in Texas. Its OHS adviser has to answer a simple question: <strong>are our confined-space procedures compliant over there?</strong></p><p>The answer is not simple, because the word does not designate the same thing. In Québec, a confined space is defined by enclosure and non-continuous occupancy. Under OSHA, the category that triggers the heavy obligations adds a permit criterion. A procedure that is perfectly compliant in Québec can let a worker enter without a permit into a space that requires one in the United States.</p><p>The usual reflex is to build an in-house definition covering both. That is the trap: the merged definition has authority nowhere, and the gap between the regimes — the one piece of information that mattered — has disappeared.</p>",
+  opPull:'A system that merges definitions produces fluent, wrong answers. It looks like it works until the day an inspector asks what you relied on.',
+  opBody2:"<p>This model takes the opposite position. Each definition stays inside its own regime, with its threshold and its clause. The relation between two definitions becomes an object in its own right: a record stating how equivalent they are, on what basis, and who asserts it.</p><p>This is not a theoretical subtlety. It is what separates a system you can defend in an audit from a system that produces unverifiable answers.</p>",
+  opStakeT:'What it changes for an agent',
+  opStakeB:'An agent answering from a merged concept cannot flag that it is approximating. An agent reading a mapping record sees the degree of equivalence and the confidence level — it can say "close, but the thresholds differ" instead of asserting an equivalence that does not exist.',
+
+  e1:"<p>The four definitions below are not four versions of one thing. Each is a standard applicable in its territory, adopted by a distinct authority, with its own triggering threshold.</p><p>On \"recordable injury\" the gap is numeric: Québec counts a day away from work, OSHA counts medical treatment beyond first aid. A worker treated and back at work the same day is recordable in the US and is not in Québec. Comparing the two sites' statistics without knowing this leads to false conclusions.</p>",
+
+  e2:"<p>A mapping is an assertion, and every assertion in compliance must be defensible. That is why each record carries its documentary basis, its author and its review status.</p><p>The degree of equivalence is not decorative. <strong>exactMatch</strong> lets an agent substitute one concept for the other without warning the user — it is a permission, not a description. On weak evidence it produces exactly the kind of error you only catch afterwards. The constraint therefore requires at least 0.95 confidence for that degree.</p>",
+
+  e3:"<p>A requirement without a clause citation cannot be verified. In an audit, an OHS adviser who asserts a duty without pointing to the text loses credibility in one sentence — and so does an agent.</p><p>The two date axes are not redundant. After an incident, the investigator does not only ask which rule was in force: they ask <strong>what the employer knew at that moment</strong>. A model keeping only one date cannot answer the second question.</p>",
+
+  expLbl:'Export', expJson:'JSON', expTtl:'Turtle', expCsv:'CSV',
+  expNote:'The export takes the current selection with its provenance intact — basis, author, review status and date. This tool stores nothing: no data is saved in your browser or on a server. A register of compliance decisions requires real governance — verifiable author, reliable timestamp, review — and that belongs in your system, not in a read-only page.',
+
+  nCov:'Coverage', eb4:'Coverage', h4:'What nothing covers',
+  l4:'A procedure does not satisfy an obligation. Someone asserts that it does — and that assertion has an author, a basis and a date.',
+  e4:"<p>This is the switch that makes the question possible. A link between a procedure and a clause cannot be wrong. A <strong>claim</strong> can: it may be too optimistic, out of date, or never reviewed.</p><p>From it follows the question no management system can ask: <strong>which obligations are covered by nothing?</strong> An OHS management system lists the procedures that exist. It cannot list the ones that are missing, because it has no model of what ought to exist — it only knows what was entered into it.</p>",
+  cTotal:'obligations', cCouv:'covered', cGap:'uncovered', cUnrev:'unreviewed',
+  kCov:'Coverage record', kGap:'Coverage gap',
+  covers:'covers', by:'by',
+  gapWhy:'No internal document claims to implement this obligation. This is not a data error: the obligation is correctly encoded. It is the reference set that is incomplete — and that is the useful information.',
+  pDegre:'Degree of coverage', pDoc:'Document', pObl:'Obligation',
+  degComplete:'complete', degPartielle:'partial',
+  vUnrev:'Coverage declared complete without human review. "complete" lets an agent treat the obligation as satisfied and stop flagging it. On an automated judgement, that is how you declare compliant what is not.',
+  vRegime:'The document applies to a site in a different regime than the obligation. A Bromont procedure does not cover an OSHA clause, even when it addresses the same subject.',
+
+  anchors:{cs:'Confined space',ri:'Recordable injury',ei:'Hazardous energy isolation',pr:'Psychosocial risk'},
   terms:[
    {code:'Jurisdiction', plain:'The regime with authority',
     text:'Québec under the CNESST, the United States under OSHA, the UK under the HSE. A regime has authority over what terms mean inside its territory, and nowhere else.',
@@ -295,52 +598,47 @@ const T = {
     text:'The full document. Not a single obligation, but the body that contains it. Each instrument belongs to exactly one regime.',
     ex:'RSST · 29 CFR 1910 · ISO 45001'},
    {code:'Requirement', plain:'The specific clause',
-    text:'The named obligation, with its exact reference. An OHS adviser who asserts a duty without pointing to the clause gets torn apart in an audit. So does an agent — hence the mandatory citation.',
-    ex:'RSST, s. 302 — atmospheric testing before entry'},
+    text:'The named obligation, with its exact reference. An OHS adviser who asserts a duty without pointing to the clause gets torn apart in an audit. So does an agent.',
+    ex:'RSST, s. 302 — atmospheric testing'},
    {code:'JurisdictionalConcept', plain:'The term, as this regime defines it',
-    text:'"Espace clos" in the Québec sense is one record; "confined space" in the OSHA sense is another. Definitions and thresholds differ. We never merge them: merging destroys the legal specificity, which is the one thing a compliance answer must preserve.',
-    ex:'Recordable (QC): 1 day away — Recordable case (US): medical treatment'},
+    text:'"Espace clos" in the Québec sense is one record; "confined space" in the OSHA sense is another. Thresholds differ. We never merge them: merging destroys the legal specificity.',
+    ex:'QC: 1 day away — US: medical treatment'},
    {code:'AnchorConcept', plain:'The index entry',
-    text:'The everyday business term, with no legal force. It exists to find the four jurisdictional versions. It is never an answer — the answer always sits in a jurisdictional concept.',
+    text:'The everyday business term, with no legal force. It exists to find the four jurisdictional versions. It is never an answer.',
     ex:'"Confined space", the general idea'},
    {code:'ConceptMapping', plain:'The correspondence record',
-    text:'What an OHS adviser writes by hand when a company opens a US plant: "in Québec we call it this, under OSHA they call it that, close but not identical." It carries four things — how equivalent, how confident, on what basis, and who signs.',
-    ex:'closeMatch · confidence 0.72 · documented basis · M. Deshaies'},
+    text:'What an OHS adviser writes by hand when a company opens a US plant. It carries four things — how equivalent, how confident, on what basis, and who signs.',
+    ex:'closeMatch · 0.72 · documented basis · M.D.'},
    {code:'validFrom / recordedAt', plain:'The two axes of time',
-    text:'When the rule is in force, and when we came to know it. Two different things. After an incident, the investigator does not only ask what the rule was: they ask what the employer knew at that moment.',
-    ex:'In force since 2021 · recorded in the system in 2026'},
+    text:'When the rule is in force, and when we came to know it. After an incident, the investigator also asks what the employer knew at that moment.',
+    ex:'In force 2021 · recorded 2026'},
    {code:'SHACL', plain:'The checklist before filing',
-    text:'The constraints that check every record: required fields, coherent values. Two levels — <b>violation</b> when the data produces a wrong answer, <b>warning</b> when it is merely incomplete.',
-    ex:'No citation → violation · no linked hazard → warning'}
-  ],
-  anchors:{cs:'Confined space',ri:'Recordable injury',ei:'Hazardous energy isolation',pr:'Psychosocial risk'},
-  noThresh:'not specified', threshold:'Threshold', unit:'Unit', anchor:'Anchor', status:'Review',
-  pBasis:'Basis', pAuthor:'Attributed to', pStatus:'Status', pDate:'Recorded',
-  missing:'missing', noCite:'no citation',
-  from:'from', until:'until',
-  vNoScope:'Jurisdictional concept with no jurisdiction: no threshold, no obligation, no clause. Unusable by an agent.',
-  vExact:'Exact equivalence asserted below the 0.95 threshold. exactMatch lets an agent substitute one concept for the other without warning — on weak evidence, that is how you produce a fluent, wrong answer.',
-  vIntra:'Both concepts sit in the same regime. A mapping crosses jurisdictions by definition: here there is nothing to translate.',
-  vProv:'Without a basis or an author the assertion cannot be audited. Provenance is not optional.',
-  vCite:'Requirement with no clause citation. A compliance answer nobody can verify is unusable, even when it is right.',
-  wHaz:'No linked hazard. Tolerated: ISO 45001 §5.4 is a management-system requirement and legitimately targets no single hazard. Blocking would reject valid data.',
-  lVio:'Violation', lWarn:'Warning'
+    text:'The constraints that check every record. Two levels — <b>violation</b> when the data produces a wrong answer, <b>warning</b> when it is merely incomplete.',
+    ex:'No citation → violation'}
+  ]
  }
 };
 
 const JUR = {QC:'Québec · CNESST', US:'United States · OSHA', UK:'United Kingdom · HSE', INT:'International · ISO'};
 
 const CONCEPTS = [
- {id:'CPT-QC-EspaceClos', anchor:'cs', jur:'QC', label:{fr:'Espace clos',en:'Espace clos'}},
- {id:'CPT-US-PermitRequiredCS', anchor:'cs', jur:'US', label:{fr:'Permit-required confined space',en:'Permit-required confined space'}},
- {id:'CPT-UK-ConfinedSpace', anchor:'cs', jur:'UK', label:{fr:'Confined space',en:'Confined space'}},
+ {id:'CPT-QC-EspaceClos', anchor:'cs', jur:'QC', label:{fr:'Espace clos',en:'Espace clos'},
+  def:{fr:"Espace totalement ou partiellement fermé, non conçu pour être occupé de façon continue, dont l'accès est restreint.",en:'Fully or partly enclosed space, not designed for continuous occupancy, with restricted access.'}},
+ {id:'CPT-US-PermitRequiredCS', anchor:'cs', jur:'US', label:{fr:'Permit-required confined space',en:'Permit-required confined space'},
+  def:{fr:"Espace clos présentant en outre un déclencheur de permis : atmosphère dangereuse, matériau engloutissant, configuration piégeante ou autre danger sérieux.",en:'Confined space that additionally carries a permit trigger: hazardous atmosphere, engulfing material, entrapping configuration or other serious hazard.'}},
+ {id:'CPT-UK-ConfinedSpace', anchor:'cs', jur:'UK', label:{fr:'Confined space',en:'Confined space'},
+  def:{fr:"Espace clos où un risque spécifié est raisonnablement prévisible : asphyxie, noyade, ensevelissement, incendie ou chaleur excessive.",en:'Enclosed space where a specified risk is reasonably foreseeable: asphyxiation, drowning, burial, fire or excessive heat.'}},
  {id:'CPT-ORPHAN-Something', anchor:'cs', jur:null, label:{fr:'Concept orphelin',en:'Orphan concept'}, violation:'vNoScope'},
  {id:'CPT-QC-LesionEnregistrable', anchor:'ri', jur:'QC', label:{fr:'Lésion professionnelle déclarable',en:'Lésion professionnelle déclarable'},
-  threshold:'1', unit:{fr:"jour d'absence du travail",en:'day away from work'}},
+  threshold:'1', unit:{fr:"jour d'absence du travail",en:'day away from work'},
+  def:{fr:"Blessure ou maladie liée au travail entraînant au moins un jour complet d'absence au-delà du jour de l'événement.",en:'Work-related injury or illness causing at least one full day away beyond the day of the event.'}},
  {id:'CPT-US-RecordableCase', anchor:'ri', jur:'US', label:{fr:'OSHA recordable case',en:'OSHA recordable case'},
-  threshold:'0', unit:{fr:'soin médical au-delà des premiers soins',en:'medical treatment beyond first aid'}},
- {id:'CPT-QC-Cadenassage', anchor:'ei', jur:'QC', label:{fr:'Cadenassage',en:'Cadenassage'}},
- {id:'CPT-US-LOTO', anchor:'ei', jur:'US', label:{fr:'Lockout/Tagout',en:'Lockout/Tagout'}}
+  threshold:'0', unit:{fr:'soin médical au-delà des premiers soins',en:'medical treatment beyond first aid'},
+  def:{fr:"Cas exigeant un soin médical au-delà des premiers soins, sans qu'une absence du travail soit nécessaire.",en:'Case requiring medical treatment beyond first aid, with no time away from work required.'}},
+ {id:'CPT-QC-Cadenassage', anchor:'ei', jur:'QC', label:{fr:'Cadenassage',en:'Cadenassage'},
+  def:{fr:"Pose d'un dispositif de verrouillage individuel sur chaque source d'énergie, selon une procédure écrite propre à la machine.",en:'Individual locking device on each energy source, following a written procedure specific to the machine.'}},
+ {id:'CPT-US-LOTO', anchor:'ei', jur:'US', label:{fr:'Lockout/Tagout',en:'Lockout/Tagout'},
+  def:{fr:"Isolation et verrouillage des sources d'énergie dangereuse, avec procédure écrite par source d'énergie.",en:'Isolation and locking of hazardous energy sources, with a written procedure per energy source.'}}
 ];
 
 const MAPS = [
@@ -369,95 +667,344 @@ const MAPS = [
 
 const REQS = [
  {id:'REQ-QC-EspaceClos-Test', anchor:'cs', jur:'QC', cite:'RSST, art. 302', from:'2021-01-01',
-  label:{fr:"Test atmosphérique avant l'entrée",en:'Atmospheric testing before entry'}},
+  label:{fr:"Test atmosphérique avant l'entrée",en:'Atmospheric testing before entry'}, hazard:{fr:'Atmosphère appauvrie en oxygène',en:'Oxygen-deficient atmosphere'}},
  {id:'REQ-US-1910146-Test', anchor:'cs', jur:'US', cite:'29 CFR 1910.146(c)(5)(ii)(C)', from:'1993-04-15',
-  label:{fr:"Test atmosphérique préalable à l'entrée",en:'Pre-entry atmospheric testing'}},
+  label:{fr:"Test atmosphérique préalable à l'entrée",en:'Pre-entry atmospheric testing'}, hazard:{fr:'Atmosphère appauvrie en oxygène',en:'Oxygen-deficient atmosphere'}},
  {id:'REQ-UK-CS-RiskAssess', anchor:'cs', jur:'UK', cite:null, from:'1997-01-28',
-  label:{fr:"Évaluation des risques en espace clos",en:'Confined space risk assessment'}, violation:'vCite'},
+  label:{fr:'Évaluation des risques en espace clos',en:'Confined space risk assessment'}, hazard:{fr:'Atmosphère appauvrie en oxygène',en:'Oxygen-deficient atmosphere'}, violation:'vCite'},
  {id:'REQ-QC-Cadenassage-Proc', anchor:'ei', jur:'QC', cite:'RSST, art. 188.6', from:'2016-01-14',
-  label:{fr:'Procédure de cadenassage écrite par machine',en:'Written lockout procedure per machine'}},
+  label:{fr:'Procédure de cadenassage écrite par machine',en:'Written lockout procedure per machine'}, hazard:{fr:'Mise en énergie inattendue',en:'Unexpected energization'}},
  {id:'REQ-QC-Ancienne', anchor:'ei', jur:'QC', cite:'RSST, art. 185 (abrogé)', from:'2001-06-01', until:'2016-01-13',
-  label:{fr:'Disposition de cadenassage remplacée',en:'Superseded lockout provision'}},
+  label:{fr:'Disposition de cadenassage remplacée',en:'Superseded lockout provision'}, hazard:{fr:'Mise en énergie inattendue',en:'Unexpected energization'}},
+ {id:'REQ-QC-Declaration', anchor:'ri', jur:'QC', cite:'LATMP, art. 265', from:'1985-08-19',
+  label:{fr:"Déclaration de la lésion à l'employeur",en:'Reporting the injury to the employer'},
+  hazard:{fr:'Sous-déclaration des lésions',en:'Under-reporting of injuries'}},
+ {id:'REQ-US-300Log', anchor:'ri', jur:'US', cite:'29 CFR 1904.4(a)', from:'2002-01-01',
+  label:{fr:'Tenue du registre OSHA 300',en:'OSHA 300 log recordkeeping'},
+  hazard:{fr:'Sous-déclaration des lésions',en:'Under-reporting of injuries'}},
  {id:'REQ-INT-45001-Consult', anchor:'pr', jur:'INT', cite:'ISO 45001:2018, art. 5.4', from:'2018-03-12',
   label:{fr:'Consultation et participation des travailleurs',en:'Worker consultation and participation'}, warning:'wHaz'}
 ];
 
-let lang='fr', anchor='cs';
+/* Ancre d'ouverture : « lésion enregistrable ».
+   Deux définitions, deux seuils chiffrés qui se contredisent —
+   1 jour d'absence contre 0, soin médical. Le contraste est immédiat.
+   Sur « espace clos », les quatre cartes affichent « seuil non spécifié »
+   et la démonstration tombe à plat. */
+/* Documents internes et revendications de couverture.
+
+   Une revendication n'est pas un lien : c'est une AFFIRMATION qu'un
+   document satisfait une obligation. Elle porte un degré, une base, un
+   auteur et un statut de revue — parce qu'elle peut être fausse. */
+
+const DOCS = [
+ {id:'PRO-SST-014', jur:'QC', site:{fr:'Usine de Bromont',en:'Bromont plant'}, version:'3.2',
+  titre:{fr:'Procédure de protection contre les chutes',en:'Fall protection procedure'}},
+ {id:'PRO-SST-021', jur:'QC', site:{fr:'Usine de Bromont',en:'Bromont plant'}, version:'2.0',
+  titre:{fr:"Programme d'entrée en espace clos",en:'Confined space entry program'}},
+ {id:'PRO-EHS-009', jur:'US', site:{fr:'Usine de Toledo',en:'Toledo plant'}, version:'1.0',
+  titre:{fr:'Confined space entry program',en:'Confined space entry program'}},
+ {id:'PRO-SST-003', jur:'QC', site:{fr:'Usine de Bromont',en:'Bromont plant'}, version:'5.1',
+  titre:{fr:"Procédure de déclaration d'accident",en:'Incident reporting procedure'}}
+];
+
+const COVS = [
+ {id:'COUV-001', anchor:'cs', req:'REQ-QC-EspaceClos-Test', doc:'PRO-SST-021', degre:'complete',
+  basis:{fr:"La section 4.2 reprend les paramètres à mesurer et l'ordre des mesures exigé par l'article.",
+         en:'Section 4.2 restates the parameters to measure and the measurement order the clause requires.'},
+  author:'Mario Deshaies', status:'human-reviewed', date:'2026-04-11'},
+ {id:'COUV-002', anchor:'cs', req:'REQ-US-1910146-Test', doc:'PRO-EHS-009', degre:'partielle',
+  basis:{fr:"La procédure couvre le test préalable mais reste muette sur la surveillance continue pendant l'entrée.",
+         en:'The procedure covers pre-entry testing but is silent on continuous monitoring during entry.'},
+  author:'Mario Deshaies', status:'human-reviewed', date:'2026-04-11'},
+ {id:'COUV-003', anchor:'cs', req:'REQ-UK-CS-RiskAssess', doc:'PRO-SST-021', degre:'complete',
+  basis:{fr:'Appariement automatique par similarité de titre.', en:'Automatic match by title similarity.'},
+  author:'AX5 clause extractor v2', status:'machine-proposed', date:'2026-04-11',
+  violation:'vUnrev'},
+ {id:'COUV-005', anchor:'ri', req:'REQ-QC-Declaration', doc:'PRO-SST-003', degre:'complete',
+  basis:{fr:"La procédure décrit le formulaire, le délai et le destinataire exigés par l'article.",
+         en:'The procedure states the form, the deadline and the recipient the clause requires.'},
+  author:'Mario Deshaies', status:'human-reviewed', date:'2026-04-11'},
+ {id:'COUV-004', anchor:'ei', req:'REQ-QC-Cadenassage-Proc', doc:'PRO-SST-014', degre:'partielle',
+  basis:{fr:'La procédure de chutes traite du même site mais non du cadenassage.',
+         en:'The fall protection procedure covers the same site but not lockout.'},
+  author:'AX5 clause extractor v2', status:'draft', date:'2026-04-11'}
+];
+
+let lang='fr', anchor='ri', sel=null, tblOpen=false;
 const t = k => T[lang][k];
-const esc = s => String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const esc = s => String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const cname = id => {const c=CONCEPTS.find(x=>x.id===id); return c?c.label[lang]:id};
 
 function setLang(l){
   lang=l; document.documentElement.lang=l;
   fr.setAttribute('aria-pressed', l==='fr'); en.setAttribute('aria-pressed', l==='en');
   document.title = (l==='fr'?"AX5 — Explorateur d'ontologie de conformité":'AX5 — Compliance ontology explorer');
   document.querySelectorAll('[data-i18n]').forEach(el=>{el.innerHTML=t(el.dataset.i18n)});
+  document.getElementById('lg1').textContent = t('lgLine');
+  document.getElementById('lg2').textContent = t('lgRec');
+  document.getElementById('lg1b').textContent = t('lgLineNote');
+  document.getElementById('lg2b').textContent = t('lgRecNote');
   render();
 }
 
-function render(){
-  terms.innerHTML = T[lang].terms.map(x=>`
-    <div class="term-card">
-      <div class="code">${esc(x.code)}</div>
-      <div class="plain">${esc(x.plain)}</div>
-      <p>${x.text}</p>
-      <div class="ex">${esc(x.ex)}</div>
-    </div>`).join('');
+function badge(status){
+  const cls = status==='human-reviewed'?'human':status==='draft'?'draft':'machine';
+  const ic  = status==='human-reviewed'?'✓':status==='draft'?'·':'◌';
+  const lbl = status==='human-reviewed'?t('bHuman'):status==='draft'?t('bDraft'):t('bMachine');
+  return `<span class="pb ${cls}"><span class="ic" aria-hidden="true">${ic}</span>${esc(lbl)}</span>`;
+}
 
+function render(){
+  const counts = {};
+  Object.keys(T[lang].anchors).forEach(k=>{
+    counts[k] = CONCEPTS.filter(c=>c.anchor===k).length;
+  });
   picker.innerHTML = Object.entries(T[lang].anchors).map(([k,v])=>
-    `<button aria-pressed="${k===anchor}" onclick="pick('${k}')">${esc(v)}</button>`).join('');
+    `<button aria-current="${k===anchor}" onclick="pick('${k}')">${esc(v)}<span class="cnt">${counts[k]}</span></button>`).join('');
+
+  terms.innerHTML = T[lang].terms.map(x=>`
+    <div class="card" style="cursor:default">
+      <div class="jur">${esc(x.code)}</div>
+      <div class="term">${esc(x.plain)}</div>
+      <div class="thr" style="color:var(--ink);font-family:var(--serif);font-size:14.5px;line-height:1.55">${x.text}</div>
+      <div class="thr" style="color:var(--verdigris);font-family:var(--data);font-size:11.5px">${esc(x.ex)}</div>
+    </div>`).join('');
 
   const cs = CONCEPTS.filter(c=>c.anchor===anchor);
   cards.innerHTML = cs.length ? cs.map(c=>`
-    <div class="card${c.violation?' flag':''}">
+    <button class="card${c.violation?' flag':''}" aria-pressed="${sel==='c:'+c.id}" onclick="pickItem('c','${c.id}')">
       <div class="jur">${c.jur ? esc(JUR[c.jur]) : '⚠ '+t('missing')}</div>
       <div class="term">${esc(c.label[lang])}</div>
-      <div class="meta">
-        ${c.threshold!==undefined ? `<div><span>${t('threshold')}</span><b>${esc(c.threshold)}</b></div>
-        <div><span>${t('unit')}</span><b>${esc(c.unit[lang])}</b></div>` :
-        `<div><span>${t('threshold')}</span><b style="color:var(--dim)">${t('noThresh')}</b></div>`}
-        <div><span>ID</span><b style="color:var(--muted)">${esc(c.id)}</b></div>
-      </div>
-      ${c.violation?`<div class="badge">${t('lVio')}</div><div class="why">${t(c.violation)}</div>`:''}
-    </div>`).join('')
-    : `<p class="lede">${lang==='fr'?'Aucun concept juridictionnel encodé pour cette ancre — c\'est un trou de couverture, pas une erreur.':'No jurisdictional concept encoded for this anchor — that is a coverage gap, not an error.'}</p>`;
+      <div class="thr">${c.threshold!==undefined
+        ? `${t('threshold')} <b>${esc(c.threshold)}</b> — ${esc(c.unit[lang])}`
+        : `${t('threshold')} ${t('noThresh')}`}</div>
+    </button>`).join('')
+    : `<p class="lede">${lang==='fr'?"Aucun concept juridictionnel encodé pour cette ancre — c'est un trou de couverture, pas une erreur.":'No jurisdictional concept encoded for this anchor — that is a coverage gap, not an error.'}</p>`;
 
-  const name = id => {const c=CONCEPTS.find(x=>x.id===id); return c?c.label[lang]:id};
   const ms = MAPS.filter(m=>m.anchor===anchor);
   bridges.innerHTML = ms.length ? ms.map(m=>{
     const segs = Array.from({length:20},(_,i)=>`<div class="seg${i<Math.round(m.conf*20)?' on':''}"></div>`).join('');
-    return `<div class="bridge${m.violation?' flag':''}">
-      <div class="span">
-        <span class="node">${esc(name(m.from))}</span>
-        <span class="rel">${esc(m.rel)}</span>
-        <span class="node">${esc(name(m.to))}</span>
-      </div>
+    return `<button class="rec${m.violation?' flag':''}" aria-pressed="${sel==='m:'+m.id}" onclick="pickItem('m','${m.id}')">
+      <div class="span"><span>${esc(cname(m.from))}</span><span class="rel">${esc(m.rel)}</span><span>${esc(cname(m.to))}</span></div>
       <div class="trace"><div class="segs">${segs}</div><div class="pct">${(m.conf*100).toFixed(0)}%</div></div>
-      <dl class="prov">
-        <div><dt>${t('pBasis')}</dt><dd class="${m.basis?'':'none'}">${m.basis?esc(m.basis[lang]):'— '+t('missing')}</dd></div>
-        <div><dt>${t('pAuthor')}</dt><dd class="${m.author?'':'none'}">${m.author?esc(m.author):'— '+t('missing')}</dd></div>
-        <div><dt>${t('pStatus')}</dt><dd>${esc(m.status)}</dd></div>
-        <div><dt>${t('pDate')}</dt><dd>${m.date?esc(m.date):'—'}</dd></div>
-      </dl>
-      ${m.violation?`<div class="why">${t(m.violation)}</div>`:''}
-    </div>`}).join('')
+      <div class="tags">${badge(m.status)}${m.violation?`<span class="sev v">${t('vLbl')}</span>`:''}</div>
+    </button>`}).join('')
     : `<p class="lede">${lang==='fr'?'Aucune correspondance encodée pour cette ancre.':'No mapping encoded for this anchor.'}</p>`;
+
+  tgl.textContent = tblOpen ? t('hideTbl') : t('showTbl');
+  tgl.setAttribute('aria-expanded', tblOpen);
+  mtable.hidden = !tblOpen;
+  mtable.innerHTML = `<table><caption>${t('tblCap')}</caption><thead><tr>
+    <th scope="col">ID</th><th scope="col">${t('cSrc')}</th><th scope="col">${t('cRel')}</th>
+    <th scope="col">${t('cTgt')}</th><th scope="col">${t('cConf')}</th>
+    <th scope="col">${t('cAuth')}</th><th scope="col">${t('cProv')}</th><th scope="col">${t('cStat')}</th></tr></thead><tbody>
+    ${ms.map(m=>`<tr><td class="k">${esc(m.id)}</td><td>${esc(cname(m.from))}</td><td class="k">${esc(m.rel)}</td>
+      <td>${esc(cname(m.to))}</td><td class="k">${(m.conf*100).toFixed(0)} %</td>
+      <td>${m.author?esc(m.author):'— '+t('missing')}</td><td class="k">${esc(m.status)}</td>
+      <td>${m.violation?t('vLbl'):t('vOk')}</td></tr>`).join('')}
+    </tbody></table>`;
+
+  const rname = id => {const r=REQS.find(x=>x.id===id); return r?r.label[lang]:id};
+  const dname = id => {const d=DOCS.find(x=>x.id===id); return d?d.titre[lang]:id};
+  const cvs = COVS.filter(c=>c.anchor===anchor);
+  const reqsA = REQS.filter(r=>r.anchor===anchor);
+  const couvertes = new Set(cvs.map(c=>c.req));
+  const trous = reqsA.filter(r=>!couvertes.has(r.id));
+  const nonRevues = cvs.filter(c=>c.status!=='human-reviewed');
+
+  covbar.innerHTML = `
+    <div><b>${reqsA.length}</b>${t('cTotal')}</div>
+    <div><b>${couvertes.size}</b>${t('cCouv')}</div>
+    <div class="gap"><b>${trous.length}</b>${t('cGap')}</div>
+    <div class="unrev"><b>${nonRevues.length}</b>${t('cUnrev')}</div>`;
+
+  covs.innerHTML =
+    trous.map(r=>`<div class="gap">
+      <div class="g-title">${esc(r.label[lang])}</div>
+      <div class="g-cite">${r.cite?esc(r.cite):'\u26a0 '+t('noCite')} \u00b7 ${esc(JUR[r.jur])}</div>
+      <div class="g-why">${t('gapWhy')}</div>
+    </div>`).join('') +
+    cvs.map(c=>`
+    <button class="cov${c.violation?' flag':''}" aria-pressed="${sel==='v:'+c.id}" onclick="pickItem('v','${c.id}')">
+      <div class="link">
+        <span>${esc(dname(c.doc))}</span>
+        <span class="deg">${esc(t(c.degre==='complete'?'degComplete':'degPartielle'))}</span>
+        <span class="doc">${esc(rname(c.req))}</span>
+      </div>
+      <div class="tags">${badge(c.status)}${c.violation?`<span class="sev v">${t('vLbl')}</span>`:''}</div>
+    </button>`).join('');
 
   const rs = REQS.filter(r=>r.anchor===anchor);
   reqs.innerHTML = rs.length ? rs.map(r=>`
-    <div class="req${r.violation?' flag':r.warning?' warn':''}">
+    <button class="req${r.violation?' flag':r.warning?' warn':''}" aria-pressed="${sel==='r:'+r.id}" onclick="pickItem('r','${r.id}')">
       <div class="req-main">
         <div class="req-title">${esc(r.label[lang])}</div>
         <div class="cite${r.cite?'':' missing'}">${r.cite?esc(r.cite):'⚠ '+t('noCite')}</div>
       </div>
       <div class="dates">${t('from')} ${esc(r.from)}${r.until?`<br>${t('until')} ${esc(r.until)}`:''}</div>
-      ${r.violation?`<div class="chip v">${t('lVio')}</div>`:''}
-      ${r.warning?`<div class="chip w">${t('lWarn')}</div>`:''}
-      ${r.violation||r.warning?`<div class="why" style="flex-basis:100%;color:${r.violation?'var(--alert)':'var(--warn)'};border-color:${r.violation?'var(--alert)':'var(--warn)'}">${t(r.violation||r.warning)}</div>`:''}
-    </div>`).join('')
+      ${r.violation?`<span class="sev v">${t('vLbl')}</span>`:''}
+      ${r.warning?`<span class="sev w">${t('wLbl')}</span>`:''}
+    </button>`).join('')
     : `<p class="lede">${lang==='fr'?'Aucune exigence encodée pour cette ancre.':'No requirement encoded for this anchor.'}</p>`;
+
+  renderInspector();
 }
 
-function pick(a){anchor=a;render()}
+function f(dt, dd, cls){return `<div class="ifield"><dt>${dt}</dt><dd class="${cls||''}">${dd}</dd></div>`}
+
+function renderInspector(){
+  if(!sel){ insp.innerHTML = `<p class="iempty">${t('iEmpty')}</p>`; return; }
+  const [kind,id] = sel.split(':');
+  let h = '';
+
+  if(kind==='c'){
+    const c = CONCEPTS.find(x=>x.id===id); if(!c) return;
+    h = `<div class="ikind">${t('kConcept')}</div><div class="ititle">${esc(c.label[lang])}</div>`;
+    h += f(t('jur'), c.jur?esc(JUR[c.jur]):'— '+t('missing'), c.jur?'':'none');
+    if(c.def) h += f(lang==='fr'?'Définition applicable':'Applicable definition', esc(c.def[lang]));
+    if(c.threshold!==undefined){
+      h += f(t('threshold'), esc(c.threshold), 'good');
+      h += f(t('unit'), esc(c.unit[lang]));
+    } else h += f(t('threshold'), t('noThresh'));
+    h += f('ID', esc(c.id), 'mono');
+    h += f(t('lineage'), `<span class="lineage">${lang==='fr'?'texte réglementaire':'regulatory text'} <span>→</span> ${lang==='fr'?'extraction':'extraction'} <span>→</span> ${lang==='fr'?'concept':'concept'} <span>→</span> ${lang==='fr'?'réponse':'answer'}</span>`);
+    h += f(t('validation'), c.violation?`<span class="sev v">${t('vLbl')}</span>`:`<span class="pb human"><span class="ic" aria-hidden="true">✓</span>${t('vOk')}</span>`);
+    if(c.violation) h += `<div class="iwhy">${t(c.violation)}</div>`;
+  }
+
+  if(kind==='m'){
+    const m = MAPS.find(x=>x.id===id); if(!m) return;
+    h = `<div class="ikind">${t('kMap')}</div><div class="ititle">${esc(m.id)}</div>`;
+    h += f(t('cSrc'), esc(cname(m.from)));
+    h += f(t('cTgt'), esc(cname(m.to)));
+    h += f(t('pRel'), esc(m.rel), 'mono');
+    h += f(t('pConf'), (m.conf*100).toFixed(0)+' %', 'mono');
+    h += f(t('pBasis'), m.basis?esc(m.basis[lang]):'— '+t('missing'), m.basis?'':'none');
+    h += f(t('pAuthor'), m.author?esc(m.author):'— '+t('missing'), m.author?'':'none');
+    h += f(t('pStatus'), badge(m.status));
+    h += f(t('pDate'), m.date?esc(m.date):'—', 'mono');
+    h += f(t('lineage'), `<span class="lineage">${esc(cname(m.from))} <span>→</span> ${esc(m.id)} <span>→</span> ${esc(cname(m.to))}</span>`);
+    h += f(t('validation'), m.violation?`<span class="sev v">${t('vLbl')}</span>`:`<span class="pb human"><span class="ic" aria-hidden="true">✓</span>${t('vOk')}</span>`);
+    if(m.violation) h += `<div class="iwhy">${t(m.violation)}</div>`;
+  }
+
+  if(kind==='r'){
+    const r = REQS.find(x=>x.id===id); if(!r) return;
+    h = `<div class="ikind">${t('kReq')}</div><div class="ititle">${esc(r.label[lang])}</div>`;
+    h += f(t('jur'), esc(JUR[r.jur]));
+    h += f(t('citation'), r.cite?esc(r.cite):'— '+t('noCite'), r.cite?'good':'none');
+    h += f(t('from'), esc(r.from), 'mono');
+    if(r.until) h += f(t('until'), esc(r.until), 'mono');
+    h += f(lang==='fr'?'Danger visé':'Linked hazard', r.hazard?esc(r.hazard[lang]):'— '+t('missing'), r.hazard?'':'none');
+    h += f('ID', esc(r.id), 'mono');
+    h += f(t('lineage'), `<span class="lineage">${esc(JUR[r.jur])} <span>→</span> ${r.cite?esc(r.cite):'?'} <span>→</span> ${lang==='fr'?'exigence':'requirement'}</span>`);
+    const sv = r.violation?`<span class="sev v">${t('vLbl')}</span>`:r.warning?`<span class="sev w">${t('wLbl')}</span>`:`<span class="pb human"><span class="ic" aria-hidden="true">✓</span>${t('vOk')}</span>`;
+    h += f(t('validation'), sv);
+    if(r.violation) h += `<div class="iwhy">${t(r.violation)}</div>`;
+    if(r.warning) h += `<div class="iwhy warn">${t(r.warning)}</div>`;
+  }
+
+  if(kind==='v'){
+    const c = COVS.find(x=>x.id===id); if(!c) return;
+    const d = DOCS.find(x=>x.id===c.doc);
+    const r = REQS.find(x=>x.id===c.req);
+    h = `<div class="ikind">${t('kCov')}</div><div class="ititle">${esc(c.id)}</div>`;
+    h += f(t('pObl'), r?esc(r.label[lang]):esc(c.req));
+    h += f(t('citation'), r&&r.cite?esc(r.cite):'— '+t('noCite'), r&&r.cite?'good':'none');
+    h += f(t('pDoc'), d?esc(d.titre[lang])+' · '+esc(d.id)+' v'+esc(d.version):esc(c.doc));
+    h += f(t('jur'), d?esc(JUR[d.jur]):'—');
+    h += f(t('pDegre'), esc(c.degre), 'mono');
+    h += f(t('pBasis'), esc(c.basis[lang]));
+    h += f(t('pAuthor'), esc(c.author));
+    h += f(t('pStatus'), badge(c.status));
+    h += f(t('pDate'), esc(c.date), 'mono');
+    h += f(t('lineage'), `<span class="lineage">${esc(c.doc)} <span>→</span> ${esc(c.id)} <span>→</span> ${r&&r.cite?esc(r.cite):esc(c.req)}</span>`);
+    h += f(t('validation'), c.violation?`<span class="sev v">${t('vLbl')}</span>`:`<span class="pb human"><span class="ic" aria-hidden="true">✓</span>${t('vOk')}</span>`);
+    if(c.violation) h += `<div class="iwhy">${t(c.violation)}</div>`;
+  }
+
+  insp.innerHTML = h;
+}
+
+function exportData(fmt){
+  const ms = MAPS.filter(m=>m.anchor===anchor);
+  const cs = CONCEPTS.filter(c=>c.anchor===anchor);
+  const rs = REQS.filter(r=>r.anchor===anchor);
+  const stamp = new Date().toISOString();
+  const label = T[lang].anchors[anchor];
+  let out='', mime='text/plain', ext=fmt;
+
+  if(fmt==='json'){
+    mime='application/json';
+    out = JSON.stringify({
+      exportedAt: stamp,
+      source: 'ax5-compliance-ontology · read-only explorer',
+      note: 'Provenance preserved. No compliance decision is implied by this export.',
+      anchor: {key: anchor, label},
+      jurisdictionalConcepts: cs.map(c=>({
+        id:c.id, label:c.label[lang], jurisdiction:c.jur?JUR[c.jur]:null,
+        definition:c.def?c.def[lang]:null,
+        threshold:c.threshold ?? null, thresholdUnit:c.unit?c.unit[lang]:null,
+        validation:c.violation?'Violation':'OK'})),
+      conceptMappings: ms.map(m=>({
+        id:m.id, from:cname(m.from), to:cname(m.to), mappingRelation:m.rel, confidence:m.conf,
+        basis:m.basis?m.basis[lang]:null, attributedTo:m.author, reviewStatus:m.status,
+        recordedAt:m.date, validation:m.violation?'Violation':'OK'})),
+      requirements: rs.map(r=>({
+        id:r.id, label:r.label[lang], jurisdiction:JUR[r.jur], citation:r.cite,
+        validFrom:r.from, validTo:r.until ?? null,
+        addressesHazard:r.hazard?r.hazard[lang]:null,
+        validation:r.violation?'Violation':r.warning?'Warning':'OK'}))
+    }, null, 2);
+  }
+
+  if(fmt==='ttl'){
+    mime='text/turtle'; ext='ttl';
+    const q = v => '"'+String(v).replace(/"/g,'\\"')+'"';
+    let L = ['@prefix ax5:  <https://agenticx5.com/ont/compliance#> .',
+             '@prefix ex:   <https://agenticx5.com/data/> .',
+             '@prefix skos: <http://www.w3.org/2004/02/skos/core#> .',
+             '@prefix prov: <http://www.w3.org/ns/prov#> .',
+             '@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .',
+             '', '# Export partiel — '+label+' — '+stamp,
+             '# Provenance conservee. Aucune decision de conformite n est impliquee.', ''];
+    ms.forEach(m=>{
+      L.push('ex:'+m.id+' a ax5:ConceptMapping ;');
+      L.push('    ax5:mapsFrom ex:'+m.from+' ;');
+      L.push('    ax5:mapsTo ex:'+m.to+' ;');
+      L.push('    ax5:mappingRelation skos:'+m.rel+' ;');
+      L.push('    ax5:confidence "'+m.conf+'"^^xsd:decimal ;');
+      if(m.basis)  L.push('    ax5:basis '+q(m.basis[lang])+' ;');
+      if(m.author) L.push('    prov:wasAttributedTo '+q(m.author)+' ;');
+      L.push('    ax5:reviewStatus '+q(m.status)+' .');
+      L.push('');
+    });
+    out = L.join('\n');
+  }
+
+  if(fmt==='csv'){
+    mime='text/csv';
+    const esc2 = v => '"'+String(v==null?'':v).replace(/"/g,'""')+'"';
+    const rows = [['id','source','relation','cible','confiance','base','auteur','statut','date','validation']];
+    ms.forEach(m=>rows.push([m.id, cname(m.from), m.rel, cname(m.to), m.conf,
+      m.basis?m.basis[lang]:'', m.author||'', m.status, m.date||'',
+      m.violation?'Violation':'OK']));
+    out = '\ufeff' + rows.map(r=>r.map(esc2).join(';')).join('\r\n');
+  }
+
+  const blob = new Blob([out], {type:mime+';charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'ax5-'+anchor+'-'+stamp.slice(0,10)+'.'+ext;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url), 1000);
+}
+
+function pick(a){anchor=a; sel=null; render()}
+function pickItem(k,id){sel = (sel===k+':'+id) ? null : k+':'+id; render()}
+function toggleTable(){tblOpen=!tblOpen; render()}
+
 setLang('fr');
 </script>
 </body>
