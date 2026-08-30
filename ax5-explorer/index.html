@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AX5 — Explorateur d'ontologie de conformité</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --void:#150A22; --surface:#1F1133; --raised:#2A1845; --line:#3A2458;
+  --cyan:#2DD4E8; --lime:#C3F53C; --violet:#B57BF7;
+  --ink:#EFEAF7; --muted:#A294BC; --dim:#7A6B94;
+  --alert:#FF6B7A; --warn:#FFB84D;
+  --display:'Space Grotesk',sans-serif; --body:'Inter',sans-serif; --data:'JetBrains Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--void);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1180px;margin:0 auto;padding:0 28px}
+
+/* ---------- header ---------- */
+header{border-bottom:1px solid var(--line);padding:22px 0;position:sticky;top:0;background:rgba(21,10,34,.94);backdrop-filter:blur(12px);z-index:20}
+.bar{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.mark{width:42px;height:42px;border-radius:10px;flex-shrink:0}
+.brand{flex:1;min-width:200px}
+.brand h1{font-family:var(--display);font-size:17px;font-weight:500;letter-spacing:-.01em}
+.brand p{font-size:12.5px;color:var(--dim);font-family:var(--data)}
+.lang{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.lang button{background:none;border:0;color:var(--muted);font-family:var(--data);font-size:12px;padding:7px 13px;cursor:pointer;transition:.15s}
+.lang button[aria-pressed=true]{background:var(--violet);color:var(--void);font-weight:500}
+.lang button:focus-visible{outline:2px solid var(--cyan);outline-offset:-2px}
+
+/* ---------- hero ---------- */
+.hero{padding:52px 0 38px;border-bottom:1px solid var(--line)}
+.hero h2{font-family:var(--display);font-size:clamp(26px,4vw,40px);font-weight:500;line-height:1.15;letter-spacing:-.025em;max-width:20ch}
+.hero h2 em{font-style:normal;color:var(--lime)}
+.hero p{margin-top:18px;color:var(--muted);max-width:60ch;font-size:15.5px}
+.tally{display:flex;gap:26px;margin-top:26px;flex-wrap:wrap}
+.tally div{font-family:var(--data);font-size:12px;color:var(--dim)}
+.tally b{display:block;font-size:21px;color:var(--cyan);font-weight:500}
+.tally .bad b{color:var(--alert)}
+.tally .mid b{color:var(--warn)}
+
+/* ---------- sections ---------- */
+section{padding:42px 0;border-bottom:1px solid var(--line)}
+.eyebrow{font-family:var(--data);font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--dim);margin-bottom:9px}
+h3{font-family:var(--display);font-size:21px;font-weight:500;letter-spacing:-.015em}
+.lede{color:var(--muted);margin-top:9px;max-width:66ch;font-size:14.5px}
+
+/* ---------- anchor picker ---------- */
+.picker{display:flex;gap:9px;flex-wrap:wrap;margin-top:22px}
+.picker button{background:var(--surface);border:1px solid var(--line);color:var(--muted);
+  font-family:var(--display);font-size:14px;padding:9px 17px;border-radius:9px;cursor:pointer;transition:.15s}
+.picker button:hover{border-color:var(--violet);color:var(--ink)}
+.picker button:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+.picker button[aria-pressed=true]{background:var(--raised);border-color:var(--cyan);color:var(--ink)}
+
+/* ---------- jurisdiction cards ---------- */
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(268px,1fr));gap:15px;margin-top:26px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:19px;position:relative}
+.card.flag{border-color:var(--alert)}
+.jur{font-family:var(--data);font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--cyan);margin-bottom:8px}
+.card.flag .jur{color:var(--alert)}
+.term{font-family:var(--display);font-size:18px;font-weight:500;line-height:1.3}
+.meta{margin-top:15px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--data);font-size:12.5px;color:var(--muted)}
+.meta div{display:flex;justify-content:space-between;gap:12px;padding:3px 0}
+.meta span:first-child{color:var(--dim)}
+.meta b{color:var(--lime);font-weight:500;text-align:right}
+.badge{display:inline-block;font-family:var(--data);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;
+  padding:3px 8px;border-radius:5px;background:rgba(255,107,122,.13);color:var(--alert);border:1px solid rgba(255,107,122,.35);margin-top:13px}
+
+/* ---------- mapping bridges (signature) ---------- */
+.bridge{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:19px 21px;margin-top:13px}
+.bridge.flag{border-color:var(--alert);background:rgba(255,107,122,.05)}
+.span{display:flex;align-items:center;gap:13px;flex-wrap:wrap;font-family:var(--display);font-size:15px}
+.node{color:var(--ink)}
+.rel{font-family:var(--data);font-size:11px;letter-spacing:.07em;text-transform:uppercase;
+  padding:3px 9px;border-radius:5px;background:var(--raised);color:var(--violet);border:1px solid var(--line);white-space:nowrap}
+.bridge.flag .rel{color:var(--alert);border-color:rgba(255,107,122,.4)}
+
+/* circuit-trace confidence meter */
+.trace{display:flex;align-items:center;gap:11px;margin-top:15px}
+.segs{display:flex;gap:3px;flex:1;min-width:130px}
+.seg{height:9px;flex:1;border-radius:1.5px;background:var(--raised)}
+.seg.on{background:var(--cyan)}
+.bridge.flag .seg.on{background:var(--alert)}
+.pct{font-family:var(--data);font-size:12.5px;color:var(--cyan);min-width:38px;text-align:right}
+.bridge.flag .pct{color:var(--alert)}
+
+.prov{margin-top:15px;padding-top:14px;border-top:1px solid var(--line);display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(178px,1fr));gap:13px;font-family:var(--data);font-size:12px}
+.prov dt{color:var(--dim);font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;margin-bottom:3px}
+.prov dd{color:var(--muted);line-height:1.5}
+.prov dd.none{color:var(--alert)}
+.why{margin-top:13px;font-size:13px;color:var(--alert);font-family:var(--body);
+  padding-left:12px;border-left:2px solid var(--alert)}
+
+/* ---------- requirements ---------- */
+.req{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:17px 19px;margin-top:11px;
+  display:flex;gap:17px;align-items:flex-start;flex-wrap:wrap}
+.req.flag{border-color:var(--alert)}
+.req.warn{border-color:var(--warn)}
+.req-main{flex:1;min-width:230px}
+.req-title{font-family:var(--display);font-size:15px;font-weight:500}
+.cite{font-family:var(--data);font-size:12.5px;color:var(--lime);margin-top:5px}
+.cite.missing{color:var(--alert)}
+.dates{font-family:var(--data);font-size:11.5px;color:var(--dim);white-space:nowrap;padding-top:3px}
+.chip{font-family:var(--data);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:5px;white-space:nowrap}
+.chip.v{background:rgba(255,107,122,.13);color:var(--alert);border:1px solid rgba(255,107,122,.35)}
+.chip.w{background:rgba(255,184,77,.11);color:var(--warn);border:1px solid rgba(255,184,77,.32)}
+
+/* ---------- footer ---------- */
+footer{padding:34px 0 46px;font-family:var(--data);font-size:11.5px;color:var(--dim);line-height:1.85}
+footer a{color:var(--muted)}
+footer .rights{margin-top:11px}
+
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@media (max-width:640px){.wrap{padding:0 18px}.hero{padding:36px 0 28px}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap bar">
+    <img class="mark" src="logo.png" alt="AgenticX5">
+    <div class="brand">
+      <h1 data-i18n="brand">Explorateur d'ontologie de conformité</h1>
+      <p>ax5-compliance-ontology · v0.2.0</p>
+    </div>
+    <div class="lang" role="group" aria-label="Langue / Language">
+      <button id="fr" aria-pressed="true" onclick="setLang('fr')">FR</button>
+      <button id="en" aria-pressed="false" onclick="setLang('en')">EN</button>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="hero">
+    <h2 data-i18n="heroTitle"></h2>
+    <p data-i18n="heroBody"></p>
+    <div class="tally">
+      <div><b>4</b><span data-i18n="tJur">juridictions</span></div>
+      <div><b>8</b><span data-i18n="tCpt">concepts locaux</span></div>
+      <div><b>6</b><span data-i18n="tMap">correspondances</span></div>
+      <div class="bad"><b>6</b><span data-i18n="tViol">violations</span></div>
+      <div class="mid"><b>1</b><span data-i18n="tWarn">avertissement</span></div>
+    </div>
+  </div>
+
+  <section>
+    <div class="eyebrow" data-i18n="eb1">Point de départ</div>
+    <h3 data-i18n="h1"></h3>
+    <p class="lede" data-i18n="l1"></p>
+    <div class="picker" id="picker" role="group"></div>
+    <div class="grid" id="cards"></div>
+  </section>
+
+  <section>
+    <div class="eyebrow" data-i18n="eb2">Correspondances</div>
+    <h3 data-i18n="h2"></h3>
+    <p class="lede" data-i18n="l2"></p>
+    <div id="bridges"></div>
+  </section>
+
+  <section>
+    <div class="eyebrow" data-i18n="eb3">Exigences</div>
+    <h3 data-i18n="h3"></h3>
+    <p class="lede" data-i18n="l3"></p>
+    <div id="reqs"></div>
+  </section>
+
+  <footer>
+    <div data-i18n="foot"></div>
+    <div class="rights">
+      © 2026 AgenticX5 · Mario Deshaies. <span data-i18n="rights"></span>
+    </div>
+    <div><span data-i18n="lic"></span> · MIT</div>
+  </footer>
+
+</div>
+
+<script>
+const T = {
+ fr:{
+  brand:"Explorateur d'ontologie de conformité",
+  heroTitle:'Le même mot, <em>quatre</em> obligations différentes.',
+  heroBody:"« Espace clos » ne veut pas dire la même chose au Québec, chez OSHA et au Royaume-Uni. Ce modèle refuse de les fusionner : chaque définition reste dans son régime, et le rapport entre elles est une fiche auditable.",
+  tJur:'juridictions', tCpt:'concepts locaux', tMap:'correspondances', tViol:'violations', tWarn:'avertissement',
+  eb1:'Point de départ', eb2:'Correspondances', eb3:'Exigences',
+  h1:'Choisir un terme métier',
+  l1:"L'ancre est une entrée d'index, sans force légale. La réponse est toujours dans un concept juridictionnel — celui qui porte le seuil et l'obligation.",
+  h2:'Ce qui relie les régimes',
+  l2:"Une correspondance n'est pas un trait entre deux cases. Elle porte un degré d'équivalence, un niveau de confiance, une base et un auteur. Quand une réponse est contestée, c'est cette fiche qu'on ouvre.",
+  h3:'Ce que les textes exigent',
+  l3:"Une obligation sans référence d'article est invérifiable. Une obligation sans danger rattaché est seulement incomplète — d'où l'avertissement plutôt que le blocage.",
+  foot:"Vue en lecture seule. Les données proviennent de data/instances.ttl; les verdicts de conformité proviennent des contraintes SHACL de shapes/ax5-shapes.ttl. Aucune saisie, aucune décision automatisée : la décision SST reste humaine.",
+  rights:'Tous droits réservés.', lic:'Code publié sous licence',
+  anchors:{cs:'Espace clos',ri:'Lésion enregistrable',ei:"Isolation des énergies",pr:'Risque psychosocial'},
+  noThresh:'non spécifié', threshold:'Seuil', unit:'Unité', anchor:'Ancre', status:'Revue',
+  pBasis:'Base', pAuthor:'Attribué à', pStatus:'Statut', pDate:'Saisi le',
+  missing:'absent', noCite:'aucune citation',
+  from:'depuis', until:"jusqu'au",
+  vNoScope:"Concept juridictionnel sans juridiction : aucun seuil, aucune obligation, aucun article. Inutilisable par un agent.",
+  vExact:"Équivalence exacte affirmée sous le seuil de 0,95. exactMatch autorise un agent à substituer un concept à l'autre sans prévenir — sur preuve faible, c'est ainsi qu'on produit une réponse fluide et fausse.",
+  vIntra:"Les deux concepts relèvent du même régime. Une correspondance traverse des juridictions par définition : ici, il n'y a rien à traduire.",
+  vProv:"Sans base ni auteur, l'affirmation n'est pas auditable. La provenance n'est pas optionnelle.",
+  vCite:"Exigence sans référence d'article. Une réponse de conformité que personne ne peut vérifier est inutilisable, même si elle est juste.",
+  wHaz:"Aucun danger rattaché. Toléré : ISO 45001 §5.4 est une exigence de système de gestion, elle ne vise légitimement aucun danger unique. Bloquer rejetterait de la donnée valide.",
+  lVio:'Violation', lWarn:'Avertissement'
+ },
+ en:{
+  brand:'Compliance ontology explorer',
+  heroTitle:'Same word, <em>four</em> different obligations.',
+  heroBody:'"Confined space" does not mean the same thing in Québec, under OSHA, and in the UK. This model refuses to merge them: each definition stays inside its own regime, and the relation between them is an auditable record.',
+  tJur:'jurisdictions', tCpt:'local concepts', tMap:'mappings', tViol:'violations', tWarn:'warning',
+  eb1:'Starting point', eb2:'Mappings', eb3:'Requirements',
+  h1:'Pick a business term',
+  l1:'The anchor is an index entry with no legal force. The answer always sits in a jurisdictional concept — the one carrying the threshold and the obligation.',
+  h2:'What links the regimes',
+  l2:'A mapping is not a line between two boxes. It carries a degree of equivalence, a confidence level, a basis and an author. When an answer is challenged, this is the record you open.',
+  h3:'What the instruments require',
+  l3:'A requirement without a clause citation cannot be verified. A requirement without a linked hazard is merely incomplete — hence a warning rather than a block.',
+  foot:'Read-only view. Data comes from data/instances.ttl; compliance verdicts come from the SHACL constraints in shapes/ax5-shapes.ttl. No data entry, no automated decisions: the OHS decision stays with a human.',
+  rights:'All rights reserved.', lic:'Code released under the',
+  anchors:{cs:'Confined space',ri:'Recordable injury',ei:'Hazardous energy isolation',pr:'Psychosocial risk'},
+  noThresh:'not specified', threshold:'Threshold', unit:'Unit', anchor:'Anchor', status:'Review',
+  pBasis:'Basis', pAuthor:'Attributed to', pStatus:'Status', pDate:'Recorded',
+  missing:'missing', noCite:'no citation',
+  from:'from', until:'until',
+  vNoScope:'Jurisdictional concept with no jurisdiction: no threshold, no obligation, no clause. Unusable by an agent.',
+  vExact:'Exact equivalence asserted below the 0.95 threshold. exactMatch lets an agent substitute one concept for the other without warning — on weak evidence, that is how you produce a fluent, wrong answer.',
+  vIntra:'Both concepts sit in the same regime. A mapping crosses jurisdictions by definition: here there is nothing to translate.',
+  vProv:'Without a basis or an author the assertion cannot be audited. Provenance is not optional.',
+  vCite:'Requirement with no clause citation. A compliance answer nobody can verify is unusable, even when it is right.',
+  wHaz:'No linked hazard. Tolerated: ISO 45001 §5.4 is a management-system requirement and legitimately targets no single hazard. Blocking would reject valid data.',
+  lVio:'Violation', lWarn:'Warning'
+ }
+};
+
+const JUR = {QC:'Québec · CNESST', US:'United States · OSHA', UK:'United Kingdom · HSE', INT:'International · ISO'};
+
+const CONCEPTS = [
+ {id:'CPT-QC-EspaceClos', anchor:'cs', jur:'QC', label:{fr:'Espace clos',en:'Espace clos'}},
+ {id:'CPT-US-PermitRequiredCS', anchor:'cs', jur:'US', label:{fr:'Permit-required confined space',en:'Permit-required confined space'}},
+ {id:'CPT-UK-ConfinedSpace', anchor:'cs', jur:'UK', label:{fr:'Confined space',en:'Confined space'}},
+ {id:'CPT-ORPHAN-Something', anchor:'cs', jur:null, label:{fr:'Concept orphelin',en:'Orphan concept'}, violation:'vNoScope'},
+ {id:'CPT-QC-LesionEnregistrable', anchor:'ri', jur:'QC', label:{fr:'Lésion professionnelle déclarable',en:'Lésion professionnelle déclarable'},
+  threshold:'1', unit:{fr:"jour d'absence du travail",en:'day away from work'}},
+ {id:'CPT-US-RecordableCase', anchor:'ri', jur:'US', label:{fr:'OSHA recordable case',en:'OSHA recordable case'},
+  threshold:'0', unit:{fr:'soin médical au-delà des premiers soins',en:'medical treatment beyond first aid'}},
+ {id:'CPT-QC-Cadenassage', anchor:'ei', jur:'QC', label:{fr:'Cadenassage',en:'Cadenassage'}},
+ {id:'CPT-US-LOTO', anchor:'ei', jur:'US', label:{fr:'Lockout/Tagout',en:'Lockout/Tagout'}}
+];
+
+const MAPS = [
+ {id:'MAP-001', anchor:'cs', from:'CPT-QC-EspaceClos', to:'CPT-US-PermitRequiredCS', rel:'closeMatch', conf:.72,
+  basis:{fr:"La définition américaine ajoute un déclencheur de permis absent de la définition québécoise; les portées se recoupent sans coïncider.",
+         en:'The US definition adds a permit trigger absent from the QC definition; scope overlaps but is not coextensive.'},
+  author:'Mario Deshaies', status:'human-reviewed', date:'2026-03-02'},
+ {id:'MAP-002', anchor:'cs', from:'CPT-QC-EspaceClos', to:'CPT-UK-ConfinedSpace', rel:'closeMatch', conf:.81,
+  basis:{fr:"Les deux reposent sur l'enceinte et l'occupation non continue; le Royaume-Uni ajoute des critères de risque spécifiés.",
+         en:'Both anchor on enclosure and non-continuous occupancy; the UK adds specified risk criteria.'},
+  author:'Mario Deshaies', status:'human-reviewed', date:'2026-03-02'},
+ {id:'MAP-006', anchor:'cs', from:'CPT-UK-ConfinedSpace', to:'CPT-US-PermitRequiredCS', rel:'closeMatch', conf:.77,
+  basis:null, author:null, status:'machine-proposed', date:null, violation:'vProv'},
+ {id:'MAP-004', anchor:'ri', from:'CPT-QC-LesionEnregistrable', to:'CPT-US-RecordableCase', rel:'exactMatch', conf:.55,
+  basis:{fr:"Les seuils diffèrent matériellement : le Québec compte un jour d'absence, les États-Unis un soin médical.",
+         en:'Thresholds differ materially: QC counts a day away, the US counts medical treatment.'},
+  author:'AX5 clause extractor v2', status:'machine-proposed', date:'2026-03-02', violation:'vExact'},
+ {id:'MAP-003', anchor:'ei', from:'CPT-QC-Cadenassage', to:'CPT-US-LOTO', rel:'closeMatch', conf:.88,
+  basis:{fr:"Procédures quasi identiques; le Québec exige une procédure écrite par machine, les États-Unis par source d'énergie.",
+         en:'Procedurally near-identical; QC requires a written procedure per machine, the US per energy source.'},
+  author:'Mario Deshaies', status:'human-reviewed', date:'2026-03-02'},
+ {id:'MAP-005', anchor:'ei', from:'CPT-QC-EspaceClos', to:'CPT-QC-Cadenassage', rel:'relatedMatch', conf:.40,
+  basis:{fr:"Les deux apparaissent dans les procédures d'entrée.", en:'Both appear in entry procedures.'},
+  author:'AX5 clause extractor v2', status:'draft', date:'2026-03-02', violation:'vIntra'}
+];
+
+const REQS = [
+ {id:'REQ-QC-EspaceClos-Test', anchor:'cs', jur:'QC', cite:'RSST, art. 302', from:'2021-01-01',
+  label:{fr:"Test atmosphérique avant l'entrée",en:'Atmospheric testing before entry'}},
+ {id:'REQ-US-1910146-Test', anchor:'cs', jur:'US', cite:'29 CFR 1910.146(c)(5)(ii)(C)', from:'1993-04-15',
+  label:{fr:"Test atmosphérique préalable à l'entrée",en:'Pre-entry atmospheric testing'}},
+ {id:'REQ-UK-CS-RiskAssess', anchor:'cs', jur:'UK', cite:null, from:'1997-01-28',
+  label:{fr:"Évaluation des risques en espace clos",en:'Confined space risk assessment'}, violation:'vCite'},
+ {id:'REQ-QC-Cadenassage-Proc', anchor:'ei', jur:'QC', cite:'RSST, art. 188.6', from:'2016-01-14',
+  label:{fr:'Procédure de cadenassage écrite par machine',en:'Written lockout procedure per machine'}},
+ {id:'REQ-QC-Ancienne', anchor:'ei', jur:'QC', cite:'RSST, art. 185 (abrogé)', from:'2001-06-01', until:'2016-01-13',
+  label:{fr:'Disposition de cadenassage remplacée',en:'Superseded lockout provision'}},
+ {id:'REQ-INT-45001-Consult', anchor:'pr', jur:'INT', cite:'ISO 45001:2018, art. 5.4', from:'2018-03-12',
+  label:{fr:'Consultation et participation des travailleurs',en:'Worker consultation and participation'}, warning:'wHaz'}
+];
+
+let lang='fr', anchor='cs';
+const t = k => T[lang][k];
+const esc = s => String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+
+function setLang(l){
+  lang=l; document.documentElement.lang=l;
+  fr.setAttribute('aria-pressed', l==='fr'); en.setAttribute('aria-pressed', l==='en');
+  document.title = (l==='fr'?"AX5 — Explorateur d'ontologie de conformité":'AX5 — Compliance ontology explorer');
+  document.querySelectorAll('[data-i18n]').forEach(el=>{el.innerHTML=t(el.dataset.i18n)});
+  render();
+}
+
+function render(){
+  picker.innerHTML = Object.entries(T[lang].anchors).map(([k,v])=>
+    `<button aria-pressed="${k===anchor}" onclick="pick('${k}')">${esc(v)}</button>`).join('');
+
+  const cs = CONCEPTS.filter(c=>c.anchor===anchor);
+  cards.innerHTML = cs.length ? cs.map(c=>`
+    <div class="card${c.violation?' flag':''}">
+      <div class="jur">${c.jur ? esc(JUR[c.jur]) : '⚠ '+t('missing')}</div>
+      <div class="term">${esc(c.label[lang])}</div>
+      <div class="meta">
+        ${c.threshold!==undefined ? `<div><span>${t('threshold')}</span><b>${esc(c.threshold)}</b></div>
+        <div><span>${t('unit')}</span><b>${esc(c.unit[lang])}</b></div>` :
+        `<div><span>${t('threshold')}</span><b style="color:var(--dim)">${t('noThresh')}</b></div>`}
+        <div><span>ID</span><b style="color:var(--muted)">${esc(c.id)}</b></div>
+      </div>
+      ${c.violation?`<div class="badge">${t('lVio')}</div><div class="why">${t(c.violation)}</div>`:''}
+    </div>`).join('')
+    : `<p class="lede">${lang==='fr'?'Aucun concept juridictionnel encodé pour cette ancre — c\'est un trou de couverture, pas une erreur.':'No jurisdictional concept encoded for this anchor — that is a coverage gap, not an error.'}</p>`;
+
+  const name = id => {const c=CONCEPTS.find(x=>x.id===id); return c?c.label[lang]:id};
+  const ms = MAPS.filter(m=>m.anchor===anchor);
+  bridges.innerHTML = ms.length ? ms.map(m=>{
+    const segs = Array.from({length:20},(_,i)=>`<div class="seg${i<Math.round(m.conf*20)?' on':''}"></div>`).join('');
+    return `<div class="bridge${m.violation?' flag':''}">
+      <div class="span">
+        <span class="node">${esc(name(m.from))}</span>
+        <span class="rel">${esc(m.rel)}</span>
+        <span class="node">${esc(name(m.to))}</span>
+      </div>
+      <div class="trace"><div class="segs">${segs}</div><div class="pct">${(m.conf*100).toFixed(0)}%</div></div>
+      <dl class="prov">
+        <div><dt>${t('pBasis')}</dt><dd class="${m.basis?'':'none'}">${m.basis?esc(m.basis[lang]):'— '+t('missing')}</dd></div>
+        <div><dt>${t('pAuthor')}</dt><dd class="${m.author?'':'none'}">${m.author?esc(m.author):'— '+t('missing')}</dd></div>
+        <div><dt>${t('pStatus')}</dt><dd>${esc(m.status)}</dd></div>
+        <div><dt>${t('pDate')}</dt><dd>${m.date?esc(m.date):'—'}</dd></div>
+      </dl>
+      ${m.violation?`<div class="why">${t(m.violation)}</div>`:''}
+    </div>`}).join('')
+    : `<p class="lede">${lang==='fr'?'Aucune correspondance encodée pour cette ancre.':'No mapping encoded for this anchor.'}</p>`;
+
+  const rs = REQS.filter(r=>r.anchor===anchor);
+  reqs.innerHTML = rs.length ? rs.map(r=>`
+    <div class="req${r.violation?' flag':r.warning?' warn':''}">
+      <div class="req-main">
+        <div class="req-title">${esc(r.label[lang])}</div>
+        <div class="cite${r.cite?'':' missing'}">${r.cite?esc(r.cite):'⚠ '+t('noCite')}</div>
+      </div>
+      <div class="dates">${t('from')} ${esc(r.from)}${r.until?`<br>${t('until')} ${esc(r.until)}`:''}</div>
+      ${r.violation?`<div class="chip v">${t('lVio')}</div>`:''}
+      ${r.warning?`<div class="chip w">${t('lWarn')}</div>`:''}
+      ${r.violation||r.warning?`<div class="why" style="flex-basis:100%;color:${r.violation?'var(--alert)':'var(--warn)'};border-color:${r.violation?'var(--alert)':'var(--warn)'}">${t(r.violation||r.warning)}</div>`:''}
+    </div>`).join('')
+    : `<p class="lede">${lang==='fr'?'Aucune exigence encodée pour cette ancre.':'No requirement encoded for this anchor.'}</p>`;
+}
+
+function pick(a){anchor=a;render()}
+setLang('fr');
+</script>
+</body>
+</html>
