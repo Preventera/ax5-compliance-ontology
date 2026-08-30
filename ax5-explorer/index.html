@@ -42,6 +42,27 @@ header{border-bottom:1px solid var(--line);padding:22px 0;position:sticky;top:0;
 .tally .bad b{color:var(--alert)}
 .tally .mid b{color:var(--warn)}
 
+/* ---------- lexique ---------- */
+.lex{border-bottom:1px solid var(--line)}
+.lex details{padding:26px 0}
+.lex summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:11px;
+  font-family:var(--display);font-size:17px;font-weight:500;color:var(--ink);transition:.15s}
+.lex summary::-webkit-details-marker{display:none}
+.lex summary:hover{color:var(--cyan)}
+.lex summary:focus-visible{outline:2px solid var(--cyan);outline-offset:4px;border-radius:4px}
+.lex summary .caret{font-family:var(--data);font-size:13px;color:var(--violet);transition:transform .2s}
+.lex details[open] summary .caret{transform:rotate(90deg)}
+.lex .hint{font-family:var(--data);font-size:11.5px;color:var(--dim);margin-left:auto}
+.terms{display:grid;grid-template-columns:repeat(auto-fit,minmax(292px,1fr));gap:15px;margin-top:24px}
+.term-card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px}
+.term-card .code{font-family:var(--data);font-size:12px;color:var(--cyan);letter-spacing:.02em}
+.term-card .plain{font-family:var(--display);font-size:16px;font-weight:500;margin:6px 0 9px}
+.term-card p{font-size:14px;color:var(--muted);line-height:1.65}
+.term-card .ex{margin-top:11px;padding-top:11px;border-top:1px solid var(--line);
+  font-size:13px;color:var(--lime);font-family:var(--data);line-height:1.55}
+.lex .rule{margin-top:19px;padding:15px 17px;background:var(--raised);border-left:2px solid var(--violet);
+  border-radius:0;font-size:14.5px;color:var(--ink)}
+
 /* ---------- sections ---------- */
 section{padding:42px 0;border-bottom:1px solid var(--line)}
 .eyebrow{font-family:var(--data);font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--dim);margin-bottom:9px}
@@ -149,6 +170,18 @@ footer .rights{margin-top:11px}
     </div>
   </div>
 
+  <div class="lex">
+    <details>
+      <summary>
+        <span class="caret">▸</span>
+        <span data-i18n="lexTitle">Comprendre le modèle</span>
+        <span class="hint" data-i18n="lexHint">six mots, en langage SST</span>
+      </summary>
+      <div class="terms" id="terms"></div>
+      <div class="rule" data-i18n="lexRule"></div>
+    </details>
+  </div>
+
   <section>
     <div class="eyebrow" data-i18n="eb1">Point de départ</div>
     <h3 data-i18n="h1"></h3>
@@ -197,6 +230,34 @@ const T = {
   l3:"Une obligation sans référence d'article est invérifiable. Une obligation sans danger rattaché est seulement incomplète — d'où l'avertissement plutôt que le blocage.",
   foot:"Vue en lecture seule. Les données proviennent de data/instances.ttl; les verdicts de conformité proviennent des contraintes SHACL de shapes/ax5-shapes.ttl. Aucune saisie, aucune décision automatisée : la décision SST reste humaine.",
   rights:'Tous droits réservés.', lic:'Code publié sous licence',
+  lexTitle:'Comprendre le modèle', lexHint:'six mots, en langage SST',
+  lexRule:"<b>La règle qui tient tout :</b> dès qu'une relation porte ses propres attributs et son propre cycle de vie, ce n'est plus un trait entre deux cases — c'est une fiche. Un trait ne s'audite pas.",
+  terms:[
+   {code:'Jurisdiction', plain:'Le régime qui fait autorité',
+    text:"Québec sous la CNESST, les États-Unis sous OSHA, le Royaume-Uni sous la HSE. Un régime a autorité sur le sens des termes à l'intérieur de son territoire, et nulle part ailleurs.",
+    ex:'CNESST · OSHA · HSE · ISO'},
+   {code:'RegulatoryInstrument', plain:'Le texte réglementaire',
+    text:"Le document complet. Pas une obligation précise, mais le recueil qui la contient. Chaque texte relève d'un seul régime.",
+    ex:'RSST · 29 CFR 1910 · ISO 45001'},
+   {code:'Requirement', plain:"L'article précis",
+    text:"L'obligation nommée, avec sa référence exacte. Un conseiller SST qui affirme une obligation sans pouvoir pointer l'article se fait démolir en audit. Un agent aussi — d'où la citation obligatoire.",
+    ex:'RSST, art. 302 — test atmosphérique avant l\'entrée'},
+   {code:'JurisdictionalConcept', plain:'Le terme, tel que ce régime le définit',
+    text:"« Espace clos » au sens du Québec est une fiche; « confined space » au sens d'OSHA en est une autre. Les définitions et les seuils diffèrent. On ne les fusionne jamais : fusionner détruit la spécificité légale, la seule chose qu'une réponse de conformité doit préserver.",
+    ex:'Lésion déclarable (QC) : 1 jour d\'absence — Recordable case (US) : soin médical'},
+   {code:'AnchorConcept', plain:"L'entrée d'index",
+    text:"Le terme du langage commun, sans force légale. Il sert à retrouver les quatre versions juridictionnelles. Ce n'est jamais une réponse — la réponse est toujours dans un concept juridictionnel.",
+    ex:'« Espace clos », l\'idée générale'},
+   {code:'ConceptMapping', plain:'La fiche de correspondance',
+    text:"Ce qu'un conseiller SST écrit à la main quand une entreprise s'implante aux États-Unis : « au Québec on dit ceci, chez OSHA on dit cela, c'est proche mais pas identique ». Elle porte quatre choses — à quel point c'est équivalent, à quel point on en est sûr, sur quelle base, et qui signe.",
+    ex:'closeMatch · confiance 0,72 · base documentée · M. Deshaies'},
+   {code:'validFrom / recordedAt', plain:'Les deux axes du temps',
+    text:"Quand la règle est en vigueur, et quand nous l'avons su. Deux choses différentes. Après un accident, l'enquêteur ne demande pas seulement quelle était la règle : il demande ce que l'employeur savait à ce moment-là.",
+    ex:'En vigueur depuis 2021 · saisi au système en 2026'},
+   {code:'SHACL', plain:'La checklist avant classement',
+    text:"Les contraintes qui vérifient chaque fiche : champs obligatoires, valeurs cohérentes. Deux niveaux — <b>violation</b> quand la donnée produit une réponse fausse, <b>avertissement</b> quand elle est seulement incomplète.",
+    ex:'Sans citation → violation · sans danger rattaché → avertissement'}
+  ],
   anchors:{cs:'Espace clos',ri:'Lésion enregistrable',ei:"Isolation des énergies",pr:'Risque psychosocial'},
   noThresh:'non spécifié', threshold:'Seuil', unit:'Unité', anchor:'Ancre', status:'Revue',
   pBasis:'Base', pAuthor:'Attribué à', pStatus:'Statut', pDate:'Saisi le',
@@ -224,6 +285,34 @@ const T = {
   l3:'A requirement without a clause citation cannot be verified. A requirement without a linked hazard is merely incomplete — hence a warning rather than a block.',
   foot:'Read-only view. Data comes from data/instances.ttl; compliance verdicts come from the SHACL constraints in shapes/ax5-shapes.ttl. No data entry, no automated decisions: the OHS decision stays with a human.',
   rights:'All rights reserved.', lic:'Code released under the',
+  lexTitle:'Understanding the model', lexHint:'six words, in OHS language',
+  lexRule:"<b>The rule that holds it together:</b> once a relation carries its own attributes and its own lifecycle, it is no longer a line between two boxes — it is a record. A line cannot be audited.",
+  terms:[
+   {code:'Jurisdiction', plain:'The regime with authority',
+    text:'Québec under the CNESST, the United States under OSHA, the UK under the HSE. A regime has authority over what terms mean inside its territory, and nowhere else.',
+    ex:'CNESST · OSHA · HSE · ISO'},
+   {code:'RegulatoryInstrument', plain:'The regulatory text',
+    text:'The full document. Not a single obligation, but the body that contains it. Each instrument belongs to exactly one regime.',
+    ex:'RSST · 29 CFR 1910 · ISO 45001'},
+   {code:'Requirement', plain:'The specific clause',
+    text:'The named obligation, with its exact reference. An OHS adviser who asserts a duty without pointing to the clause gets torn apart in an audit. So does an agent — hence the mandatory citation.',
+    ex:'RSST, s. 302 — atmospheric testing before entry'},
+   {code:'JurisdictionalConcept', plain:'The term, as this regime defines it',
+    text:'"Espace clos" in the Québec sense is one record; "confined space" in the OSHA sense is another. Definitions and thresholds differ. We never merge them: merging destroys the legal specificity, which is the one thing a compliance answer must preserve.',
+    ex:'Recordable (QC): 1 day away — Recordable case (US): medical treatment'},
+   {code:'AnchorConcept', plain:'The index entry',
+    text:'The everyday business term, with no legal force. It exists to find the four jurisdictional versions. It is never an answer — the answer always sits in a jurisdictional concept.',
+    ex:'"Confined space", the general idea'},
+   {code:'ConceptMapping', plain:'The correspondence record',
+    text:'What an OHS adviser writes by hand when a company opens a US plant: "in Québec we call it this, under OSHA they call it that, close but not identical." It carries four things — how equivalent, how confident, on what basis, and who signs.',
+    ex:'closeMatch · confidence 0.72 · documented basis · M. Deshaies'},
+   {code:'validFrom / recordedAt', plain:'The two axes of time',
+    text:'When the rule is in force, and when we came to know it. Two different things. After an incident, the investigator does not only ask what the rule was: they ask what the employer knew at that moment.',
+    ex:'In force since 2021 · recorded in the system in 2026'},
+   {code:'SHACL', plain:'The checklist before filing',
+    text:'The constraints that check every record: required fields, coherent values. Two levels — <b>violation</b> when the data produces a wrong answer, <b>warning</b> when it is merely incomplete.',
+    ex:'No citation → violation · no linked hazard → warning'}
+  ],
   anchors:{cs:'Confined space',ri:'Recordable injury',ei:'Hazardous energy isolation',pr:'Psychosocial risk'},
   noThresh:'not specified', threshold:'Threshold', unit:'Unit', anchor:'Anchor', status:'Review',
   pBasis:'Basis', pAuthor:'Attributed to', pStatus:'Status', pDate:'Recorded',
@@ -306,6 +395,14 @@ function setLang(l){
 }
 
 function render(){
+  terms.innerHTML = T[lang].terms.map(x=>`
+    <div class="term-card">
+      <div class="code">${esc(x.code)}</div>
+      <div class="plain">${esc(x.plain)}</div>
+      <p>${x.text}</p>
+      <div class="ex">${esc(x.ex)}</div>
+    </div>`).join('');
+
   picker.innerHTML = Object.entries(T[lang].anchors).map(([k,v])=>
     `<button aria-pressed="${k===anchor}" onclick="pick('${k}')">${esc(v)}</button>`).join('');
 
