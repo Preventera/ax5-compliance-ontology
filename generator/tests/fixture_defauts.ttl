@@ -126,3 +126,92 @@ sst:MAP-HORS-BORNES a sst:Correspondance ;
 
 sst:CONCEPT-ORPHELIN a sst:ConceptLocal ;
     sst:libelle "Quelque chose, quelque part" .
+
+
+# =====================================================================
+# REVENDICATIONS DE COUVERTURE
+#
+# La question 49 : quelles obligations ne sont couvertes par RIEN.
+# =====================================================================
+
+sst:BROMONT a sst:Site ;
+    sst:nom "Usine de Bromont" ; sst:scopedTo sst:QC .
+
+sst:TOLEDO a sst:Site ;
+    sst:nom "Usine de Toledo" ; sst:scopedTo sst:US .
+
+sst:RSST-US a sst:Reglement ;
+    sst:titre "29 CFR 1910" ;
+    sst:hasJurisdiction sst:US .
+
+sst:PROC-Chutes a sst:DocumentInterne ;
+    sst:titre "Procédure de protection contre les chutes" ;
+    sst:reference "PRO-SST-014" ;
+    sst:appliqueSur sst:BROMONT ;
+    sst:version "3.2" ;
+    sst:validFrom "2024-05-01"^^xsd:date ;
+    sst:recordedAt "2026-08-30T11:00:00"^^xsd:dateTime .
+
+sst:PROC-Toledo a sst:DocumentInterne ;
+    sst:titre "Fall protection procedure" ;
+    sst:reference "PRO-EHS-009" ;
+    sst:appliqueSur sst:TOLEDO ;
+    sst:version "1.0" ;
+    sst:validFrom "2025-02-01"^^xsd:date ;
+    sst:recordedAt "2026-08-30T11:00:00"^^xsd:dateTime .
+
+sst:OBL-US-Chutes a sst:Obligation ;
+    sst:citation "29 CFR 1910.28(b)(1)" ;
+    sst:enonce "Protection contre les chutes au-delà de 4 pieds." ;
+    sst:statedIn sst:RSST-US ;
+    sst:validFrom "2017-01-17"^^xsd:date ;
+    sst:recordedAt "2026-08-30T11:00:00"^^xsd:dateTime ;
+    sst:addressesHazard sst:ChuteHauteur .
+
+
+### CAS DE RÉFÉRENCE — couverture complète, revue, bon régime ########
+
+sst:COUV-OK a sst:RevendicationCouverture ;
+    sst:couvreObligation sst:OBL-OK ;
+    sst:parDocument sst:PROC-Chutes ;
+    sst:degreCouverture "complete" ;
+    sst:basis "La procédure reprend le seuil de 3 mètres et détaille les points d'ancrage exigés." ;
+    sst:wasAttributedTo "Mario Deshaies" ;
+    sst:reviewStatus "human-reviewed" ;
+    sst:recordedAt "2026-08-30T11:00:00"^^xsd:dateTime .
+
+
+### DÉFAUT 8 — couverture complète non revue  =>  Violation ##########
+# « complete » autorise un agent à cesser de signaler l'obligation.
+# Sur un jugement automatique, c'est ainsi qu'on déclare conforme ce
+# qui ne l'est pas.
+
+sst:COUV-NON-REVUE a sst:RevendicationCouverture ;
+    sst:couvreObligation sst:OBL-US-Chutes ;
+    sst:parDocument sst:PROC-Toledo ;
+    sst:degreCouverture "complete" ;
+    sst:basis "Appariement automatique par similarité de titre." ;
+    sst:wasAttributedTo "AX5 clause extractor v2" ;
+    sst:reviewStatus "machine-proposed" ;
+    sst:recordedAt "2026-08-30T11:00:00"^^xsd:dateTime .
+
+
+### DÉFAUT 9 — couverture hors régime  =>  Violation #################
+# Une procédure du site de Bromont ne couvre pas une obligation
+# d'OSHA, même si elle traite du même sujet. La preuve exige de
+# traverser trois arcs de chaque côté.
+
+sst:COUV-HORS-REGIME a sst:RevendicationCouverture ;
+    sst:couvreObligation sst:OBL-US-Chutes ;
+    sst:parDocument sst:PROC-Chutes ;
+    sst:degreCouverture "partielle" ;
+    sst:basis "La procédure québécoise traite du même danger." ;
+    sst:wasAttributedTo "Mario Deshaies" ;
+    sst:reviewStatus "human-reviewed" ;
+    sst:recordedAt "2026-08-30T11:00:00"^^xsd:dateTime .
+
+
+### TROUS DE COUVERTURE — Avertissements attendus ####################
+# OBL-SANS-CITATION, OBL-SYSTEME, OBL-DATES-INVERSEES ne sont
+# couvertes par aucun document. Ce n'est pas une erreur de donnée :
+# c'est l'information que le référentiel est incomplet.

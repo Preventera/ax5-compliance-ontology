@@ -215,14 +215,164 @@ sst:CorrespondanceShape a sh:NodeShape ;
     ] .
 
 #--------------------------------------------------------------------
+# Site
+#--------------------------------------------------------------------
+sst:SiteShape a sh:NodeShape ;
+    sh:targetClass sst:Site ;
+
+    sh:property [
+        sh:path sst:nom ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Violation ;
+        sh:message "'nom' est obligatoire, remplissable, et son absence rend la donnée inexploitable. Barrière dure justifiée." ;
+        # Aucun test échoué : blocage sûr
+    ] ;
+    sh:property [
+        sh:path sst:scopedTo ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class sst:Juridiction ;
+        sh:severity sh:Violation ;
+        sh:message "Sans 'scopedTo', la donnée produit une réponse fausse, pas seulement incomplète. Le coût d'une réponse de conformité erronée dépasse toujours le coût d'un blocage d'ingestion." ;
+        # TEST 1 : produit une réponse fausse
+    ] .
+
+#--------------------------------------------------------------------
+# DocumentInterne
+#--------------------------------------------------------------------
+sst:DocumentInterneShape a sh:NodeShape ;
+    sh:targetClass sst:DocumentInterne ;
+
+    sh:property [
+        sh:path sst:titre ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Violation ;
+        sh:message "'titre' est obligatoire, remplissable, et son absence rend la donnée inexploitable. Barrière dure justifiée." ;
+        # Aucun test échoué : blocage sûr
+    ] ;
+    sh:property [
+        sh:path sst:reference ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Violation ;
+        sh:message "'reference' est obligatoire, remplissable, et son absence rend la donnée inexploitable. Barrière dure justifiée." ;
+        # Aucun test échoué : blocage sûr
+    ] ;
+    sh:property [
+        sh:path sst:appliqueSur ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class sst:Site ;
+        sh:severity sh:Violation ;
+        sh:message "'appliqueSur' est obligatoire, remplissable, et son absence rend la donnée inexploitable. Barrière dure justifiée." ;
+        # Aucun test échoué : blocage sûr
+    ] ;
+    sh:property [
+        sh:path sst:version ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Violation ;
+        sh:message "'version' est obligatoire, remplissable, et son absence rend la donnée inexploitable. Barrière dure justifiée." ;
+        # Aucun test échoué : blocage sûr
+    ] ;
+    sh:property [
+        sh:path sst:validFrom ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:date ;
+        sh:severity sh:Violation ;
+        sh:message "Sans 'validFrom', la donnée produit une réponse fausse, pas seulement incomplète. Le coût d'une réponse de conformité erronée dépasse toujours le coût d'un blocage d'ingestion." ;
+        # TEST 1 : produit une réponse fausse
+    ] ;
+    sh:property [
+        sh:path sst:recordedAt ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:dateTime ;
+        sh:severity sh:Violation ;
+        sh:message "Sans 'recordedAt', la donnée produit une réponse fausse, pas seulement incomplète. Le coût d'une réponse de conformité erronée dépasse toujours le coût d'un blocage d'ingestion." ;
+        # TEST 1 : produit une réponse fausse
+    ] .
+
+#--------------------------------------------------------------------
+# RevendicationCouverture
+#--------------------------------------------------------------------
+sst:RevendicationCouvertureShape a sh:NodeShape ;
+    sh:targetClass sst:RevendicationCouverture ;
+
+    sh:property [
+        sh:path sst:couvreObligation ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class sst:Obligation ;
+        sh:severity sh:Violation ;
+        sh:message "'couvreObligation' est obligatoire, remplissable, et son absence rend la donnée inexploitable. Barrière dure justifiée." ;
+        # Aucun test échoué : blocage sûr
+    ] ;
+    sh:property [
+        sh:path sst:parDocument ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class sst:DocumentInterne ;
+        sh:severity sh:Violation ;
+        sh:message "'parDocument' est obligatoire, remplissable, et son absence rend la donnée inexploitable. Barrière dure justifiée." ;
+        # Aucun test échoué : blocage sûr
+    ] ;
+    sh:property [
+        sh:path sst:degreCouverture ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Violation ;
+        sh:message "'degreCouverture' est obligatoire, remplissable, et son absence rend la donnée inexploitable. Barrière dure justifiée." ;
+        # Aucun test échoué : blocage sûr
+    ] ;
+    sh:property [
+        sh:path sst:basis ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Violation ;
+        sh:message "Sans 'basis', la donnée produit une réponse fausse, pas seulement incomplète. Le coût d'une réponse de conformité erronée dépasse toujours le coût d'un blocage d'ingestion." ;
+        # TEST 1 : produit une réponse fausse
+    ] ;
+    sh:property [
+        sh:path sst:wasAttributedTo ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Violation ;
+        sh:message "Sans 'wasAttributedTo', la donnée produit une réponse fausse, pas seulement incomplète. Le coût d'une réponse de conformité erronée dépasse toujours le coût d'un blocage d'ingestion." ;
+        # TEST 1 : produit une réponse fausse
+    ] ;
+    sh:property [
+        sh:path sst:reviewStatus ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Violation ;
+        sh:message "'reviewStatus' est obligatoire, remplissable, et son absence rend la donnée inexploitable. Barrière dure justifiée." ;
+        # Aucun test échoué : blocage sûr
+    ] ;
+    sh:property [
+        sh:path sst:recordedAt ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:dateTime ;
+        sh:severity sh:Violation ;
+        sh:message "Sans 'recordedAt', la donnée produit une réponse fausse, pas seulement incomplète. Le coût d'une réponse de conformité erronée dépasse toujours le coût d'un blocage d'ingestion." ;
+        # TEST 1 : produit une réponse fausse
+    ] .
+
+#--------------------------------------------------------------------
 # On ne déclare pas une équivalence exacte entre deux régimes sur
 # une preuve faible. C'est ainsi qu'on produit une réponse fluide
 # et fausse.
 #--------------------------------------------------------------------
 sst:SeuilEquivalenceExacteShape a sh:NodeShape ;
     sh:targetClass sst:Correspondance ;
+    sh:severity sh:Violation ;
     sh:sparql [
-        sh:severity sh:Violation ;
         sh:message "On ne déclare pas une équivalence exacte entre deux régimes sur une preuve faible. C'est ainsi qu'on produit une réponse fluide et fausse." ;
         sh:prefixes sst: ;
         sh:select """
@@ -241,8 +391,8 @@ sst:SeuilEquivalenceExacteShape a sh:NodeShape ;
 #--------------------------------------------------------------------
 sst:CorrespondanceTraverseLesRegimesShape a sh:NodeShape ;
     sh:targetClass sst:Correspondance ;
+    sh:severity sh:Violation ;
     sh:sparql [
-        sh:severity sh:Violation ;
         sh:message "Une correspondance relie DEUX juridictions. Relier deux concepts du même régime n'a aucun sens : il n'y a rien à traduire." ;
         sh:prefixes sst: ;
         sh:select """
@@ -261,8 +411,8 @@ sst:CorrespondanceTraverseLesRegimesShape a sh:NodeShape ;
 #--------------------------------------------------------------------
 sst:CoherenceDesDatesShape a sh:NodeShape ;
     sh:targetClass sst:Obligation ;
+    sh:severity sh:Violation ;
     sh:sparql [
-        sh:severity sh:Violation ;
         sh:message "Une obligation ne peut pas cesser d'être en vigueur avant d'y entrer." ;
         sh:prefixes sst: ;
         sh:select """
@@ -272,6 +422,74 @@ sst:CoherenceDesDatesShape a sh:NodeShape ;
                 $this <https://agenticx5.com/ont/sst#validTo> ?v .
                 $this <https://agenticx5.com/ont/sst#validFrom> ?ref .
                 FILTER (?v <= ?ref)
+            }
+        """ ;
+    ] .
+
+#--------------------------------------------------------------------
+# Cette obligation n'est couverte par aucun document interne. Ce
+# n'est pas une erreur de donnée : c'est un TROU DE COUVERTURE.
+# L'obligation est correctement encodée, mais rien dans le
+# référentiel ne prétend la mettre en oeuvre. Avertissement plutôt
+# que blocage — sinon on empêcherait d'encoder une obligation
+# avant d'avoir écrit la procédure, ou on pousserait quelqu'un à
+# inventer une couverture fictive.
+#--------------------------------------------------------------------
+sst:ObligationSansCouvertureShape a sh:NodeShape ;
+    sh:targetClass sst:Obligation ;
+    sh:severity sh:Warning ;
+    sh:sparql [
+        sh:message "Cette obligation n'est couverte par aucun document interne. Ce n'est pas une erreur de donnée : c'est un TROU DE COUVERTURE. L'obligation est correctement encodée, mais rien dans le référentiel ne prétend la mettre en oeuvre. Avertissement plutôt que blocage — sinon on empêcherait d'encoder une obligation avant d'avoir écrit la procédure, ou on pousserait quelqu'un à inventer une couverture fictive." ;
+        sh:prefixes sst: ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                FILTER NOT EXISTS { ?src <https://agenticx5.com/ont/sst#couvreObligation> $this }
+            }
+        """ ;
+    ] .
+
+#--------------------------------------------------------------------
+# Une couverture déclarée complète doit avoir été revue par un
+# humain. « complete » autorise un agent à considérer l'obligation
+# comme satisfaite et à cesser de la signaler. Sur un jugement
+# automatique non revu, c'est ainsi qu'on déclare conforme ce qui
+# ne l'est pas.
+#--------------------------------------------------------------------
+sst:CouvertureCompleteExigeRevueShape a sh:NodeShape ;
+    sh:targetClass sst:RevendicationCouverture ;
+    sh:severity sh:Violation ;
+    sh:sparql [
+        sh:message "Une couverture déclarée complète doit avoir été revue par un humain. « complete » autorise un agent à considérer l'obligation comme satisfaite et à cesser de la signaler. Sur un jugement automatique non revu, c'est ainsi qu'on déclare conforme ce qui ne l'est pas." ;
+        sh:prefixes sst: ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this <https://agenticx5.com/ont/sst#degreCouverture> "complete" .
+                $this <https://agenticx5.com/ont/sst#reviewStatus> ?v .
+                FILTER (STR(?v) != "human-reviewed")
+            }
+        """ ;
+    ] .
+
+#--------------------------------------------------------------------
+# Le document doit s'appliquer sur un site relevant du même régime
+# que l'obligation qu'il prétend couvrir. Une procédure du site de
+# Bromont ne couvre pas une obligation d'OSHA — même si elle
+# traite du même sujet.
+#--------------------------------------------------------------------
+sst:CouvertureDansLeBonRegimeShape a sh:NodeShape ;
+    sh:targetClass sst:RevendicationCouverture ;
+    sh:severity sh:Violation ;
+    sh:sparql [
+        sh:message "Le document doit s'appliquer sur un site relevant du même régime que l'obligation qu'il prétend couvrir. Une procédure du site de Bromont ne couvre pas une obligation d'OSHA — même si elle traite du même sujet." ;
+        sh:prefixes sst: ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this <https://agenticx5.com/ont/sst#parDocument> / <https://agenticx5.com/ont/sst#appliqueSur> / <https://agenticx5.com/ont/sst#scopedTo> ?a .
+                $this <https://agenticx5.com/ont/sst#couvreObligation> / <https://agenticx5.com/ont/sst#statedIn> / <https://agenticx5.com/ont/sst#hasJurisdiction> ?b .
+                FILTER (?a != ?b)
             }
         """ ;
     ] .

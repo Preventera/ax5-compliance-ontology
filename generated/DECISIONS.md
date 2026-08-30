@@ -44,12 +44,27 @@ politique de sévérité refuse d'en faire une barrière dure.
 | Correspondance | `confidence` | Violation | TEST 1 : produit une réponse fausse |
 | Correspondance | `basis` | Violation | TEST 1 : produit une réponse fausse |
 | Correspondance | `wasAttributedTo` | Violation | TEST 1 : produit une réponse fausse |
+| Site | `nom` | Violation | Aucun test échoué : blocage sûr |
+| Site | `scopedTo` | Violation | TEST 1 : produit une réponse fausse |
+| DocumentInterne | `titre` | Violation | Aucun test échoué : blocage sûr |
+| DocumentInterne | `reference` | Violation | Aucun test échoué : blocage sûr |
+| DocumentInterne | `appliqueSur` | Violation | Aucun test échoué : blocage sûr |
+| DocumentInterne | `version` | Violation | Aucun test échoué : blocage sûr |
+| DocumentInterne | `validFrom` | Violation | TEST 1 : produit une réponse fausse |
+| DocumentInterne | `recordedAt` | Violation | TEST 1 : produit une réponse fausse |
+| RevendicationCouverture | `couvreObligation` | Violation | Aucun test échoué : blocage sûr |
+| RevendicationCouverture | `parDocument` | Violation | Aucun test échoué : blocage sûr |
+| RevendicationCouverture | `degreCouverture` | Violation | Aucun test échoué : blocage sûr |
+| RevendicationCouverture | `basis` | Violation | TEST 1 : produit une réponse fausse |
+| RevendicationCouverture | `wasAttributedTo` | Violation | TEST 1 : produit une réponse fausse |
+| RevendicationCouverture | `reviewStatus` | Violation | Aucun test échoué : blocage sûr |
+| RevendicationCouverture | `recordedAt` | Violation | TEST 1 : produit une réponse fausse |
 
 ## Résumé
 
-- 18 barrières dures (Violation)
+- 33 barrières dures (Violation)
 - 1 signaux doux (Warning)
-- 3 règles métier en SHACL-SPARQL
+- 6 règles métier en SHACL-SPARQL
 
 Un ratio proche de 100 % de barrières dures est un signal d'alarme :
 il annonce un pipeline que l'équipe d'ingestion va contourner.

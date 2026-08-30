@@ -148,3 +148,68 @@ sst:wasAttributedTo a owl:DatatypeProperty ;
     rdfs:label "Qui l'affirme"@fr ;
     rdfs:domain sst:Correspondance ;
     rdfs:range xsd:string .
+
+#--------------------------------------------------------------------
+# Un lieu de travail. Il relève d'un régime, et c'est ce qui
+# détermine quelles obligations lui sont applicables.
+#--------------------------------------------------------------------
+sst:Site a owl:Class ;
+    rdfs:label "Site"@fr .
+
+#--------------------------------------------------------------------
+# Une procédure, un programme de prévention, une instruction de
+# travail, un permis type. POINT CENTRAL : un document interne ne
+# crée AUCUNE obligation. Il n'a pas d'autorité externe. Sa seule
+# valeur est ce qu'il prétend mettre en oeuvre — et cette
+# prétention doit être traçable, sinon le document ne prouve rien.
+#--------------------------------------------------------------------
+sst:DocumentInterne a owl:Class ;
+    rdfs:label "DocumentInterne"@fr .
+
+sst:reference a owl:DatatypeProperty ;
+    rdfs:label "Identifiant interne"@fr ;
+    rdfs:domain sst:DocumentInterne ;
+    rdfs:range xsd:string .
+
+sst:appliqueSur a owl:ObjectProperty ;
+    rdfs:label "Site où il s'applique"@fr ;
+    rdfs:domain sst:DocumentInterne ;
+    rdfs:range sst:Site .
+
+sst:version a owl:DatatypeProperty ;
+    rdfs:domain sst:DocumentInterne ;
+    rdfs:range xsd:string .
+
+#--------------------------------------------------------------------
+# L'affirmation qu'un document interne satisfait une obligation.
+# Ce n'est PAS un fait, c'est une REVENDICATION. Quelqu'un a lu
+# l'article, lu la procédure, et jugé que la seconde couvre le
+# premier. Ce jugement peut être faux, partiel, ou périmé. Comme
+# la fiche de correspondance, c'est une entité de première classe
+# : elle porte un degré, une base, un auteur, un statut de revue.
+# Un trait entre une procédure et un article ne s'audite pas.
+# C'est cette fiche qui permet la question qu'aucun SGSST ne pose
+# : quelles obligations ne sont couvertes par RIEN.
+#--------------------------------------------------------------------
+sst:RevendicationCouverture a owl:Class ;
+    rdfs:label "RevendicationCouverture"@fr .
+
+sst:couvreObligation a owl:ObjectProperty ;
+    rdfs:label "Obligation visée"@fr ;
+    rdfs:domain sst:RevendicationCouverture ;
+    rdfs:range sst:Obligation .
+
+sst:parDocument a owl:ObjectProperty ;
+    rdfs:label "Document qui la met en oeuvre"@fr ;
+    rdfs:domain sst:RevendicationCouverture ;
+    rdfs:range sst:DocumentInterne .
+
+sst:degreCouverture a owl:DatatypeProperty ;
+    rdfs:label "Degré de couverture"@fr ;
+    rdfs:domain sst:RevendicationCouverture ;
+    rdfs:range xsd:string .
+
+sst:reviewStatus a owl:DatatypeProperty ;
+    rdfs:label "Statut de revue"@fr ;
+    rdfs:domain sst:RevendicationCouverture ;
+    rdfs:range xsd:string .

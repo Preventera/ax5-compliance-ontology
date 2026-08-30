@@ -57,6 +57,10 @@ def _sev(results, node):
     return {r["severity"] for r in results if r["node"] == node}
 
 
+def _paths(results, node):
+    return {r["path"] for r in results if r["node"] == node}
+
+
 # --- Le RDF produit est bien formé -----------------------------------
 
 def test_ontologie_parse(generated):
@@ -139,6 +143,62 @@ def test_violations_de_noeud_sans_chemin(results):
         assert None in paths, f"{node} devrait produire une violation de noeud"
 
 
+# --- Revendication de couverture -------------------------------------
+
+def test_couverture_valide_passe(results):
+    """Couverture complète, revue par un humain, dans le bon régime.
+    Ne doit rien déclencher.
+    """
+    assert _sev(results, "COUV-OK") == set()
+
+
+def test_obligation_couverte_ne_signale_pas_de_trou(results):
+    """`OBL-OK` est couverte par `COUV-OK`.
+
+    Si ce test échoue en même temps que le suivant, la détection de trou
+    ne regarde pas les liens entrants — elle signale tout.
+    """
+    assert _sev(results, "OBL-OK") == set()
+
+
+def test_obligation_non_couverte_avertit(results):
+    """LA QUESTION 49, exprimée comme contrainte.
+
+    `OBL-SYSTEME` est parfaitement formée. Aucun de ses champs n'est
+    fautif. Ce qui manque est ailleurs dans le graphe : aucune
+    revendication ne pointe vers elle.
+
+    Avertissement et non violation — délibérément. Bloquer empêcherait
+    d'encoder une obligation avant d'avoir écrit la procédure, ou
+    pousserait quelqu'un à inventer une couverture fictive pour
+    franchir la barrière.
+    """
+    sev = _sev(results, "OBL-SYSTEME")
+    assert "Warning" in sev
+    assert "Violation" not in sev
+
+
+def test_couverture_complete_non_revue_bloque(results):
+    """« complete » autorise un agent à cesser de signaler l'obligation.
+
+    Sur un jugement automatique non revu, c'est ainsi qu'on déclare
+    conforme ce qui ne l'est pas. Même logique que le seuil sur
+    exactMatch.
+    """
+    assert "Violation" in _sev(results, "COUV-NON-REVUE")
+
+
+def test_couverture_hors_regime_bloque(results):
+    """Une procédure de Bromont ne couvre pas une obligation d'OSHA.
+
+    La preuve exige de traverser trois arcs de chaque côté :
+    document → site → régime, et obligation → règlement → régime.
+    Ni le sujet ni aucune de ses propriétés directes ne porte l'erreur.
+    """
+    assert "Violation" in _sev(results, "COUV-HORS-REGIME")
+    assert None in _paths(results, "COUV-HORS-REGIME")
+
+
 def test_compte_total(results):
     """Verrou de régression.
 
@@ -148,4 +208,4 @@ def test_compte_total(results):
     """
     v = sum(1 for r in results if r["severity"] == "Violation")
     w = sum(1 for r in results if r["severity"] == "Warning")
-    assert (v, w) == (6, 1)
+    assert (v, w) == (8, 4)

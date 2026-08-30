@@ -232,8 +232,8 @@ scm:RegleDePlanifShape a sh:NodeShape ;
 #--------------------------------------------------------------------
 scm:SeuilEquivalenceExacteShape a sh:NodeShape ;
     sh:targetClass scm:Rapprochement ;
+    sh:severity sh:Violation ;
     sh:sparql [
-        sh:severity sh:Violation ;
         sh:message "On ne déclare pas une équivalence exacte entre deux systèmes sur une preuve faible. exactMatch autorise un agent à substituer un champ à l'autre sans prévenir; sur une preuve faible, c'est ainsi qu'on produit un plan fluide et faux." ;
         sh:prefixes scm: ;
         sh:select """
@@ -253,8 +253,8 @@ scm:SeuilEquivalenceExacteShape a sh:NodeShape ;
 #--------------------------------------------------------------------
 scm:RapprochementTraverseLesSystemesShape a sh:NodeShape ;
     sh:targetClass scm:Rapprochement ;
+    sh:severity sh:Violation ;
     sh:sparql [
-        sh:severity sh:Violation ;
         sh:message "Un rapprochement relie DEUX systèmes. Relier deux concepts du même système n'a aucun sens : il n'y a rien à traduire, et la fiche masque un problème de modélisation interne." ;
         sh:prefixes scm: ;
         sh:select """
@@ -272,8 +272,8 @@ scm:RapprochementTraverseLesSystemesShape a sh:NodeShape ;
 #--------------------------------------------------------------------
 scm:CoherenceDesDatesShape a sh:NodeShape ;
     sh:targetClass scm:RegleDePlanif ;
+    sh:severity sh:Violation ;
     sh:sparql [
-        sh:severity sh:Violation ;
         sh:message "Une règle ne peut pas cesser d'être en vigueur avant d'y entrer." ;
         sh:prefixes scm: ;
         sh:select """

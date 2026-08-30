@@ -337,8 +337,8 @@ iasst:ApplicationIAShape a sh:NodeShape ;
 #--------------------------------------------------------------------
 iasst:EncadrementSiDecisionIndividuelleShape a sh:NodeShape ;
     sh:targetClass iasst:ApplicationIA ;
+    sh:severity sh:Violation ;
     sh:sparql [
-        sh:severity sh:Violation ;
         sh:message "Une application qui produit une décision individuelle sur un travailleur doit citer son encadrement juridique. Sans lui, le référentiel présente comme banale une application qui relève du profilage sous la Loi 25 et du haut risque sous l'AI Act." ;
         sh:prefixes iasst: ;
         sh:select """
@@ -357,8 +357,8 @@ iasst:EncadrementSiDecisionIndividuelleShape a sh:NodeShape ;
 #--------------------------------------------------------------------
 iasst:ApplicationTraverseTechniqueEtDangerShape a sh:NodeShape ;
     sh:targetClass iasst:ApplicationIA ;
+    sh:severity sh:Violation ;
     sh:sparql [
-        sh:severity sh:Violation ;
         sh:message "L'application et son encadrement juridique doivent relever du même régime. Citer l'AI Act européen pour une application encadrée au Québec produit une réponse fluide et fausse." ;
         sh:prefixes iasst: ;
         sh:select """

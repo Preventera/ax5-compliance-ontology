@@ -154,6 +154,123 @@ fiches:
         type: texte
         obligatoire: true
 
+  # -------------------------------------------------------------------
+  - nom: Site
+    description: >
+      Un lieu de travail. Il relève d'un régime, et c'est ce qui
+      détermine quelles obligations lui sont applicables.
+    champs:
+      - nom: nom
+        type: texte
+        obligatoire: true
+      - nom: scopedTo
+        libelle: "Régime dont il relève"
+        type: lien
+        vers: Juridiction
+        obligatoire: true
+        unique: true
+
+  # -------------------------------------------------------------------
+  - nom: DocumentInterne
+    description: >
+      Une procédure, un programme de prévention, une instruction de
+      travail, un permis type.
+
+      POINT CENTRAL : un document interne ne crée AUCUNE obligation.
+      Il n'a pas d'autorité externe. Sa seule valeur est ce qu'il
+      prétend mettre en oeuvre — et cette prétention doit être
+      traçable, sinon le document ne prouve rien.
+    champs:
+      - nom: titre
+        type: texte
+        obligatoire: true
+      - nom: reference
+        libelle: "Identifiant interne"
+        type: texte
+        obligatoire: true
+      - nom: appliqueSur
+        libelle: "Site où il s'applique"
+        type: lien
+        vers: Site
+        obligatoire: true
+        unique: true
+      - nom: version
+        type: texte
+        obligatoire: true
+      - nom: validFrom
+        libelle: "En vigueur depuis"
+        type: date
+        obligatoire: true
+        unique: true
+      - nom: validTo
+        libelle: "Remplacé le"
+        type: date
+        obligatoire: false
+      - nom: recordedAt
+        libelle: "Saisi au système le"
+        type: horodatage
+        obligatoire: true
+        unique: true
+
+  # -------------------------------------------------------------------
+  - nom: RevendicationCouverture
+    description: >
+      L'affirmation qu'un document interne satisfait une obligation.
+
+      Ce n'est PAS un fait, c'est une REVENDICATION. Quelqu'un a lu
+      l'article, lu la procédure, et jugé que la seconde couvre le
+      premier. Ce jugement peut être faux, partiel, ou périmé.
+
+      Comme la fiche de correspondance, c'est une entité de première
+      classe : elle porte un degré, une base, un auteur, un statut de
+      revue. Un trait entre une procédure et un article ne s'audite
+      pas.
+
+      C'est cette fiche qui permet la question qu'aucun SGSST ne pose :
+      quelles obligations ne sont couvertes par RIEN.
+    champs:
+      - nom: couvreObligation
+        libelle: "Obligation visée"
+        type: lien
+        vers: Obligation
+        obligatoire: true
+        unique: true
+      - nom: parDocument
+        libelle: "Document qui la met en oeuvre"
+        type: lien
+        vers: DocumentInterne
+        obligatoire: true
+        unique: true
+      - nom: degreCouverture
+        libelle: "Degré de couverture"
+        type: texte
+        obligatoire: true
+        unique: true
+        # complete | partielle | mention-seulement
+        #
+        # Même piège que exactMatch : « complete » autorise un agent à
+        # considérer l'obligation comme satisfaite et à ne plus la
+        # signaler. Sur un jugement non revu, c'est ainsi qu'on déclare
+        # conforme ce qui ne l'est pas.
+      - nom: basis
+        libelle: "Sur quelle base"
+        type: texte
+        obligatoire: true
+      - nom: wasAttributedTo
+        libelle: "Qui l'affirme"
+        type: texte
+        obligatoire: true
+      - nom: reviewStatus
+        libelle: "Statut de revue"
+        type: texte
+        obligatoire: true
+        unique: true
+      - nom: recordedAt
+        libelle: "Saisi au système le"
+        type: horodatage
+        obligatoire: true
+        unique: true
+
 # =====================================================================
 # RÈGLES MÉTIER
 #
@@ -199,3 +316,47 @@ regles:
     alors:
       champ: validTo
       superieur_a: validFrom
+
+  - nom: obligation_sans_couverture
+    sur: Obligation
+    type: aucun_lien_entrant
+    severite: avertissement
+    libelle: >
+      Cette obligation n'est couverte par aucun document interne. Ce
+      n'est pas une erreur de donnée : c'est un TROU DE COUVERTURE.
+      L'obligation est correctement encodée, mais rien dans le
+      référentiel ne prétend la mettre en oeuvre. Avertissement plutôt
+      que blocage — sinon on empêcherait d'encoder une obligation avant
+      d'avoir écrit la procédure, ou on pousserait quelqu'un à inventer
+      une couverture fictive.
+    par:
+      champ: couvreObligation
+
+  - nom: couverture_complete_exige_revue
+    sur: RevendicationCouverture
+    type: condition_croisee
+    libelle: >
+      Une couverture déclarée complète doit avoir été revue par un
+      humain. « complete » autorise un agent à considérer l'obligation
+      comme satisfaite et à cesser de la signaler. Sur un jugement
+      automatique non revu, c'est ainsi qu'on déclare conforme ce qui ne
+      l'est pas.
+    si:
+      champ: degreCouverture
+      vaut: "complete"
+    alors:
+      champ: reviewStatus
+      vaut_exactement: "human-reviewed"
+
+  - nom: couverture_dans_le_bon_regime
+    sur: RevendicationCouverture
+    type: comparaison_traversee
+    libelle: >
+      Le document doit s'appliquer sur un site relevant du même régime
+      que l'obligation qu'il prétend couvrir. Une procédure du site de
+      Bromont ne couvre pas une obligation d'OSHA — même si elle traite
+      du même sujet.
+    compare:
+      chemin_a: [parDocument, appliqueSur, scopedTo]
+      chemin_b: [couvreObligation, statedIn, hasJurisdiction]
+      doivent_etre: identiques

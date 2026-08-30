@@ -248,14 +248,29 @@ def _generate_rule(regle: dict, spec: dict) -> list[str]:
     cls = qname(p, regle["sur"])
     shape = qname(p, _camel(regle["nom"]) + "Shape")
 
+    # Une règle métier n'est pas forcément bloquante.
+    #
+    # « Cette exigence n'est couverte par aucune procédure » est un TROU,
+    # pas une erreur. La donnée est correcte; c'est le référentiel qui est
+    # incomplet. Bloquer l'ingestion d'une exigence parce qu'on n'a pas
+    # encore écrit la procédure serait absurde — et forcerait quelqu'un à
+    # inventer une couverture fictive pour franchir la barrière.
+    #
+    # Même logique que le TEST 3 de la politique de sévérité, appliquée
+    # au niveau de la règle plutôt qu'au niveau du champ.
+    sev = "sh:Warning" if regle.get("severite") == "avertissement" else "sh:Violation"
+
     out = ["#" + "-" * 68]
     for ligne in _wrap_comment(regle["libelle"]):
         out.append(f"# {ligne}")
     out.append("#" + "-" * 68)
     out.append(f"{shape} a sh:NodeShape ;")
     out.append(f"    sh:targetClass {cls} ;")
+    # sh:severity est une propriété de la FORME, pas de la contrainte
+    # imbriquée. Placée dans le noeud anonyme sh:sparql, elle est
+    # ignorée et tout ressort en violation.
+    out.append(f"    sh:severity {sev} ;")
     out.append("    sh:sparql [")
-    out.append("        sh:severity sh:Violation ;")
     out.append(f'        sh:message "{_esc(_flat(regle["libelle"]))}" ;')
     out.append(f"        sh:prefixes {p}: ;")
     out.append('        sh:select """')
@@ -264,6 +279,8 @@ def _generate_rule(regle: dict, spec: dict) -> list[str]:
         out.extend(_sparql_cross_field(regle, uri))
     elif regle["type"] == "comparaison_traversee":
         out.extend(_sparql_path_compare(regle, uri))
+    elif regle["type"] == "aucun_lien_entrant":
+        out.extend(_sparql_no_inbound(regle, uri))
     else:
         out.append(f"            # type de règle inconnu : {regle['type']}")
 
@@ -294,12 +311,41 @@ def _sparql_cross_field(regle: dict, uri: str) -> list[str]:
 
     if "minimum" in alors:
         L.append(f"                FILTER (?v < {alors['minimum']})")
+    elif "vaut_exactement" in alors:
+        L.append(f'                FILTER (STR(?v) != "{alors["vaut_exactement"]}")')
     elif "superieur_a" in alors:
         L.append(f"                $this <{uri}{alors['superieur_a']}> ?ref .")
         L.append("                FILTER (?v <= ?ref)")
 
     L.append("            }")
     return L
+
+
+def _sparql_no_inbound(regle: dict, uri: str) -> list[str]:
+    """Aucun noeud ne pointe vers celui-ci par la propriété donnée.
+
+    C'est la DÉTECTION DE TROU, et elle exige un renversement de sens.
+
+    Toutes les autres contraintes regardent le noeud lui-même : a-t-il
+    ses champs, ses valeurs sont-elles cohérentes. Celle-ci regarde ce
+    qui n'existe PAS ailleurs dans le graphe. Le sujet fautif est
+    parfaitement formé — c'est son absence de couverture qui pose
+    problème, et cette absence ne se lit nulle part sur lui.
+
+    Le SHACL de base ne peut pas l'exprimer : `sh:path` suit un chemin
+    SORTANT depuis le noeud validé. Il n'existe pas de `sh:minCount`
+    pour les arcs entrants.
+
+    Renversement à garder en tête : la requête décrit l'interdit, donc
+    « doit être couvert » se traduit par « rien ne le couvre ».
+    """
+    par = regle["par"]
+    return [
+        "            SELECT $this",
+        "            WHERE {",
+        f"                FILTER NOT EXISTS {{ ?src <{uri}{par['champ']}> $this }}",
+        "            }",
+    ]
 
 
 def _sparql_path_compare(regle: dict, uri: str) -> list[str]:
