@@ -1,0 +1,337 @@
+# =====================================================================
+# SPEC DE DOMAINE — APPLICATIONS DE L'IA EN SANTÉ ET SÉCURITÉ DU TRAVAIL
+#
+# Sources des référentiels : CNESST (manuel de codage OIIC adapté),
+# SCIAN Canada 2022, ISO 45001 / CSA Z1002, hiérarchie des contrôles
+# NIOSH-ILO, Loi 25 (Québec), AI Act (UE).
+#
+# ---------------------------------------------------------------------
+# DÉCISION D'ARCHITECTURE : CLASSIFICATION À FACETTES
+#
+# Il n'existe pas de taxonomie universelle des risques professionnels.
+# Il existe des référentiels distincts, aux finalités différentes, qui
+# se recoupent sans être interchangeables :
+#
+#   - le DANGER à identifier avant l'accident        (ISO 45001 / CSA)
+#   - l'ÉVÉNEMENT qui produit la lésion              (CNESST / OIIC)
+#   - le SECTEUR d'activité économique               (SCIAN)
+#   - le TYPE D'INTERVENTION de prévention           (hiérarchie NIOSH)
+#
+# Aucun n'est le parent des autres. Le même danger traverse tous les
+# secteurs; le même secteur porte tous les dangers. Toute arborescence
+# unique serait fausse quelque part.
+#
+# On garde donc chaque axe dans son propre référentiel, et la fiche
+# ApplicationIA porte des liens vers plusieurs d'entre eux.
+#
+# ---------------------------------------------------------------------
+# L'AXE QUI COMPTE LE PLUS : LE NIVEAU DE DÉCISION
+#
+# Une caméra qui repère anonymement une zone dangereuse n'est pas un
+# système à haut risque au sens de l'AI Act. La MÊME caméra qui
+# identifie un travailleur, calcule son taux de conformité et alimente
+# une évaluation de rendement l'est — et constitue du profilage au sens
+# de la Loi 25.
+#
+# Même technique, même danger, même secteur. Exposition juridique
+# complètement différente.
+#
+# C'est le motif de l'ontologie de conformité — le même mot, des
+# obligations différentes — transposé d'un axe géographique à un axe
+# décisionnel.
+# =====================================================================
+
+domaine:
+  nom: "Applications de l'IA en santé et sécurité du travail"
+  prefixe: "iasst"
+  uri: "https://agenticx5.com/ont/ia-sst#"
+  version: "0.1.0"
+
+fiches:
+
+  # ---------- FACETTE 1 : la technique ------------------------------
+  - nom: TechniqueIA
+    description: >
+      Une famille technique issue du lexique AgenticX5. Vision par
+      ordinateur, capteurs portables, modèles prédictifs, traitement du
+      langage naturel, robotique collaborative.
+    champs:
+      - nom: libelle
+        libelle: "Nom de la technique"
+        type: texte
+        obligatoire: true
+      - nom: definition
+        type: texte
+        obligatoire: true
+      - nom: lexiconRef
+        libelle: "Identifiant dans le lexique AgenticX5"
+        type: texte
+        obligatoire: true
+        # Absent tant que le rattachement au lexique n'est pas fait.
+
+  # ---------- FACETTE 2 : le danger (ISO 45001 / CSA Z1002) ---------
+  - nom: FamilleDanger
+    description: >
+      Une famille de dangers au sens d'ISO 45001 et de CSA Z1002 :
+      sécurité, physique, chimique, biologique, ergonomique,
+      psychosocial. C'est ce qu'on identifie AVANT l'accident.
+    champs:
+      - nom: libelle
+        type: texte
+        obligatoire: true
+      - nom: refNorme
+        libelle: "Référence normative"
+        type: texte
+        obligatoire: true
+
+  # ---------- FACETTE 3 : l'événement (CNESST / OIIC) ---------------
+  - nom: GenreAccident
+    description: >
+      Un genre d'accident ou d'exposition au sens du manuel de codage
+      CNESST, adapté de l'OIIC. C'est ce qui PRODUIT la lésion — pas le
+      même objet qu'un danger.
+      Confondre les deux est la faute classique : « chute » comme
+      danger et « chute à un niveau inférieur » comme événement codé
+      ne servent pas au même raisonnement.
+    champs:
+      - nom: libelle
+        type: texte
+        obligatoire: true
+      - nom: codeCNESST
+        libelle: "Code du manuel de codage"
+        type: texte
+        obligatoire: true
+      - nom: scopedTo
+        libelle: "Régime qui définit ce code"
+        type: lien
+        vers: Juridiction
+        obligatoire: true
+        unique: true
+        # Un code d'accident hors de son régime n'a pas de sens : la
+        # nomenclature OIIC adaptée du Québec n'est pas celle de l'ESAW
+        # européen ni celle de l'OIIC américain.
+
+  # ---------- FACETTE 4 : le secteur (SCIAN) ------------------------
+  - nom: SecteurSCIAN
+    description: >
+      Un secteur d'activité économique selon SCIAN Canada 2022.
+      Le SCIAN n'est pas une classification de risques — il classe des
+      industries. Il sert à situer une application, pas à la définir.
+    champs:
+      - nom: libelle
+        type: texte
+        obligatoire: true
+      - nom: codeSCIAN
+        libelle: "Code SCIAN (2 à 6 chiffres)"
+        type: texte
+        obligatoire: true
+
+  # ---------- FACETTE 5 : l'intervention ----------------------------
+  - nom: TypeIntervention
+    description: >
+      La place de l'application dans la hiérarchie des contrôles
+      (NIOSH, ILO, EU-OSHA) ou dans les activités de prévention.
+      Cette facette répond à : l'IA remplace-t-elle un contrôle
+      technique, ou seulement une activité de surveillance ?
+    champs:
+      - nom: libelle
+        type: texte
+        obligatoire: true
+      - nom: rangHierarchie
+        libelle: "Rang dans la hiérarchie des contrôles (1 à 5)"
+        type: entier
+        obligatoire: false
+        min: 1
+        max: 5
+        # Les activités de surveillance et d'amélioration ne se situent
+        # pas dans la hiérarchie des contrôles. Le champ reste vide
+        # pour elles, et c'est correct.
+
+  # ---------- FACETTE 6 : le régime -------------------------------
+  - nom: Juridiction
+    description: "Un régime ayant autorité sur un territoire."
+    champs:
+      - nom: nom
+        type: texte
+        obligatoire: true
+      - nom: code
+        type: texte
+        obligatoire: true
+
+  - nom: EncadrementJuridique
+    description: >
+      Une obligation légale qui pèse sur une application selon son
+      niveau de décision. Loi 25 sur le profilage, AI Act annexe III
+      sur la gestion des travailleurs, LNT sur la politique de
+      surveillance électronique.
+    champs:
+      - nom: libelle
+        type: texte
+        obligatoire: true
+      - nom: citation
+        libelle: "Référence de l'article"
+        type: texte
+        obligatoire: true
+        # Même règle qu'en conformité : une obligation sans référence
+        # est invérifiable, donc inutilisable.
+      - nom: scopedTo
+        libelle: "Régime"
+        type: lien
+        vers: Juridiction
+        obligatoire: true
+        unique: true
+      - nom: declencheur
+        libelle: "Niveau de décision qui la déclenche"
+        type: texte
+        obligatoire: true
+
+  # ---------- LA FICHE CENTRALE -------------------------------------
+  - nom: ApplicationIA
+    description: >
+      Le croisement d'une technique d'IA et d'un problème SST, dans un
+      contexte donné.
+
+      Ce n'est PAS une correspondance : une technique et un danger ne
+      sont pas deux façons de dire la même chose. C'est une relation
+      d'application, et elle a ses propres attributs — maturité, niveau
+      de décision, risque documenté, provenance.
+
+      Comme la fiche de correspondance en conformité, c'est une entité
+      de première classe : un trait entre une technique et un danger ne
+      s'audite pas.
+    champs:
+      - nom: libelle
+        libelle: "Nom de l'application"
+        type: texte
+        obligatoire: true
+      - nom: emploieTechnique
+        libelle: "Technique employée"
+        type: lien
+        vers: TechniqueIA
+        obligatoire: true
+        unique: true
+      - nom: viseDanger
+        libelle: "Famille de danger visée"
+        type: lien
+        vers: FamilleDanger
+        obligatoire: true
+        # Barrière dure : une application SST qui ne vise aucun danger
+        # n'est pas une application SST.
+      - nom: viseGenreAccident
+        libelle: "Genre d'accident ciblé"
+        type: lien
+        vers: GenreAccident
+        obligatoire: true
+        # Toutes les applications ne ciblent pas un événement codé.
+        # Un modèle prédictif d'exposition chimique vise un danger sans
+        # viser un genre d'accident précis.
+      - nom: appliesToSector
+        libelle: "Secteur d'activité"
+        type: lien
+        vers: SecteurSCIAN
+        obligatoire: true
+        # TRANSVERSALITÉ : la détection de fatigue vaut pour le
+        # transport, la construction et les mines. Rendre le secteur
+        # obligatoire forcerait un choix arbitraire ou trente fiches
+        # identiques.
+      - nom: typeIntervention
+        libelle: "Place dans la prévention"
+        type: lien
+        vers: TypeIntervention
+        obligatoire: true
+        unique: true
+      - nom: scopedTo
+        libelle: "Régime où l'application est encadrée"
+        type: lien
+        vers: Juridiction
+        obligatoire: true
+        unique: true
+
+      - nom: niveauDecision
+        libelle: "Niveau de décision"
+        type: texte
+        obligatoire: true
+        unique: true
+        # LE CHAMP LE PLUS IMPORTANT DU MODÈLE.
+        # Valeurs : information | alerte-anonyme | recommandation |
+        #           decision-individuelle
+        # C'est lui qui détermine le régime juridique applicable.
+        # Une règle SHACL-SPARQL exige un encadrement documenté dès
+        # que le niveau est « decision-individuelle ».
+
+      - nom: maturite
+        libelle: "Niveau de preuve"
+        type: texte
+        obligatoire: true
+        unique: true
+        # Valeurs : recherche | pilote | commercial | deploiement-valide
+        # « Commercialisé » ne veut pas dire « efficace ». La preuve
+        # d'une réduction durable des lésions en contexte réel reste
+        # rare — le modèle doit pouvoir dire cette différence.
+
+      - nom: risqueDocumente
+        libelle: "Limite ou risque connu"
+        type: texte
+        obligatoire: true
+        # Barrière dure, et c'est délibéré. Un référentiel qui ne
+        # recense que les succès n'est pas crédible. Faux négatifs sur
+        # EPI sombres, fatigue d'alerte, biais morphologique, prédiction
+        # de la déclaration plutôt que du risque réel.
+
+      - nom: encadrePar
+        libelle: "Encadrement juridique applicable"
+        type: lien
+        vers: EncadrementJuridique
+        obligatoire: false
+        # Obligatoire seulement si le niveau de décision l'exige.
+        # Voir la règle « encadrement_si_decision_individuelle ».
+
+      - nom: basis
+        libelle: "Source de l'affirmation"
+        type: texte
+        obligatoire: true
+      - nom: wasAttributedTo
+        libelle: "Qui l'affirme"
+        type: texte
+        obligatoire: true
+      - nom: recordedAt
+        libelle: "Saisi au système le"
+        type: horodatage
+        obligatoire: true
+        unique: true
+
+# =====================================================================
+# RÈGLES MÉTIER
+#
+# Ce que les champs obligatoires ne savent pas exprimer.
+# Traduites en SHACL-SPARQL par le générateur.
+# =====================================================================
+
+regles:
+
+  - nom: encadrement_si_decision_individuelle
+    sur: ApplicationIA
+    type: condition_croisee
+    libelle: >
+      Une application qui produit une décision individuelle sur un
+      travailleur doit citer son encadrement juridique. Sans lui, le
+      référentiel présente comme banale une application qui relève du
+      profilage sous la Loi 25 et du haut risque sous l'AI Act.
+    si:
+      champ: niveauDecision
+      vaut: "decision-individuelle"
+    alors:
+      champ: encadrePar
+      existe: true
+
+  - nom: application_traverse_technique_et_danger
+    sur: ApplicationIA
+    type: comparaison_traversee
+    libelle: >
+      L'application et son encadrement juridique doivent relever du même
+      régime. Citer l'AI Act européen pour une application encadrée au
+      Québec produit une réponse fluide et fausse.
+    compare:
+      chemin_a: [scopedTo]
+      chemin_b: [encadrePar, scopedTo]
+      doivent_etre: identiques

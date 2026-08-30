@@ -170,15 +170,44 @@ def generate_shapes(spec: dict) -> tuple[str, list[dict]]:
                 b.append(f"        sh:class {qname(p, champ['vers'])} ;")
             else:
                 b.append(f"        sh:datatype {TYPE_MAP.get(champ['type'], 'xsd:string')} ;")
-            if "min" in champ:
-                b.append(f"        sh:minInclusive {champ['min']} ;")
-            if "max" in champ:
-                b.append(f"        sh:maxInclusive {champ['max']} ;")
+
+            # Les bornes ne suivent PAS la sévérité de présence.
+            #
+            # « Ce champ peut légitimement être absent » et « ce champ
+            # peut légitimement valoir n'importe quoi » sont deux
+            # affirmations différentes. Un rang de hiérarchie des
+            # contrôles peut manquer — les activités de surveillance
+            # n'en ont pas — mais un rang de 7 est impossible.
+            #
+            # Quand la présence est dégradée en avertissement et que le
+            # champ porte des bornes, on émet un second bloc qui garde
+            # la barrière dure sur les valeurs.
+            has_bounds = "min" in champ or "max" in champ
+            if has_bounds and dec.severity is Severity.VIOLATION:
+                if "min" in champ:
+                    b.append(f"        sh:minInclusive {champ['min']} ;")
+                if "max" in champ:
+                    b.append(f"        sh:maxInclusive {champ['max']} ;")
+
             b.append(f"        sh:severity {dec.severity.value} ;")
             b.append(f'        sh:message "{_esc(dec.rationale)}" ;')
             b.append(f"        # {dec.failed_test}")
             b.append("    ]")
             blocks.append("\n".join(b))
+
+            if has_bounds and dec.severity is not Severity.VIOLATION:
+                v = ["    sh:property ["]
+                v.append(f"        sh:path {qname(p, champ['nom'])} ;")
+                v.append(f"        sh:datatype {TYPE_MAP.get(champ['type'], 'xsd:string')} ;")
+                if "min" in champ:
+                    v.append(f"        sh:minInclusive {champ['min']} ;")
+                if "max" in champ:
+                    v.append(f"        sh:maxInclusive {champ['max']} ;")
+                v.append("        sh:severity sh:Violation ;")
+                v.append(f'        sh:message "Si «{champ["nom"]}» est renseigne, sa valeur doit rester dans les bornes. L absence est toleree; une valeur impossible ne l est pas." ;')
+                v.append("        # Bornes : barriere dure meme quand la presence est un avertissement")
+                v.append("    ]")
+                blocks.append("\n".join(v))
 
         lines.append(" ;\n".join(blocks) + " .")
         lines.append("")
@@ -251,6 +280,15 @@ def _sparql_cross_field(regle: dict, uri: str) -> list[str]:
         L.append(f'                $this <{uri}{si["champ"]}> "{si["vaut"]}" .')
     elif si.get("existe"):
         L.append(f"                $this <{uri}{si['champ']}> ?_a .")
+
+    # Cas particulier : la conclusion porte sur l'ABSENCE d'un champ.
+    # On ne peut pas lier ?v puis filtrer — il faut NOT EXISTS.
+    # Renversement à garder en tête : la requête décrit l'INTERDIT,
+    # donc « doit exister » se traduit par « n'existe pas ».
+    if alors.get("existe") is True:
+        L.append(f"                FILTER NOT EXISTS {{ $this <{uri}{alors['champ']}> ?v }}")
+        L.append("            }")
+        return L
 
     L.append(f"                $this <{uri}{alors['champ']}> ?v .")
 

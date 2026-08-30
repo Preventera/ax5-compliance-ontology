@@ -1,0 +1,252 @@
+@prefix iasst: <https://agenticx5.com/ont/ia-sst#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# =====================================================================
+# BANC D'ESSAI — APPLICATIONS DE L'IA EN SST
+#
+# Données tirées de sources réelles : IRSST, NIOSH, EU-OSHA, études
+# publiées. Les défauts sont plantés volontairement pour vérifier que
+# les contraintes les attrapent.
+# =====================================================================
+
+### RÉGIMES #########################################################
+
+iasst:QC a iasst:Juridiction ; iasst:nom "Québec" ; iasst:code "CA-QC" .
+iasst:UE a iasst:Juridiction ; iasst:nom "Union européenne" ; iasst:code "EU" .
+
+### TECHNIQUES ######################################################
+
+iasst:VisionOrdinateur a iasst:TechniqueIA ;
+    iasst:libelle "Vision par ordinateur" ;
+    iasst:definition "Détection et classification d'objets, de personnes et de postures dans un flux vidéo. Modèles de type YOLO." ;
+    iasst:lexiconRef "AX5-LEX-CV-001" .
+
+iasst:CapteursPortables a iasst:TechniqueIA ;
+    iasst:libelle "Capteurs portables" ;
+    iasst:definition "Mesure d'angles articulaires, de répétitivité, d'accélération et de charge physique par dispositif porté." ;
+    iasst:lexiconRef "AX5-LEX-WEAR-001" .
+
+iasst:NLP a iasst:TechniqueIA ;
+    iasst:libelle "Traitement du langage naturel" ;
+    iasst:definition "Extraction et classification automatique dans les rapports d'incident et de quasi-accident." ;
+    iasst:lexiconRef "AX5-LEX-NLP-001" .
+
+# TROU DE COUVERTURE — pas de rattachement au lexique.
+# Avertissement voulu : le rattachement se fait après coup.
+iasst:ModelesPredictifs a iasst:TechniqueIA ;
+    iasst:libelle "Modèles prédictifs" ;
+    iasst:definition "Estimation de la probabilité ou de la gravité d'une lésion à partir d'historiques, d'expositions et de conditions." .
+
+### FAMILLES DE DANGERS (ISO 45001 / CSA Z1002) #####################
+
+iasst:DangerSecurite a iasst:FamilleDanger ;
+    iasst:libelle "Dangers de sécurité" ; iasst:refNorme "ISO 45001 · CSA Z1002" .
+
+iasst:DangerErgonomique a iasst:FamilleDanger ;
+    iasst:libelle "Dangers ergonomiques" ; iasst:refNorme "ISO 45001 · CSA Z1002" .
+
+iasst:DangerPsychosocial a iasst:FamilleDanger ;
+    iasst:libelle "Dangers psychosociaux" ; iasst:refNorme "ISO 45001 · CSA Z1002" .
+
+### GENRES D'ACCIDENT (manuel de codage CNESST, OIIC adapté) ########
+
+iasst:GA-11 a iasst:GenreAccident ;
+    iasst:libelle "Chute à un niveau inférieur" ;
+    iasst:codeCNESST "11" ; iasst:scopedTo iasst:QC .
+
+iasst:GA-02 a iasst:GenreAccident ;
+    iasst:libelle "Être frappé par un objet" ;
+    iasst:codeCNESST "02" ; iasst:scopedTo iasst:QC .
+
+iasst:GA-22 a iasst:GenreAccident ;
+    iasst:libelle "Effort excessif" ;
+    iasst:codeCNESST "22" ; iasst:scopedTo iasst:QC .
+
+iasst:GA-43 a iasst:GenreAccident ;
+    iasst:libelle "Piéton heurté par un véhicule ou un équipement mobile" ;
+    iasst:codeCNESST "43" ; iasst:scopedTo iasst:QC .
+
+### SECTEURS (SCIAN Canada 2022) ####################################
+
+iasst:SCIAN-23 a iasst:SecteurSCIAN ;
+    iasst:libelle "Construction" ; iasst:codeSCIAN "23" .
+
+iasst:SCIAN-31 a iasst:SecteurSCIAN ;
+    iasst:libelle "Fabrication" ; iasst:codeSCIAN "31-33" .
+
+iasst:SCIAN-21 a iasst:SecteurSCIAN ;
+    iasst:libelle "Extraction minière" ; iasst:codeSCIAN "21" .
+
+### TYPES D'INTERVENTION (hiérarchie des contrôles NIOSH-ILO) #######
+
+iasst:INT-Technique a iasst:TypeIntervention ;
+    iasst:libelle "Contrôle technique" ; iasst:rangHierarchie 3 .
+
+iasst:INT-Administratif a iasst:TypeIntervention ;
+    iasst:libelle "Contrôle administratif" ; iasst:rangHierarchie 4 .
+
+iasst:INT-EPI a iasst:TypeIntervention ;
+    iasst:libelle "Protection individuelle" ; iasst:rangHierarchie 5 .
+
+# TROU LÉGITIME — la surveillance ne se situe pas dans la hiérarchie
+# des contrôles. Ce n'est pas une mesure de maîtrise, c'est une
+# activité de gestion. Le champ reste vide, et c'est correct.
+iasst:INT-Surveillance a iasst:TypeIntervention ;
+    iasst:libelle "Surveillance et amélioration" .
+
+### ENCADREMENTS JURIDIQUES #########################################
+
+iasst:LOI25-Profilage a iasst:EncadrementJuridique ;
+    iasst:libelle "Encadrement du profilage et transparence des décisions automatisées" ;
+    iasst:citation "Loi 25 · L.Q. P-39.1, art. 12.1 et 12.2" ;
+    iasst:scopedTo iasst:QC ;
+    iasst:declencheur "decision-individuelle" .
+
+iasst:LNT-Surveillance a iasst:EncadrementJuridique ;
+    iasst:libelle "Politique écrite sur la surveillance électronique (25 employés et plus)" ;
+    iasst:citation "Loi sur les normes du travail, politique obligatoire" ;
+    iasst:scopedTo iasst:QC ;
+    iasst:declencheur "alerte-anonyme" .
+
+iasst:AIACT-AnnexeIII a iasst:EncadrementJuridique ;
+    iasst:libelle "Système à haut risque — gestion des travailleurs" ;
+    iasst:citation "AI Act, annexe III, point 4" ;
+    iasst:scopedTo iasst:UE ;
+    iasst:declencheur "decision-individuelle" .
+
+
+### CAS DE RÉFÉRENCE 1 — doit passer sans rien déclencher ###########
+# Détection d'EPI, alerte anonyme au superviseur. Pas d'identification
+# individuelle, donc pas de profilage. Risque documenté.
+
+iasst:APP-EPI-Anonyme a iasst:ApplicationIA ;
+    iasst:libelle "Détection du port des EPI par caméra, alerte anonyme" ;
+    iasst:emploieTechnique iasst:VisionOrdinateur ;
+    iasst:viseDanger iasst:DangerSecurite ;
+    iasst:viseGenreAccident iasst:GA-02 ;
+    iasst:appliesToSector iasst:SCIAN-23 ;
+    iasst:typeIntervention iasst:INT-Surveillance ;
+    iasst:scopedTo iasst:QC ;
+    iasst:niveauDecision "alerte-anonyme" ;
+    iasst:maturite "commercial" ;
+    iasst:risqueDocumente "Baisse de performance en faible luminosité et sous occultation partielle. Faux négatifs sur les EPI mal portés. Biais liés à la météo, aux vêtements et aux angles de caméra. Un mAP50 élevé mesure la détection, pas une réduction des blessures." ;
+    iasst:encadrePar iasst:LNT-Surveillance ;
+    iasst:basis "Étude KAIST sur la détection temps réel d'EPI (mAP50 92,52 % à 9,11 im/s sur appareil périphérique)." ;
+    iasst:wasAttributedTo "Mario Deshaies" ;
+    iasst:recordedAt "2026-08-30T10:00:00"^^xsd:dateTime .
+
+
+### CAS DE RÉFÉRENCE 2 — trous légitimes, avertissements seulement ##
+# Détection de fatigue : transversale, aucun secteur unique. Aucun
+# genre d'accident codé ne correspond — la fatigue est un facteur,
+# pas un événement.
+
+iasst:APP-Fatigue a iasst:ApplicationIA ;
+    iasst:libelle "Détection de fatigue par capteurs portables" ;
+    iasst:emploieTechnique iasst:CapteursPortables ;
+    iasst:viseDanger iasst:DangerErgonomique ;
+    iasst:typeIntervention iasst:INT-Administratif ;
+    iasst:scopedTo iasst:QC ;
+    iasst:niveauDecision "information" ;
+    iasst:maturite "pilote" ;
+    iasst:risqueDocumente "Mesure une classification ergonomique, pas une réduction de lésions. Biais morphologique documenté chez les femmes dans des environnements conçus autour de morphologies masculines." ;
+    iasst:basis "Étude sur 112 travailleurs de production : 84,6 % de précision en classification du risque ergonomique." ;
+    iasst:wasAttributedTo "Mario Deshaies" ;
+    iasst:recordedAt "2026-08-30T10:00:00"^^xsd:dateTime .
+
+
+### DÉFAUT 1 — décision individuelle sans encadrement => Violation ##
+# LE DÉFAUT LE PLUS IMPORTANT DU BANC D'ESSAI.
+# Même technique que APP-EPI-Anonyme, même danger, même secteur.
+# Mais le système identifie le travailleur et alimente son évaluation
+# de rendement. C'est du profilage sous la Loi 25 et du haut risque
+# sous l'AI Act. Sans encadrement cité, le référentiel présenterait
+# cette application comme banale.
+
+iasst:APP-EPI-Nominatif a iasst:ApplicationIA ;
+    iasst:libelle "Détection du port des EPI avec identification du travailleur et suivi de conformité" ;
+    iasst:emploieTechnique iasst:VisionOrdinateur ;
+    iasst:viseDanger iasst:DangerSecurite ;
+    iasst:viseGenreAccident iasst:GA-02 ;
+    iasst:appliesToSector iasst:SCIAN-23 ;
+    iasst:typeIntervention iasst:INT-Surveillance ;
+    iasst:scopedTo iasst:QC ;
+    iasst:niveauDecision "decision-individuelle" ;
+    iasst:maturite "commercial" ;
+    iasst:risqueDocumente "Un faux positif alimente une sanction. Fatigue d'alerte et contournement du système. Effets psychosociaux de la surveillance individualisée documentés par l'IRSST et l'EU-OSHA." ;
+    iasst:basis "Fonctionnalité offerte par plusieurs plateformes commerciales de vision." ;
+    iasst:wasAttributedTo "Mario Deshaies" ;
+    iasst:recordedAt "2026-08-30T10:00:00"^^xsd:dateTime .
+
+
+### DÉFAUT 2 — encadrement d'un autre régime => Violation ###########
+# Application encadrée au Québec, mais citant l'AI Act européen.
+# La preuve exige de traverser deux arcs et de comparer les régimes
+# trouvés au bout.
+
+iasst:APP-Proximite a iasst:ApplicationIA ;
+    iasst:libelle "Alerte de proximité piéton-machine" ;
+    iasst:emploieTechnique iasst:VisionOrdinateur ;
+    iasst:viseDanger iasst:DangerSecurite ;
+    iasst:viseGenreAccident iasst:GA-43 ;
+    iasst:appliesToSector iasst:SCIAN-21 ;
+    iasst:typeIntervention iasst:INT-Technique ;
+    iasst:scopedTo iasst:QC ;
+    iasst:niveauDecision "decision-individuelle" ;
+    iasst:maturite "pilote" ;
+    iasst:risqueDocumente "Faux positifs en environnement dense, menant au contournement." ;
+    iasst:encadrePar iasst:AIACT-AnnexeIII ;
+    iasst:basis "Déploiement pilote documenté en exploitation minière." ;
+    iasst:wasAttributedTo "Mario Deshaies" ;
+    iasst:recordedAt "2026-08-30T10:00:00"^^xsd:dateTime .
+
+
+### DÉFAUT 3 — aucun risque documenté => Violation ##################
+# Un référentiel qui ne recense que les succès n'est pas crédible.
+
+iasst:APP-NLP-Codage a iasst:ApplicationIA ;
+    iasst:libelle "Codage automatique du genre d'accident depuis les rapports d'incident" ;
+    iasst:emploieTechnique iasst:NLP ;
+    iasst:viseDanger iasst:DangerSecurite ;
+    iasst:viseGenreAccident iasst:GA-11 ;
+    iasst:appliesToSector iasst:SCIAN-31 ;
+    iasst:typeIntervention iasst:INT-Surveillance ;
+    iasst:scopedTo iasst:QC ;
+    iasst:niveauDecision "recommandation" ;
+    iasst:maturite "recherche" ;
+    iasst:basis "Corpus minier : SVM, Random Forest, FastText et BERT atteignent 81 % à 97 % de la performance d'experts humains." ;
+    iasst:wasAttributedTo "Mario Deshaies" ;
+    iasst:recordedAt "2026-08-30T10:00:00"^^xsd:dateTime .
+
+
+### DÉFAUT 4 — sans source ni auteur => 2 Violations ################
+
+iasst:APP-Predictif-Anonyme a iasst:ApplicationIA ;
+    iasst:libelle "Priorisation des inspections par modèle prédictif" ;
+    iasst:emploieTechnique iasst:ModelesPredictifs ;
+    iasst:viseDanger iasst:DangerSecurite ;
+    iasst:viseGenreAccident iasst:GA-11 ;
+    iasst:appliesToSector iasst:SCIAN-23 ;
+    iasst:typeIntervention iasst:INT-Administratif ;
+    iasst:scopedTo iasst:QC ;
+    iasst:niveauDecision "recommandation" ;
+    iasst:maturite "deploiement-valide" ;
+    iasst:risqueDocumente "Risque de prédire la probabilité de déclaration plutôt que le risque réel : un secteur très surveillé paraît plus dangereux parce qu'il produit de meilleures données." ;
+    iasst:recordedAt "2026-08-30T10:00:00"^^xsd:dateTime .
+
+
+### DÉFAUT 5 — genre d'accident sans régime => Violation ############
+# Un code OIIC hors de son régime n'a pas de sens : la nomenclature
+# adaptée du Québec n'est pas celle de l'ESAW européen.
+
+iasst:GA-ORPHELIN a iasst:GenreAccident ;
+    iasst:libelle "Chute, code non rattaché" ;
+    iasst:codeCNESST "11" .
+
+
+### DÉFAUT 6 — rang hors bornes => Violation ########################
+# La hiérarchie des contrôles compte cinq rangs.
+
+iasst:INT-INVALIDE a iasst:TypeIntervention ;
+    iasst:libelle "Intervention au rang impossible" ;
+    iasst:rangHierarchie 7 .

@@ -1,0 +1,372 @@
+@prefix iasst:  <https://agenticx5.com/ont/ia-sst#> .
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+#####################################################################
+# CONTRAINTES — Applications de l'IA en santé et sécurité du travail
+#
+# Chaque sévérité porte en commentaire le test qui l'a produite.
+# Voir generator/severity_policy.py pour les trois tests.
+#####################################################################
+
+#--------------------------------------------------------------------
+# TechniqueIA
+#--------------------------------------------------------------------
+iasst:TechniqueIAShape a sh:NodeShape ;
+    sh:targetClass iasst:TechniqueIA ;
+
+    sh:property [
+        sh:path iasst:libelle ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Violation ;
+        sh:message "'libelle' est obligatoire, remplissable, et son absence rend la donnée inexploitable. Barrière dure justifiée." ;
+        # Aucun test échoué : blocage sûr
+    ] ;
+    sh:property [
+        sh:path iasst:definition ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Violation ;
+        sh:message "'definition' est obligatoire, remplissable, et son absence rend la donnée inexploitable. Barrière dure justifiée." ;
+        # Aucun test échoué : blocage sûr
+    ] ;
+    sh:property [
+        sh:path iasst:lexiconRef ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Warning ;
+        sh:message "De la donnée légitime peut ne pas avoir de 'lexiconRef'. Bloquer rejetterait du vrai. On tolère et on suit le trou comme métrique de couverture." ;
+        # TEST 2 : de la donnée légitime échouerait
+    ] .
+
+#--------------------------------------------------------------------
+# FamilleDanger
+#--------------------------------------------------------------------
+iasst:FamilleDangerShape a sh:NodeShape ;
+    sh:targetClass iasst:FamilleDanger ;
+
+    sh:property [
+        sh:path iasst:libelle ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Violation ;
+        sh:message "'libelle' est obligatoire, remplissable, et son absence rend la donnée inexploitable. Barrière dure justifiée." ;
+        # Aucun test échoué : blocage sûr
+    ] ;
+    sh:property [
+        sh:path iasst:refNorme ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Violation ;
+        sh:message "'refNorme' est obligatoire, remplissable, et son absence rend la donnée inexploitable. Barrière dure justifiée." ;
+        # Aucun test échoué : blocage sûr
+    ] .
+
+#--------------------------------------------------------------------
+# GenreAccident
+#--------------------------------------------------------------------
+iasst:GenreAccidentShape a sh:NodeShape ;
+    sh:targetClass iasst:GenreAccident ;
+
+    sh:property [
+        sh:path iasst:libelle ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Violation ;
+        sh:message "'libelle' est obligatoire, remplissable, et son absence rend la donnée inexploitable. Barrière dure justifiée." ;
+        # Aucun test échoué : blocage sûr
+    ] ;
+    sh:property [
+        sh:path iasst:codeCNESST ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Violation ;
+        sh:message "'codeCNESST' est obligatoire, remplissable, et son absence rend la donnée inexploitable. Barrière dure justifiée." ;
+        # Aucun test échoué : blocage sûr
+    ] ;
+    sh:property [
+        sh:path iasst:scopedTo ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class iasst:Juridiction ;
+        sh:severity sh:Violation ;
+        sh:message "Sans 'scopedTo', la donnée produit une réponse fausse, pas seulement incomplète. Le coût d'une réponse de conformité erronée dépasse toujours le coût d'un blocage d'ingestion." ;
+        # TEST 1 : produit une réponse fausse
+    ] .
+
+#--------------------------------------------------------------------
+# SecteurSCIAN
+#--------------------------------------------------------------------
+iasst:SecteurSCIANShape a sh:NodeShape ;
+    sh:targetClass iasst:SecteurSCIAN ;
+
+    sh:property [
+        sh:path iasst:libelle ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Violation ;
+        sh:message "'libelle' est obligatoire, remplissable, et son absence rend la donnée inexploitable. Barrière dure justifiée." ;
+        # Aucun test échoué : blocage sûr
+    ] ;
+    sh:property [
+        sh:path iasst:codeSCIAN ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Violation ;
+        sh:message "'codeSCIAN' est obligatoire, remplissable, et son absence rend la donnée inexploitable. Barrière dure justifiée." ;
+        # Aucun test échoué : blocage sûr
+    ] .
+
+#--------------------------------------------------------------------
+# TypeIntervention
+#--------------------------------------------------------------------
+iasst:TypeInterventionShape a sh:NodeShape ;
+    sh:targetClass iasst:TypeIntervention ;
+
+    sh:property [
+        sh:path iasst:libelle ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Violation ;
+        sh:message "'libelle' est obligatoire, remplissable, et son absence rend la donnée inexploitable. Barrière dure justifiée." ;
+        # Aucun test échoué : blocage sûr
+    ] ;
+    sh:property [
+        sh:path iasst:rangHierarchie ;
+        sh:datatype xsd:integer ;
+        sh:severity sh:Warning ;
+        sh:message "De la donnée légitime peut ne pas avoir de 'rangHierarchie'. Bloquer rejetterait du vrai. On tolère et on suit le trou comme métrique de couverture." ;
+        # TEST 2 : de la donnée légitime échouerait
+    ] ;
+    sh:property [
+        sh:path iasst:rangHierarchie ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 5 ;
+        sh:severity sh:Violation ;
+        sh:message "Si «rangHierarchie» est renseigne, sa valeur doit rester dans les bornes. L absence est toleree; une valeur impossible ne l est pas." ;
+        # Bornes : barriere dure meme quand la presence est un avertissement
+    ] .
+
+#--------------------------------------------------------------------
+# Juridiction
+#--------------------------------------------------------------------
+iasst:JuridictionShape a sh:NodeShape ;
+    sh:targetClass iasst:Juridiction ;
+
+    sh:property [
+        sh:path iasst:nom ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Violation ;
+        sh:message "'nom' est obligatoire, remplissable, et son absence rend la donnée inexploitable. Barrière dure justifiée." ;
+        # Aucun test échoué : blocage sûr
+    ] ;
+    sh:property [
+        sh:path iasst:code ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Violation ;
+        sh:message "'code' est obligatoire, remplissable, et son absence rend la donnée inexploitable. Barrière dure justifiée." ;
+        # Aucun test échoué : blocage sûr
+    ] .
+
+#--------------------------------------------------------------------
+# EncadrementJuridique
+#--------------------------------------------------------------------
+iasst:EncadrementJuridiqueShape a sh:NodeShape ;
+    sh:targetClass iasst:EncadrementJuridique ;
+
+    sh:property [
+        sh:path iasst:libelle ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Violation ;
+        sh:message "'libelle' est obligatoire, remplissable, et son absence rend la donnée inexploitable. Barrière dure justifiée." ;
+        # Aucun test échoué : blocage sûr
+    ] ;
+    sh:property [
+        sh:path iasst:citation ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Violation ;
+        sh:message "Sans 'citation', la donnée produit une réponse fausse, pas seulement incomplète. Le coût d'une réponse de conformité erronée dépasse toujours le coût d'un blocage d'ingestion." ;
+        # TEST 1 : produit une réponse fausse
+    ] ;
+    sh:property [
+        sh:path iasst:scopedTo ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class iasst:Juridiction ;
+        sh:severity sh:Violation ;
+        sh:message "Sans 'scopedTo', la donnée produit une réponse fausse, pas seulement incomplète. Le coût d'une réponse de conformité erronée dépasse toujours le coût d'un blocage d'ingestion." ;
+        # TEST 1 : produit une réponse fausse
+    ] ;
+    sh:property [
+        sh:path iasst:declencheur ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Violation ;
+        sh:message "'declencheur' est obligatoire, remplissable, et son absence rend la donnée inexploitable. Barrière dure justifiée." ;
+        # Aucun test échoué : blocage sûr
+    ] .
+
+#--------------------------------------------------------------------
+# ApplicationIA
+#--------------------------------------------------------------------
+iasst:ApplicationIAShape a sh:NodeShape ;
+    sh:targetClass iasst:ApplicationIA ;
+
+    sh:property [
+        sh:path iasst:libelle ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Violation ;
+        sh:message "'libelle' est obligatoire, remplissable, et son absence rend la donnée inexploitable. Barrière dure justifiée." ;
+        # Aucun test échoué : blocage sûr
+    ] ;
+    sh:property [
+        sh:path iasst:emploieTechnique ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class iasst:TechniqueIA ;
+        sh:severity sh:Violation ;
+        sh:message "'emploieTechnique' est obligatoire, remplissable, et son absence rend la donnée inexploitable. Barrière dure justifiée." ;
+        # Aucun test échoué : blocage sûr
+    ] ;
+    sh:property [
+        sh:path iasst:viseDanger ;
+        sh:minCount 1 ;
+        sh:class iasst:FamilleDanger ;
+        sh:severity sh:Violation ;
+        sh:message "'viseDanger' est obligatoire, remplissable, et son absence rend la donnée inexploitable. Barrière dure justifiée." ;
+        # Aucun test échoué : blocage sûr
+    ] ;
+    sh:property [
+        sh:path iasst:viseGenreAccident ;
+        sh:minCount 1 ;
+        sh:class iasst:GenreAccident ;
+        sh:severity sh:Warning ;
+        sh:message "De la donnée légitime peut ne pas avoir de 'viseGenreAccident'. Bloquer rejetterait du vrai. On tolère et on suit le trou comme métrique de couverture." ;
+        # TEST 2 : de la donnée légitime échouerait
+    ] ;
+    sh:property [
+        sh:path iasst:appliesToSector ;
+        sh:minCount 1 ;
+        sh:class iasst:SecteurSCIAN ;
+        sh:severity sh:Warning ;
+        sh:message "De la donnée légitime peut ne pas avoir de 'appliesToSector'. Bloquer rejetterait du vrai. On tolère et on suit le trou comme métrique de couverture." ;
+        # TEST 2 : de la donnée légitime échouerait
+    ] ;
+    sh:property [
+        sh:path iasst:typeIntervention ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class iasst:TypeIntervention ;
+        sh:severity sh:Violation ;
+        sh:message "'typeIntervention' est obligatoire, remplissable, et son absence rend la donnée inexploitable. Barrière dure justifiée." ;
+        # Aucun test échoué : blocage sûr
+    ] ;
+    sh:property [
+        sh:path iasst:scopedTo ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class iasst:Juridiction ;
+        sh:severity sh:Violation ;
+        sh:message "Sans 'scopedTo', la donnée produit une réponse fausse, pas seulement incomplète. Le coût d'une réponse de conformité erronée dépasse toujours le coût d'un blocage d'ingestion." ;
+        # TEST 1 : produit une réponse fausse
+    ] ;
+    sh:property [
+        sh:path iasst:niveauDecision ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Violation ;
+        sh:message "'niveauDecision' est obligatoire, remplissable, et son absence rend la donnée inexploitable. Barrière dure justifiée." ;
+        # Aucun test échoué : blocage sûr
+    ] ;
+    sh:property [
+        sh:path iasst:maturite ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Violation ;
+        sh:message "'maturite' est obligatoire, remplissable, et son absence rend la donnée inexploitable. Barrière dure justifiée." ;
+        # Aucun test échoué : blocage sûr
+    ] ;
+    sh:property [
+        sh:path iasst:risqueDocumente ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Violation ;
+        sh:message "'risqueDocumente' est obligatoire, remplissable, et son absence rend la donnée inexploitable. Barrière dure justifiée." ;
+        # Aucun test échoué : blocage sûr
+    ] ;
+    sh:property [
+        sh:path iasst:basis ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Violation ;
+        sh:message "Sans 'basis', la donnée produit une réponse fausse, pas seulement incomplète. Le coût d'une réponse de conformité erronée dépasse toujours le coût d'un blocage d'ingestion." ;
+        # TEST 1 : produit une réponse fausse
+    ] ;
+    sh:property [
+        sh:path iasst:wasAttributedTo ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Violation ;
+        sh:message "Sans 'wasAttributedTo', la donnée produit une réponse fausse, pas seulement incomplète. Le coût d'une réponse de conformité erronée dépasse toujours le coût d'un blocage d'ingestion." ;
+        # TEST 1 : produit une réponse fausse
+    ] ;
+    sh:property [
+        sh:path iasst:recordedAt ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:dateTime ;
+        sh:severity sh:Violation ;
+        sh:message "Sans 'recordedAt', la donnée produit une réponse fausse, pas seulement incomplète. Le coût d'une réponse de conformité erronée dépasse toujours le coût d'un blocage d'ingestion." ;
+        # TEST 1 : produit une réponse fausse
+    ] .
+
+#--------------------------------------------------------------------
+# Une application qui produit une décision individuelle sur un
+# travailleur doit citer son encadrement juridique. Sans lui, le
+# référentiel présente comme banale une application qui relève du
+# profilage sous la Loi 25 et du haut risque sous l'AI Act.
+#--------------------------------------------------------------------
+iasst:EncadrementSiDecisionIndividuelleShape a sh:NodeShape ;
+    sh:targetClass iasst:ApplicationIA ;
+    sh:sparql [
+        sh:severity sh:Violation ;
+        sh:message "Une application qui produit une décision individuelle sur un travailleur doit citer son encadrement juridique. Sans lui, le référentiel présente comme banale une application qui relève du profilage sous la Loi 25 et du haut risque sous l'AI Act." ;
+        sh:prefixes iasst: ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this <https://agenticx5.com/ont/ia-sst#niveauDecision> "decision-individuelle" .
+                FILTER NOT EXISTS { $this <https://agenticx5.com/ont/ia-sst#encadrePar> ?v }
+            }
+        """ ;
+    ] .
+
+#--------------------------------------------------------------------
+# L'application et son encadrement juridique doivent relever du
+# même régime. Citer l'AI Act européen pour une application
+# encadrée au Québec produit une réponse fluide et fausse.
+#--------------------------------------------------------------------
+iasst:ApplicationTraverseTechniqueEtDangerShape a sh:NodeShape ;
+    sh:targetClass iasst:ApplicationIA ;
+    sh:sparql [
+        sh:severity sh:Violation ;
+        sh:message "L'application et son encadrement juridique doivent relever du même régime. Citer l'AI Act européen pour une application encadrée au Québec produit une réponse fluide et fausse." ;
+        sh:prefixes iasst: ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this <https://agenticx5.com/ont/ia-sst#scopedTo> ?a .
+                $this <https://agenticx5.com/ont/ia-sst#encadrePar> / <https://agenticx5.com/ont/ia-sst#scopedTo> ?b .
+                FILTER (?a != ?b)
+            }
+        """ ;
+    ] .

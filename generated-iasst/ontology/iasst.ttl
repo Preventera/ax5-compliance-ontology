@@ -1,0 +1,205 @@
+@prefix iasst:  <https://agenticx5.com/ont/ia-sst#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix dct:  <http://purl.org/dc/terms/> .
+
+#####################################################################
+# Applications de l'IA en santé et sécurité du travail
+# Généré par ax5-onto/generator — version 0.1.0
+#
+# Ce fichier est GÉNÉRÉ. Modifier le spec, pas le fichier.
+#####################################################################
+
+iasst: a owl:Ontology ;
+    dct:title "Applications de l'IA en santé et sécurité du travail"@fr ;
+    owl:versionInfo "0.1.0" .
+
+#--------------------------------------------------------------------
+# Une famille technique issue du lexique AgenticX5. Vision par
+# ordinateur, capteurs portables, modèles prédictifs, traitement
+# du langage naturel, robotique collaborative.
+#--------------------------------------------------------------------
+iasst:TechniqueIA a owl:Class ;
+    rdfs:label "TechniqueIA"@fr .
+
+iasst:libelle a owl:DatatypeProperty ;
+    rdfs:label "Nom de la technique"@fr ;
+    rdfs:domain iasst:TechniqueIA ;
+    rdfs:range xsd:string .
+
+iasst:definition a owl:DatatypeProperty ;
+    rdfs:domain iasst:TechniqueIA ;
+    rdfs:range xsd:string .
+
+iasst:lexiconRef a owl:DatatypeProperty ;
+    rdfs:label "Identifiant dans le lexique AgenticX5"@fr ;
+    rdfs:domain iasst:TechniqueIA ;
+    rdfs:range xsd:string .
+
+#--------------------------------------------------------------------
+# Une famille de dangers au sens d'ISO 45001 et de CSA Z1002 :
+# sécurité, physique, chimique, biologique, ergonomique,
+# psychosocial. C'est ce qu'on identifie AVANT l'accident.
+#--------------------------------------------------------------------
+iasst:FamilleDanger a owl:Class ;
+    rdfs:label "FamilleDanger"@fr .
+
+iasst:refNorme a owl:DatatypeProperty ;
+    rdfs:label "Référence normative"@fr ;
+    rdfs:domain iasst:FamilleDanger ;
+    rdfs:range xsd:string .
+
+#--------------------------------------------------------------------
+# Un genre d'accident ou d'exposition au sens du manuel de codage
+# CNESST, adapté de l'OIIC. C'est ce qui PRODUIT la lésion — pas
+# le même objet qu'un danger. Confondre les deux est la faute
+# classique : « chute » comme danger et « chute à un niveau
+# inférieur » comme événement codé ne servent pas au même
+# raisonnement.
+#--------------------------------------------------------------------
+iasst:GenreAccident a owl:Class ;
+    rdfs:label "GenreAccident"@fr .
+
+iasst:codeCNESST a owl:DatatypeProperty ;
+    rdfs:label "Code du manuel de codage"@fr ;
+    rdfs:domain iasst:GenreAccident ;
+    rdfs:range xsd:string .
+
+iasst:scopedTo a owl:ObjectProperty ;
+    rdfs:label "Régime qui définit ce code"@fr ;
+    rdfs:domain iasst:GenreAccident ;
+    rdfs:range iasst:Juridiction .
+
+#--------------------------------------------------------------------
+# Un secteur d'activité économique selon SCIAN Canada 2022. Le
+# SCIAN n'est pas une classification de risques — il classe des
+# industries. Il sert à situer une application, pas à la définir.
+#--------------------------------------------------------------------
+iasst:SecteurSCIAN a owl:Class ;
+    rdfs:label "SecteurSCIAN"@fr .
+
+iasst:codeSCIAN a owl:DatatypeProperty ;
+    rdfs:label "Code SCIAN (2 à 6 chiffres)"@fr ;
+    rdfs:domain iasst:SecteurSCIAN ;
+    rdfs:range xsd:string .
+
+#--------------------------------------------------------------------
+# La place de l'application dans la hiérarchie des contrôles
+# (NIOSH, ILO, EU-OSHA) ou dans les activités de prévention. Cette
+# facette répond à : l'IA remplace-t-elle un contrôle technique,
+# ou seulement une activité de surveillance ?
+#--------------------------------------------------------------------
+iasst:TypeIntervention a owl:Class ;
+    rdfs:label "TypeIntervention"@fr .
+
+iasst:rangHierarchie a owl:DatatypeProperty ;
+    rdfs:label "Rang dans la hiérarchie des contrôles (1 à 5)"@fr ;
+    rdfs:domain iasst:TypeIntervention ;
+    rdfs:range xsd:integer .
+
+#--------------------------------------------------------------------
+# Un régime ayant autorité sur un territoire.
+#--------------------------------------------------------------------
+iasst:Juridiction a owl:Class ;
+    rdfs:label "Juridiction"@fr .
+
+iasst:nom a owl:DatatypeProperty ;
+    rdfs:domain iasst:Juridiction ;
+    rdfs:range xsd:string .
+
+iasst:code a owl:DatatypeProperty ;
+    rdfs:domain iasst:Juridiction ;
+    rdfs:range xsd:string .
+
+#--------------------------------------------------------------------
+# Une obligation légale qui pèse sur une application selon son
+# niveau de décision. Loi 25 sur le profilage, AI Act annexe III
+# sur la gestion des travailleurs, LNT sur la politique de
+# surveillance électronique.
+#--------------------------------------------------------------------
+iasst:EncadrementJuridique a owl:Class ;
+    rdfs:label "EncadrementJuridique"@fr .
+
+iasst:citation a owl:DatatypeProperty ;
+    rdfs:label "Référence de l'article"@fr ;
+    rdfs:domain iasst:EncadrementJuridique ;
+    rdfs:range xsd:string .
+
+iasst:declencheur a owl:DatatypeProperty ;
+    rdfs:label "Niveau de décision qui la déclenche"@fr ;
+    rdfs:domain iasst:EncadrementJuridique ;
+    rdfs:range xsd:string .
+
+#--------------------------------------------------------------------
+# Le croisement d'une technique d'IA et d'un problème SST, dans un
+# contexte donné. Ce n'est PAS une correspondance : une technique
+# et un danger ne sont pas deux façons de dire la même chose.
+# C'est une relation d'application, et elle a ses propres
+# attributs — maturité, niveau de décision, risque documenté,
+# provenance. Comme la fiche de correspondance en conformité,
+# c'est une entité de première classe : un trait entre une
+# technique et un danger ne s'audite pas.
+#--------------------------------------------------------------------
+iasst:ApplicationIA a owl:Class ;
+    rdfs:label "ApplicationIA"@fr .
+
+iasst:emploieTechnique a owl:ObjectProperty ;
+    rdfs:label "Technique employée"@fr ;
+    rdfs:domain iasst:ApplicationIA ;
+    rdfs:range iasst:TechniqueIA .
+
+iasst:viseDanger a owl:ObjectProperty ;
+    rdfs:label "Famille de danger visée"@fr ;
+    rdfs:domain iasst:ApplicationIA ;
+    rdfs:range iasst:FamilleDanger .
+
+iasst:viseGenreAccident a owl:ObjectProperty ;
+    rdfs:label "Genre d'accident ciblé"@fr ;
+    rdfs:domain iasst:ApplicationIA ;
+    rdfs:range iasst:GenreAccident .
+
+iasst:appliesToSector a owl:ObjectProperty ;
+    rdfs:label "Secteur d'activité"@fr ;
+    rdfs:domain iasst:ApplicationIA ;
+    rdfs:range iasst:SecteurSCIAN .
+
+iasst:typeIntervention a owl:ObjectProperty ;
+    rdfs:label "Place dans la prévention"@fr ;
+    rdfs:domain iasst:ApplicationIA ;
+    rdfs:range iasst:TypeIntervention .
+
+iasst:niveauDecision a owl:DatatypeProperty ;
+    rdfs:label "Niveau de décision"@fr ;
+    rdfs:domain iasst:ApplicationIA ;
+    rdfs:range xsd:string .
+
+iasst:maturite a owl:DatatypeProperty ;
+    rdfs:label "Niveau de preuve"@fr ;
+    rdfs:domain iasst:ApplicationIA ;
+    rdfs:range xsd:string .
+
+iasst:risqueDocumente a owl:DatatypeProperty ;
+    rdfs:label "Limite ou risque connu"@fr ;
+    rdfs:domain iasst:ApplicationIA ;
+    rdfs:range xsd:string .
+
+iasst:encadrePar a owl:ObjectProperty ;
+    rdfs:label "Encadrement juridique applicable"@fr ;
+    rdfs:domain iasst:ApplicationIA ;
+    rdfs:range iasst:EncadrementJuridique .
+
+iasst:basis a owl:DatatypeProperty ;
+    rdfs:label "Source de l'affirmation"@fr ;
+    rdfs:domain iasst:ApplicationIA ;
+    rdfs:range xsd:string .
+
+iasst:wasAttributedTo a owl:DatatypeProperty ;
+    rdfs:label "Qui l'affirme"@fr ;
+    rdfs:domain iasst:ApplicationIA ;
+    rdfs:range xsd:string .
+
+iasst:recordedAt a owl:DatatypeProperty ;
+    rdfs:label "Saisi au système le"@fr ;
+    rdfs:domain iasst:ApplicationIA ;
+    rdfs:range xsd:dateTime .

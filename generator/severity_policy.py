@@ -196,6 +196,14 @@ FIELDS_WITH_LEGITIMATE_GAPS = {
     "appliesToConcept",  # beaucoup de règles de planif sont transversales
     "champTechnique",    # inconnu tant que le concept n'est pas câblé
     "proprietaire",      # souvent vide au moment de l'inventaire
+
+    # Applications de l'IA en SST
+    "viseGenreAccident",  # toutes les applications ne ciblent pas un
+                          # événement codé : un modèle d'exposition
+                          # chimique vise un danger, pas un accident
+    "lexiconRef",         # rattachement au lexique fait après coup
+    "rangHierarchie",     # les activités de surveillance ne se situent
+                          # pas dans la hiérarchie des contrôles
 }
 
 #: Champs coûteux à remplir correctement, donc candidats au remplissage
