@@ -1,0 +1,277 @@
+@prefix sst:  <https://agenticx5.com/ont/sst#> .
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+#####################################################################
+# CONTRAINTES — Conformité SST Québec
+#
+# Chaque sévérité porte en commentaire le test qui l'a produite.
+# Voir generator/severity_policy.py pour les trois tests.
+#####################################################################
+
+#--------------------------------------------------------------------
+# Obligation
+#--------------------------------------------------------------------
+sst:ObligationShape a sh:NodeShape ;
+    sh:targetClass sst:Obligation ;
+
+    sh:property [
+        sh:path sst:citation ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Violation ;
+        sh:message "Sans 'citation', la donnée produit une réponse fausse, pas seulement incomplète. Le coût d'une réponse de conformité erronée dépasse toujours le coût d'un blocage d'ingestion." ;
+        # TEST 1 : produit une réponse fausse
+    ] ;
+    sh:property [
+        sh:path sst:enonce ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Violation ;
+        sh:message "'enonce' est obligatoire, remplissable, et son absence rend la donnée inexploitable. Barrière dure justifiée." ;
+        # Aucun test échoué : blocage sûr
+    ] ;
+    sh:property [
+        sh:path sst:statedIn ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class sst:Reglement ;
+        sh:severity sh:Violation ;
+        sh:message "Sans 'statedIn', la donnée produit une réponse fausse, pas seulement incomplète. Le coût d'une réponse de conformité erronée dépasse toujours le coût d'un blocage d'ingestion." ;
+        # TEST 1 : produit une réponse fausse
+    ] ;
+    sh:property [
+        sh:path sst:validFrom ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:date ;
+        sh:severity sh:Violation ;
+        sh:message "Sans 'validFrom', la donnée produit une réponse fausse, pas seulement incomplète. Le coût d'une réponse de conformité erronée dépasse toujours le coût d'un blocage d'ingestion." ;
+        # TEST 1 : produit une réponse fausse
+    ] ;
+    sh:property [
+        sh:path sst:recordedAt ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:dateTime ;
+        sh:severity sh:Violation ;
+        sh:message "Sans 'recordedAt', la donnée produit une réponse fausse, pas seulement incomplète. Le coût d'une réponse de conformité erronée dépasse toujours le coût d'un blocage d'ingestion." ;
+        # TEST 1 : produit une réponse fausse
+    ] ;
+    sh:property [
+        sh:path sst:addressesHazard ;
+        sh:minCount 1 ;
+        sh:class sst:Danger ;
+        sh:severity sh:Warning ;
+        sh:message "De la donnée légitime peut ne pas avoir de 'addressesHazard'. Bloquer rejetterait du vrai. On tolère et on suit le trou comme métrique de couverture." ;
+        # TEST 2 : de la donnée légitime échouerait
+    ] .
+
+#--------------------------------------------------------------------
+# Reglement
+#--------------------------------------------------------------------
+sst:ReglementShape a sh:NodeShape ;
+    sh:targetClass sst:Reglement ;
+
+    sh:property [
+        sh:path sst:titre ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Violation ;
+        sh:message "'titre' est obligatoire, remplissable, et son absence rend la donnée inexploitable. Barrière dure justifiée." ;
+        # Aucun test échoué : blocage sûr
+    ] ;
+    sh:property [
+        sh:path sst:hasJurisdiction ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class sst:Juridiction ;
+        sh:severity sh:Violation ;
+        sh:message "'hasJurisdiction' est obligatoire, remplissable, et son absence rend la donnée inexploitable. Barrière dure justifiée." ;
+        # Aucun test échoué : blocage sûr
+    ] .
+
+#--------------------------------------------------------------------
+# Juridiction
+#--------------------------------------------------------------------
+sst:JuridictionShape a sh:NodeShape ;
+    sh:targetClass sst:Juridiction ;
+
+    sh:property [
+        sh:path sst:nom ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Violation ;
+        sh:message "'nom' est obligatoire, remplissable, et son absence rend la donnée inexploitable. Barrière dure justifiée." ;
+        # Aucun test échoué : blocage sûr
+    ] ;
+    sh:property [
+        sh:path sst:code ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Violation ;
+        sh:message "'code' est obligatoire, remplissable, et son absence rend la donnée inexploitable. Barrière dure justifiée." ;
+        # Aucun test échoué : blocage sûr
+    ] .
+
+#--------------------------------------------------------------------
+# Danger
+#--------------------------------------------------------------------
+sst:DangerShape a sh:NodeShape ;
+    sh:targetClass sst:Danger ;
+
+    sh:property [
+        sh:path sst:libelle ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Violation ;
+        sh:message "'libelle' est obligatoire, remplissable, et son absence rend la donnée inexploitable. Barrière dure justifiée." ;
+        # Aucun test échoué : blocage sûr
+    ] .
+
+#--------------------------------------------------------------------
+# ConceptLocal
+#--------------------------------------------------------------------
+sst:ConceptLocalShape a sh:NodeShape ;
+    sh:targetClass sst:ConceptLocal ;
+
+    sh:property [
+        sh:path sst:libelle ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Violation ;
+        sh:message "'libelle' est obligatoire, remplissable, et son absence rend la donnée inexploitable. Barrière dure justifiée." ;
+        # Aucun test échoué : blocage sûr
+    ] ;
+    sh:property [
+        sh:path sst:scopedTo ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class sst:Juridiction ;
+        sh:severity sh:Violation ;
+        sh:message "Sans 'scopedTo', la donnée produit une réponse fausse, pas seulement incomplète. Le coût d'une réponse de conformité erronée dépasse toujours le coût d'un blocage d'ingestion." ;
+        # TEST 1 : produit une réponse fausse
+    ] .
+
+#--------------------------------------------------------------------
+# Correspondance
+#--------------------------------------------------------------------
+sst:CorrespondanceShape a sh:NodeShape ;
+    sh:targetClass sst:Correspondance ;
+
+    sh:property [
+        sh:path sst:source ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class sst:ConceptLocal ;
+        sh:severity sh:Violation ;
+        sh:message "'source' est obligatoire, remplissable, et son absence rend la donnée inexploitable. Barrière dure justifiée." ;
+        # Aucun test échoué : blocage sûr
+    ] ;
+    sh:property [
+        sh:path sst:cible ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class sst:ConceptLocal ;
+        sh:severity sh:Violation ;
+        sh:message "'cible' est obligatoire, remplissable, et son absence rend la donnée inexploitable. Barrière dure justifiée." ;
+        # Aucun test échoué : blocage sûr
+    ] ;
+    sh:property [
+        sh:path sst:mappingRelation ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Violation ;
+        sh:message "'mappingRelation' est obligatoire, remplissable, et son absence rend la donnée inexploitable. Barrière dure justifiée." ;
+        # Aucun test échoué : blocage sûr
+    ] ;
+    sh:property [
+        sh:path sst:confidence ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:severity sh:Violation ;
+        sh:message "Sans 'confidence', la donnée produit une réponse fausse, pas seulement incomplète. Le coût d'une réponse de conformité erronée dépasse toujours le coût d'un blocage d'ingestion." ;
+        # TEST 1 : produit une réponse fausse
+    ] ;
+    sh:property [
+        sh:path sst:basis ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Violation ;
+        sh:message "Sans 'basis', la donnée produit une réponse fausse, pas seulement incomplète. Le coût d'une réponse de conformité erronée dépasse toujours le coût d'un blocage d'ingestion." ;
+        # TEST 1 : produit une réponse fausse
+    ] ;
+    sh:property [
+        sh:path sst:wasAttributedTo ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Violation ;
+        sh:message "Sans 'wasAttributedTo', la donnée produit une réponse fausse, pas seulement incomplète. Le coût d'une réponse de conformité erronée dépasse toujours le coût d'un blocage d'ingestion." ;
+        # TEST 1 : produit une réponse fausse
+    ] .
+
+#--------------------------------------------------------------------
+# On ne déclare pas une équivalence exacte entre deux régimes sur
+# une preuve faible. C'est ainsi qu'on produit une réponse fluide
+# et fausse.
+#--------------------------------------------------------------------
+sst:SeuilEquivalenceExacteShape a sh:NodeShape ;
+    sh:targetClass sst:Correspondance ;
+    sh:sparql [
+        sh:severity sh:Violation ;
+        sh:message "On ne déclare pas une équivalence exacte entre deux régimes sur une preuve faible. C'est ainsi qu'on produit une réponse fluide et fausse." ;
+        sh:prefixes sst: ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this <https://agenticx5.com/ont/sst#mappingRelation> "exactMatch" .
+                $this <https://agenticx5.com/ont/sst#confidence> ?v .
+                FILTER (?v < 0.95)
+            }
+        """ ;
+    ] .
+
+#--------------------------------------------------------------------
+# Une correspondance relie DEUX juridictions. Relier deux concepts
+# du même régime n'a aucun sens : il n'y a rien à traduire.
+#--------------------------------------------------------------------
+sst:CorrespondanceTraverseLesRegimesShape a sh:NodeShape ;
+    sh:targetClass sst:Correspondance ;
+    sh:sparql [
+        sh:severity sh:Violation ;
+        sh:message "Une correspondance relie DEUX juridictions. Relier deux concepts du même régime n'a aucun sens : il n'y a rien à traduire." ;
+        sh:prefixes sst: ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this <https://agenticx5.com/ont/sst#source> / <https://agenticx5.com/ont/sst#scopedTo> ?a .
+                $this <https://agenticx5.com/ont/sst#cible> / <https://agenticx5.com/ont/sst#scopedTo> ?b .
+                FILTER (?a = ?b)
+            }
+        """ ;
+    ] .
+
+#--------------------------------------------------------------------
+# Une obligation ne peut pas cesser d'être en vigueur avant d'y
+# entrer.
+#--------------------------------------------------------------------
+sst:CoherenceDesDatesShape a sh:NodeShape ;
+    sh:targetClass sst:Obligation ;
+    sh:sparql [
+        sh:severity sh:Violation ;
+        sh:message "Une obligation ne peut pas cesser d'être en vigueur avant d'y entrer." ;
+        sh:prefixes sst: ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this <https://agenticx5.com/ont/sst#validTo> ?_a .
+                $this <https://agenticx5.com/ont/sst#validTo> ?v .
+                $this <https://agenticx5.com/ont/sst#validFrom> ?ref .
+                FILTER (?v <= ?ref)
+            }
+        """ ;
+    ] .

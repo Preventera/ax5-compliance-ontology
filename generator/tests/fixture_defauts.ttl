@@ -1,0 +1,128 @@
+@prefix sst: <https://agenticx5.com/ont/sst#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# =====================================================================
+# BANC D'ESSAI DU GÉNÉRATEUR
+#
+# Chaque entrée porte un défaut connu. Le test ne vérifie pas que ce
+# graphe est valide — il vérifie que les shapes GÉNÉRÉES attrapent
+# exactement les défauts qu'on y a plantés.
+#
+# Un générateur qui produit des shapes trop permissives est pire
+# qu'inutile : il donne une fausse assurance de qualité.
+# =====================================================================
+
+sst:QC a sst:Juridiction ;
+    sst:nom "Québec" ; sst:code "CA-QC" .
+
+sst:US a sst:Juridiction ;
+    sst:nom "États-Unis" ; sst:code "US" .
+
+sst:RSST a sst:Reglement ;
+    sst:titre "Règlement sur la santé et la sécurité du travail" ;
+    sst:hasJurisdiction sst:QC .
+
+sst:ChuteHauteur a sst:Danger ; sst:libelle "Chute de hauteur" .
+
+sst:EspaceClosQC a sst:ConceptLocal ;
+    sst:libelle "Espace clos" ; sst:scopedTo sst:QC .
+
+sst:EspaceClosQC2 a sst:ConceptLocal ;
+    sst:libelle "Espace clos (variante)" ; sst:scopedTo sst:QC .
+
+sst:ConfinedSpaceUS a sst:ConceptLocal ;
+    sst:libelle "Confined space" ; sst:scopedTo sst:US .
+
+
+### CAS DE RÉFÉRENCE — doit passer sans rien déclencher ###############
+
+sst:OBL-OK a sst:Obligation ;
+    sst:citation "RSST, art. 302" ;
+    sst:enonce "Protection contre les chutes au-delà de 3 mètres." ;
+    sst:statedIn sst:RSST ;
+    sst:validFrom "2001-08-02"^^xsd:date ;
+    sst:recordedAt "2026-08-28T10:00:00"^^xsd:dateTime ;
+    sst:addressesHazard sst:ChuteHauteur .
+
+
+### DÉFAUT 1 — citation manquante  =>  attendu : Violation ############
+# Une réponse de conformité sans référence d'article est invérifiable.
+
+sst:OBL-SANS-CITATION a sst:Obligation ;
+    sst:enonce "Obligation quelconque sans référence." ;
+    sst:statedIn sst:RSST ;
+    sst:validFrom "2001-08-02"^^xsd:date ;
+    sst:recordedAt "2026-08-28T10:00:00"^^xsd:dateTime ;
+    sst:addressesHazard sst:ChuteHauteur .
+
+
+### DÉFAUT 2 — aucun danger visé  =>  attendu : Warning seulement #####
+# Exigence de système de gestion. Ne vise légitimement aucun danger.
+# Le générateur a DÉGRADÉ ce champ malgré « obligatoire: true ».
+
+sst:OBL-SYSTEME a sst:Obligation ;
+    sst:citation "ISO 45001, art. 5.4" ;
+    sst:enonce "Consultation et participation des travailleurs." ;
+    sst:statedIn sst:RSST ;
+    sst:validFrom "2018-03-12"^^xsd:date ;
+    sst:recordedAt "2026-08-28T10:00:00"^^xsd:dateTime .
+
+
+### DÉFAUT 3 — validTo avant validFrom  =>  attendu : Violation #######
+# Règle croisée : impossible à exprimer sans SHACL-SPARQL.
+
+sst:OBL-DATES-INVERSEES a sst:Obligation ;
+    sst:citation "RSST, art. 999" ;
+    sst:enonce "Obligation aux dates incohérentes." ;
+    sst:statedIn sst:RSST ;
+    sst:validFrom "2020-01-01"^^xsd:date ;
+    sst:validTo   "2019-01-01"^^xsd:date ;
+    sst:recordedAt "2026-08-28T10:00:00"^^xsd:dateTime ;
+    sst:addressesHazard sst:ChuteHauteur .
+
+
+### DÉFAUT 4 — exactMatch à faible confiance  =>  Violation ###########
+# Condition croisée entre deux champs du même noeud.
+
+sst:MAP-FAIBLE a sst:Correspondance ;
+    sst:source sst:EspaceClosQC ;
+    sst:cible sst:ConfinedSpaceUS ;
+    sst:mappingRelation "exactMatch" ;
+    sst:confidence 0.55 ;
+    sst:basis "Comparaison de définitions." ;
+    sst:wasAttributedTo "M. Deshaies" .
+
+
+### DÉFAUT 5 — correspondance intra-régime  =>  Violation #############
+# La preuve n'est pas dans la fiche : il faut traverser deux arcs et
+# comparer les juridictions trouvées au bout.
+
+sst:MAP-INTRA a sst:Correspondance ;
+    sst:source sst:EspaceClosQC ;
+    sst:cible sst:EspaceClosQC2 ;
+    sst:mappingRelation "closeMatch" ;
+    sst:confidence 0.80 ;
+    sst:basis "Deux formulations du même règlement." ;
+    sst:wasAttributedTo "M. Deshaies" .
+
+
+### DÉFAUT 6 — confiance hors bornes  =>  Violation ###################
+# Contrainte de borne ordinaire. Vérifie que le générateur traduit
+# bien min/max du spec en sh:minInclusive / sh:maxInclusive.
+
+sst:MAP-HORS-BORNES a sst:Correspondance ;
+    sst:source sst:EspaceClosQC ;
+    sst:cible sst:ConfinedSpaceUS ;
+    sst:mappingRelation "closeMatch" ;
+    sst:confidence 1.5 ;
+    sst:basis "Confiance impossible." ;
+    sst:wasAttributedTo "M. Deshaies" .
+
+
+### DÉFAUT 7 — concept sans juridiction  =>  Violation ################
+# Un concept local sans régime n'a aucun sens légal : ni seuil, ni
+# obligation, ni article. Un agent ne peut ni le retourner, ni s'en
+# servir comme extrémité de correspondance.
+
+sst:CONCEPT-ORPHELIN a sst:ConceptLocal ;
+    sst:libelle "Quelque chose, quelque part" .

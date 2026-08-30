@@ -1,0 +1,150 @@
+@prefix sst:  <https://agenticx5.com/ont/sst#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix dct:  <http://purl.org/dc/terms/> .
+
+#####################################################################
+# Conformité SST Québec
+# Généré par ax5-onto/generator — version 0.1.0
+#
+# Ce fichier est GÉNÉRÉ. Modifier le spec, pas le fichier.
+#####################################################################
+
+sst: a owl:Ontology ;
+    dct:title "Conformité SST Québec"@fr ;
+    owl:versionInfo "0.1.0" .
+
+#--------------------------------------------------------------------
+# Une obligation précise tirée d'un règlement. Pas « le RSST »,
+# mais l'article nommé, avec sa référence exacte.
+#--------------------------------------------------------------------
+sst:Obligation a owl:Class ;
+    rdfs:label "Obligation"@fr .
+
+sst:citation a owl:DatatypeProperty ;
+    rdfs:label "Référence de l'article"@fr ;
+    rdfs:domain sst:Obligation ;
+    rdfs:range xsd:string .
+
+sst:enonce a owl:DatatypeProperty ;
+    rdfs:label "Texte de l'obligation"@fr ;
+    rdfs:domain sst:Obligation ;
+    rdfs:range xsd:string .
+
+sst:statedIn a owl:ObjectProperty ;
+    rdfs:label "Règlement source"@fr ;
+    rdfs:domain sst:Obligation ;
+    rdfs:range sst:Reglement .
+
+sst:validFrom a owl:DatatypeProperty ;
+    rdfs:label "En vigueur depuis"@fr ;
+    rdfs:domain sst:Obligation ;
+    rdfs:range xsd:date .
+
+sst:validTo a owl:DatatypeProperty ;
+    rdfs:label "En vigueur jusqu'à"@fr ;
+    rdfs:domain sst:Obligation ;
+    rdfs:range xsd:date .
+
+sst:recordedAt a owl:DatatypeProperty ;
+    rdfs:label "Saisi au système le"@fr ;
+    rdfs:domain sst:Obligation ;
+    rdfs:range xsd:dateTime .
+
+sst:addressesHazard a owl:ObjectProperty ;
+    rdfs:label "Danger visé"@fr ;
+    rdfs:domain sst:Obligation ;
+    rdfs:range sst:Danger .
+
+#--------------------------------------------------------------------
+# Un texte réglementaire complet. RSST, LSST, 29 CFR 1910.
+#--------------------------------------------------------------------
+sst:Reglement a owl:Class ;
+    rdfs:label "Reglement"@fr .
+
+sst:titre a owl:DatatypeProperty ;
+    rdfs:domain sst:Reglement ;
+    rdfs:range xsd:string .
+
+sst:hasJurisdiction a owl:ObjectProperty ;
+    rdfs:label "Juridiction"@fr ;
+    rdfs:domain sst:Reglement ;
+    rdfs:range sst:Juridiction .
+
+#--------------------------------------------------------------------
+# Un régime réglementaire ayant autorité sur un territoire.
+#--------------------------------------------------------------------
+sst:Juridiction a owl:Class ;
+    rdfs:label "Juridiction"@fr .
+
+sst:nom a owl:DatatypeProperty ;
+    rdfs:domain sst:Juridiction ;
+    rdfs:range xsd:string .
+
+sst:code a owl:DatatypeProperty ;
+    rdfs:label "Code ISO du territoire"@fr ;
+    rdfs:domain sst:Juridiction ;
+    rdfs:range xsd:string .
+
+#--------------------------------------------------------------------
+# Un danger identifiable en milieu de travail.
+#--------------------------------------------------------------------
+sst:Danger a owl:Class ;
+    rdfs:label "Danger"@fr .
+
+sst:libelle a owl:DatatypeProperty ;
+    rdfs:domain sst:Danger ;
+    rdfs:range xsd:string .
+
+#--------------------------------------------------------------------
+# Un concept tel que défini par UNE juridiction. « Espace clos »
+# au sens du Québec est une fiche; « confined space » au sens
+# d'OSHA en est une autre. On ne les fusionne jamais.
+#--------------------------------------------------------------------
+sst:ConceptLocal a owl:Class ;
+    rdfs:label "ConceptLocal"@fr .
+
+sst:scopedTo a owl:ObjectProperty ;
+    rdfs:label "Juridiction qui le définit"@fr ;
+    rdfs:domain sst:ConceptLocal ;
+    rdfs:range sst:Juridiction .
+
+#--------------------------------------------------------------------
+# La fiche qu'un conseiller SST écrit à la main pour dire « au
+# Québec on dit ceci, chez OSHA on dit cela ». Elle a un auteur,
+# une justification et un niveau de confiance. Ce n'est pas un
+# simple trait entre deux cases : un trait ne s'audite pas.
+#--------------------------------------------------------------------
+sst:Correspondance a owl:Class ;
+    rdfs:label "Correspondance"@fr .
+
+sst:source a owl:ObjectProperty ;
+    rdfs:label "Concept de départ"@fr ;
+    rdfs:domain sst:Correspondance ;
+    rdfs:range sst:ConceptLocal .
+
+sst:cible a owl:ObjectProperty ;
+    rdfs:label "Concept d'arrivée"@fr ;
+    rdfs:domain sst:Correspondance ;
+    rdfs:range sst:ConceptLocal .
+
+sst:mappingRelation a owl:DatatypeProperty ;
+    rdfs:label "Degré d'équivalence"@fr ;
+    rdfs:domain sst:Correspondance ;
+    rdfs:range xsd:string .
+
+sst:confidence a owl:DatatypeProperty ;
+    rdfs:label "Niveau de confiance (0 à 1)"@fr ;
+    rdfs:domain sst:Correspondance ;
+    rdfs:range xsd:decimal .
+
+sst:basis a owl:DatatypeProperty ;
+    rdfs:label "Sur quelle base"@fr ;
+    rdfs:domain sst:Correspondance ;
+    rdfs:range xsd:string .
+
+sst:wasAttributedTo a owl:DatatypeProperty ;
+    rdfs:label "Qui l'affirme"@fr ;
+    rdfs:domain sst:Correspondance ;
+    rdfs:range xsd:string .

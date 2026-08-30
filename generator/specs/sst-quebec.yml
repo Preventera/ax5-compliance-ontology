@@ -1,0 +1,201 @@
+# =====================================================================
+# SPEC DE DOMAINE — écrit par un praticien SST, pas par un ontologue.
+#
+# Aucun RDF ici. On décrit des fiches, des champs, et ce qui arrive
+# quand un champ manque. Le générateur traduit.
+# =====================================================================
+
+domaine:
+  nom: "Conformité SST Québec"
+  prefixe: "sst"
+  uri: "https://agenticx5.com/ont/sst#"
+  version: "0.1.0"
+
+fiches:
+
+  - nom: Obligation
+    description: >
+      Une obligation précise tirée d'un règlement. Pas « le RSST »,
+      mais l'article nommé, avec sa référence exacte.
+    champs:
+      - nom: citation
+        libelle: "Référence de l'article"
+        type: texte
+        obligatoire: true
+        exemple: "RSST, art. 302"
+        # Sévérité proposée par le générateur : Violation.
+        # Une réponse de conformité sans référence est invérifiable.
+
+      - nom: enonce
+        libelle: "Texte de l'obligation"
+        type: texte
+        obligatoire: true
+
+      - nom: statedIn
+        libelle: "Règlement source"
+        type: lien
+        vers: Reglement
+        obligatoire: true
+        unique: true
+
+      - nom: validFrom
+        libelle: "En vigueur depuis"
+        type: date
+        obligatoire: true
+        unique: true
+
+      - nom: validTo
+        libelle: "En vigueur jusqu'à"
+        type: date
+        obligatoire: false
+        # Une règle toujours en vigueur n'a pas de date de fin.
+        # Le générateur ne bloquera pas là-dessus.
+
+      - nom: recordedAt
+        libelle: "Saisi au système le"
+        type: horodatage
+        obligatoire: true
+        unique: true
+        # Deuxième axe temporel. Répond à « que savions-nous le 3 mars ».
+
+      - nom: addressesHazard
+        libelle: "Danger visé"
+        type: lien
+        vers: Danger
+        obligatoire: true
+        # ATTENTION : marqué obligatoire par l'auteur du spec, mais le
+        # générateur va le dégrader en Warning et expliquer pourquoi.
+        # Voir la sortie de generate.py.
+
+  - nom: Reglement
+    description: "Un texte réglementaire complet. RSST, LSST, 29 CFR 1910."
+    champs:
+      - nom: titre
+        type: texte
+        obligatoire: true
+      - nom: hasJurisdiction
+        libelle: "Juridiction"
+        type: lien
+        vers: Juridiction
+        obligatoire: true
+        unique: true
+
+  - nom: Juridiction
+    description: "Un régime réglementaire ayant autorité sur un territoire."
+    champs:
+      - nom: nom
+        type: texte
+        obligatoire: true
+      - nom: code
+        libelle: "Code ISO du territoire"
+        type: texte
+        obligatoire: true
+
+  - nom: Danger
+    description: "Un danger identifiable en milieu de travail."
+    champs:
+      - nom: libelle
+        type: texte
+        obligatoire: true
+
+  - nom: ConceptLocal
+    description: >
+      Un concept tel que défini par UNE juridiction. « Espace clos »
+      au sens du Québec est une fiche; « confined space » au sens
+      d'OSHA en est une autre. On ne les fusionne jamais.
+    champs:
+      - nom: libelle
+        type: texte
+        obligatoire: true
+      - nom: scopedTo
+        libelle: "Juridiction qui le définit"
+        type: lien
+        vers: Juridiction
+        obligatoire: true
+        unique: true
+
+  - nom: Correspondance
+    description: >
+      La fiche qu'un conseiller SST écrit à la main pour dire « au Québec
+      on dit ceci, chez OSHA on dit cela ». Elle a un auteur, une
+      justification et un niveau de confiance. Ce n'est pas un simple
+      trait entre deux cases : un trait ne s'audite pas.
+    champs:
+      - nom: source
+        libelle: "Concept de départ"
+        type: lien
+        vers: ConceptLocal
+        obligatoire: true
+        unique: true
+      - nom: cible
+        libelle: "Concept d'arrivée"
+        type: lien
+        vers: ConceptLocal
+        obligatoire: true
+        unique: true
+      - nom: mappingRelation
+        libelle: "Degré d'équivalence"
+        type: texte
+        obligatoire: true
+        unique: true
+      - nom: confidence
+        libelle: "Niveau de confiance (0 à 1)"
+        type: decimal
+        obligatoire: true
+        unique: true
+        min: 0.0
+        max: 1.0
+      - nom: basis
+        libelle: "Sur quelle base"
+        type: texte
+        obligatoire: true
+      - nom: wasAttributedTo
+        libelle: "Qui l'affirme"
+        type: texte
+        obligatoire: true
+
+# =====================================================================
+# RÈGLES MÉTIER
+#
+# Ce que les champs obligatoires ne savent pas exprimer : des règles qui
+# CROISENT plusieurs champs, ou qui traversent plusieurs fiches.
+# Le générateur les traduit en SHACL-SPARQL.
+# =====================================================================
+
+regles:
+
+  - nom: seuil_equivalence_exacte
+    sur: Correspondance
+    type: condition_croisee
+    libelle: >
+      On ne déclare pas une équivalence exacte entre deux régimes sur une
+      preuve faible. C'est ainsi qu'on produit une réponse fluide et fausse.
+    si:
+      champ: mappingRelation
+      vaut: "exactMatch"
+    alors:
+      champ: confidence
+      minimum: 0.95
+
+  - nom: correspondance_traverse_les_regimes
+    sur: Correspondance
+    type: comparaison_traversee
+    libelle: >
+      Une correspondance relie DEUX juridictions. Relier deux concepts du
+      même régime n'a aucun sens : il n'y a rien à traduire.
+    compare:
+      chemin_a: [source, scopedTo]
+      chemin_b: [cible, scopedTo]
+      doivent_etre: differents
+
+  - nom: coherence_des_dates
+    sur: Obligation
+    type: condition_croisee
+    libelle: >
+      Une obligation ne peut pas cesser d'être en vigueur avant d'y entrer.
+    si:
+      champ: validTo
+      existe: true
+    alors:
+      champ: validTo
+      superieur_a: validFrom
