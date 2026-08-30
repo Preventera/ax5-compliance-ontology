@@ -1,0 +1,288 @@
+@prefix scm:  <https://agenticx5.com/ont/scm#> .
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+#####################################################################
+# CONTRAINTES — Sémantique multi-systèmes — chaîne d'approvisionnement
+#
+# Chaque sévérité porte en commentaire le test qui l'a produite.
+# Voir generator/severity_policy.py pour les trois tests.
+#####################################################################
+
+#--------------------------------------------------------------------
+# SystemeSource
+#--------------------------------------------------------------------
+scm:SystemeSourceShape a sh:NodeShape ;
+    sh:targetClass scm:SystemeSource ;
+
+    sh:property [
+        sh:path scm:nom ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Violation ;
+        sh:message "'nom' est obligatoire, remplissable, et son absence rend la donnée inexploitable. Barrière dure justifiée." ;
+        # Aucun test échoué : blocage sûr
+    ] ;
+    sh:property [
+        sh:path scm:code ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Violation ;
+        sh:message "'code' est obligatoire, remplissable, et son absence rend la donnée inexploitable. Barrière dure justifiée." ;
+        # Aucun test échoué : blocage sûr
+    ] .
+
+#--------------------------------------------------------------------
+# ConceptSysteme
+#--------------------------------------------------------------------
+scm:ConceptSystemeShape a sh:NodeShape ;
+    sh:targetClass scm:ConceptSysteme ;
+
+    sh:property [
+        sh:path scm:libelle ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Violation ;
+        sh:message "'libelle' est obligatoire, remplissable, et son absence rend la donnée inexploitable. Barrière dure justifiée." ;
+        # Aucun test échoué : blocage sûr
+    ] ;
+    sh:property [
+        sh:path scm:scopedTo ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class scm:SystemeSource ;
+        sh:severity sh:Violation ;
+        sh:message "Sans 'scopedTo', la donnée produit une réponse fausse, pas seulement incomplète. Le coût d'une réponse de conformité erronée dépasse toujours le coût d'un blocage d'ingestion." ;
+        # TEST 1 : produit une réponse fausse
+    ] ;
+    sh:property [
+        sh:path scm:definition ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Violation ;
+        sh:message "'definition' est obligatoire, remplissable, et son absence rend la donnée inexploitable. Barrière dure justifiée." ;
+        # Aucun test échoué : blocage sûr
+    ] .
+
+#--------------------------------------------------------------------
+# AncrageMetier
+#--------------------------------------------------------------------
+scm:AncrageMetierShape a sh:NodeShape ;
+    sh:targetClass scm:AncrageMetier ;
+
+    sh:property [
+        sh:path scm:libelle ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Violation ;
+        sh:message "'libelle' est obligatoire, remplissable, et son absence rend la donnée inexploitable. Barrière dure justifiée." ;
+        # Aucun test échoué : blocage sûr
+    ] ;
+    sh:property [
+        sh:path scm:definition ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Violation ;
+        sh:message "'definition' est obligatoire, remplissable, et son absence rend la donnée inexploitable. Barrière dure justifiée." ;
+        # Aucun test échoué : blocage sûr
+    ] .
+
+#--------------------------------------------------------------------
+# Rapprochement
+#--------------------------------------------------------------------
+scm:RapprochementShape a sh:NodeShape ;
+    sh:targetClass scm:Rapprochement ;
+
+    sh:property [
+        sh:path scm:source ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class scm:ConceptSysteme ;
+        sh:severity sh:Violation ;
+        sh:message "'source' est obligatoire, remplissable, et son absence rend la donnée inexploitable. Barrière dure justifiée." ;
+        # Aucun test échoué : blocage sûr
+    ] ;
+    sh:property [
+        sh:path scm:cible ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class scm:ConceptSysteme ;
+        sh:severity sh:Violation ;
+        sh:message "'cible' est obligatoire, remplissable, et son absence rend la donnée inexploitable. Barrière dure justifiée." ;
+        # Aucun test échoué : blocage sûr
+    ] ;
+    sh:property [
+        sh:path scm:ancrage ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class scm:AncrageMetier ;
+        sh:severity sh:Violation ;
+        sh:message "'ancrage' est obligatoire, remplissable, et son absence rend la donnée inexploitable. Barrière dure justifiée." ;
+        # Aucun test échoué : blocage sûr
+    ] ;
+    sh:property [
+        sh:path scm:mappingRelation ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Violation ;
+        sh:message "'mappingRelation' est obligatoire, remplissable, et son absence rend la donnée inexploitable. Barrière dure justifiée." ;
+        # Aucun test échoué : blocage sûr
+    ] ;
+    sh:property [
+        sh:path scm:confidence ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:severity sh:Violation ;
+        sh:message "Sans 'confidence', la donnée produit une réponse fausse, pas seulement incomplète. Le coût d'une réponse de conformité erronée dépasse toujours le coût d'un blocage d'ingestion." ;
+        # TEST 1 : produit une réponse fausse
+    ] ;
+    sh:property [
+        sh:path scm:basis ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Violation ;
+        sh:message "Sans 'basis', la donnée produit une réponse fausse, pas seulement incomplète. Le coût d'une réponse de conformité erronée dépasse toujours le coût d'un blocage d'ingestion." ;
+        # TEST 1 : produit une réponse fausse
+    ] ;
+    sh:property [
+        sh:path scm:wasAttributedTo ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Violation ;
+        sh:message "Sans 'wasAttributedTo', la donnée produit une réponse fausse, pas seulement incomplète. Le coût d'une réponse de conformité erronée dépasse toujours le coût d'un blocage d'ingestion." ;
+        # TEST 1 : produit une réponse fausse
+    ] ;
+    sh:property [
+        sh:path scm:recordedAt ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:dateTime ;
+        sh:severity sh:Violation ;
+        sh:message "Sans 'recordedAt', la donnée produit une réponse fausse, pas seulement incomplète. Le coût d'une réponse de conformité erronée dépasse toujours le coût d'un blocage d'ingestion." ;
+        # TEST 1 : produit une réponse fausse
+    ] .
+
+#--------------------------------------------------------------------
+# RegleDePlanif
+#--------------------------------------------------------------------
+scm:RegleDePlanifShape a sh:NodeShape ;
+    sh:targetClass scm:RegleDePlanif ;
+
+    sh:property [
+        sh:path scm:enonce ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Violation ;
+        sh:message "'enonce' est obligatoire, remplissable, et son absence rend la donnée inexploitable. Barrière dure justifiée." ;
+        # Aucun test échoué : blocage sûr
+    ] ;
+    sh:property [
+        sh:path scm:citation ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:severity sh:Violation ;
+        sh:message "Sans 'citation', la donnée produit une réponse fausse, pas seulement incomplète. Le coût d'une réponse de conformité erronée dépasse toujours le coût d'un blocage d'ingestion." ;
+        # TEST 1 : produit une réponse fausse
+    ] ;
+    sh:property [
+        sh:path scm:statedIn ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class scm:SystemeSource ;
+        sh:severity sh:Violation ;
+        sh:message "Sans 'statedIn', la donnée produit une réponse fausse, pas seulement incomplète. Le coût d'une réponse de conformité erronée dépasse toujours le coût d'un blocage d'ingestion." ;
+        # TEST 1 : produit une réponse fausse
+    ] ;
+    sh:property [
+        sh:path scm:validFrom ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:date ;
+        sh:severity sh:Violation ;
+        sh:message "Sans 'validFrom', la donnée produit une réponse fausse, pas seulement incomplète. Le coût d'une réponse de conformité erronée dépasse toujours le coût d'un blocage d'ingestion." ;
+        # TEST 1 : produit une réponse fausse
+    ] ;
+    sh:property [
+        sh:path scm:recordedAt ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:dateTime ;
+        sh:severity sh:Violation ;
+        sh:message "Sans 'recordedAt', la donnée produit une réponse fausse, pas seulement incomplète. Le coût d'une réponse de conformité erronée dépasse toujours le coût d'un blocage d'ingestion." ;
+        # TEST 1 : produit une réponse fausse
+    ] ;
+    sh:property [
+        sh:path scm:appliesToConcept ;
+        sh:minCount 1 ;
+        sh:class scm:ConceptSysteme ;
+        sh:severity sh:Warning ;
+        sh:message "De la donnée légitime peut ne pas avoir de 'appliesToConcept'. Bloquer rejetterait du vrai. On tolère et on suit le trou comme métrique de couverture." ;
+        # TEST 2 : de la donnée légitime échouerait
+    ] .
+
+#--------------------------------------------------------------------
+# On ne déclare pas une équivalence exacte entre deux systèmes sur
+# une preuve faible. exactMatch autorise un agent à substituer un
+# champ à l'autre sans prévenir; sur une preuve faible, c'est
+# ainsi qu'on produit un plan fluide et faux.
+#--------------------------------------------------------------------
+scm:SeuilEquivalenceExacteShape a sh:NodeShape ;
+    sh:targetClass scm:Rapprochement ;
+    sh:sparql [
+        sh:severity sh:Violation ;
+        sh:message "On ne déclare pas une équivalence exacte entre deux systèmes sur une preuve faible. exactMatch autorise un agent à substituer un champ à l'autre sans prévenir; sur une preuve faible, c'est ainsi qu'on produit un plan fluide et faux." ;
+        sh:prefixes scm: ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this <https://agenticx5.com/ont/scm#mappingRelation> "exactMatch" .
+                $this <https://agenticx5.com/ont/scm#confidence> ?v .
+                FILTER (?v < 0.95)
+            }
+        """ ;
+    ] .
+
+#--------------------------------------------------------------------
+# Un rapprochement relie DEUX systèmes. Relier deux concepts du
+# même système n'a aucun sens : il n'y a rien à traduire, et la
+# fiche masque un problème de modélisation interne.
+#--------------------------------------------------------------------
+scm:RapprochementTraverseLesSystemesShape a sh:NodeShape ;
+    sh:targetClass scm:Rapprochement ;
+    sh:sparql [
+        sh:severity sh:Violation ;
+        sh:message "Un rapprochement relie DEUX systèmes. Relier deux concepts du même système n'a aucun sens : il n'y a rien à traduire, et la fiche masque un problème de modélisation interne." ;
+        sh:prefixes scm: ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this <https://agenticx5.com/ont/scm#source> / <https://agenticx5.com/ont/scm#scopedTo> ?a .
+                $this <https://agenticx5.com/ont/scm#cible> / <https://agenticx5.com/ont/scm#scopedTo> ?b .
+                FILTER (?a = ?b)
+            }
+        """ ;
+    ] .
+
+#--------------------------------------------------------------------
+# Une règle ne peut pas cesser d'être en vigueur avant d'y entrer.
+#--------------------------------------------------------------------
+scm:CoherenceDesDatesShape a sh:NodeShape ;
+    sh:targetClass scm:RegleDePlanif ;
+    sh:sparql [
+        sh:severity sh:Violation ;
+        sh:message "Une règle ne peut pas cesser d'être en vigueur avant d'y entrer." ;
+        sh:prefixes scm: ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this <https://agenticx5.com/ont/scm#validTo> ?_a .
+                $this <https://agenticx5.com/ont/scm#validTo> ?v .
+                $this <https://agenticx5.com/ont/scm#validFrom> ?ref .
+                FILTER (?v <= ?ref)
+            }
+        """ ;
+    ] .

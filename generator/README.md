@@ -209,15 +209,69 @@ ne sera pas maintenu.
 
 ---
 
-## 7. Portabilité
+## 7. Portabilité : le même moteur, un autre domaine
 
-Le spec ne contient aucun terme propre à la SST. `fiches`, `champs`,
-`regles` — le vocabulaire est générique. Le domaine réglementaire n'est
-qu'un exemple.
+`specs/supply-chain.yml` génère une ontologie de sémantique
+multi-systèmes pour la chaîne d'approvisionnement. **Aucune ligne de
+`generate.py` n'a changé.**
 
-Écrivez un spec où `ConceptLocal` devient « site tel que SAP le
-définit », `Correspondance` devient la fiche de rapprochement entre deux
-systèmes, et vous obtenez la même chose pour la chaîne
-d'approvisionnement. La décision de modélisation est identique : on ne
-fusionne pas « lead time » de SAP avec « lead time » du WMS, on modélise
-le rapport entre les deux, et ce rapport a un auteur.
+```bash
+python generate.py specs/supply-chain.yml --out ../generated-scm/
+```
+
+La correspondance est directe :
+
+| Conformité réglementaire | Chaîne d'approvisionnement |
+|---|---|
+| `Juridiction` | `SystemeSource` — SAP, le WMS, Salesforce |
+| `ConceptLocal` | `ConceptSysteme` — « site » selon SAP |
+| `AncrageMetier` | inchangé — l'entrée d'index, sans autorité |
+| `Correspondance` | `Rapprochement` — la fiche qui relie deux définitions |
+| `Obligation` | `RegleDePlanif` — avec source et dates |
+
+**La décision de modélisation est identique.** On ne fusionne pas le
+`PLIFZ` de SAP (jours calendrier, transit exclu) avec le `LEAD_DAYS` du
+WMS (jours ouvrables, transit inclus) dans un champ canonique « lead
+time ». On garde chaque définition dans son système et on modélise le
+rapport entre elles — avec un niveau de confiance, une base et un
+auteur.
+
+Dans le banc d'essai, ce rapprochement est déclaré `closeMatch` à 0.75,
+et il passe. La version `exactMatch` à 0.60 est bloquée : `exactMatch`
+autorise un agent à substituer un champ à l'autre **sans prévenir
+l'utilisateur**. Ici, cela reviendrait à planifier en jours ouvrables
+une donnée exprimée en jours calendrier.
+
+> Deux systèmes qui emploient le même mot pour des choses différentes,
+> c'est exactement le problème d'un agent de conformité qui confond
+> l'espace clos du Québec avec celui d'OSHA.
+
+### Ce que le portage a révélé
+
+Première génération du domaine supply chain : **21 barrières dures, 0
+avertissement.**
+
+Les heuristiques de `severity_policy.py` étaient peuplées du seul
+vocabulaire SST. `appliesToConcept` — pourtant l'exact équivalent de
+`addressesHazard` — est sorti en barrière dure parce que le générateur
+ne connaissait pas ce nom.
+
+Le ratio était le signal : un domaine sans aucun signal doux annonce un
+pipeline que l'équipe d'ingestion va contourner. C'est la limite honnête
+de l'approche — **les heuristiques par nom de champ ne se portent pas
+seules**. Un générateur mûr déclarerait ces catégories dans le spec
+plutôt que dans le code.
+
+`test_au_moins_un_signal_doux` verrouille cette régression pour le
+prochain domaine.
+
+### Tests
+
+```bash
+python -m pytest tests/ -q     # 28 tests, deux domaines
+```
+
+`tests/test_portability.py` ne teste pas le domaine supply chain. Il
+teste que le générateur produit des contraintes correctes sur un domaine
+qu'il n'a jamais vu. C'est l'affirmation que fait ce dépôt — si elle
+n'est pas testée, ce n'est qu'une affirmation.

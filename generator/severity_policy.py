@@ -172,13 +172,30 @@ FIELDS_PRODUCING_WRONG_ANSWERS = {
     "confidence",     # équivalence affirmée sans mesure d'incertitude
 }
 
-#: Champs qu'une source réglementaire réelle laisse souvent vides,
-#: sans que la donnée soit fautive.
+#: Champs qu'une source réelle laisse souvent vides, sans que la donnée
+#: soit fautive.
+#:
+#: NOTE DE PORTAGE — à lire avant d'ajouter un domaine.
+#: Cet ensemble était d'abord peuplé du seul vocabulaire de la
+#: conformité SST. En générant le domaine supply chain, tous les champs
+#: sont sortis en barrière dure : 21 violations, 0 avertissement. Le
+#: ratio était le signal. Le générateur n'avait pas tort sur le fond —
+#: il ne connaissait simplement pas les noms du nouveau domaine.
+#:
+#: C'est la limite honnête de l'approche : les heuristiques par NOM de
+#: champ ne se portent pas d'un domaine à l'autre. Un générateur mûr
+#: déclarerait ces catégories dans le spec plutôt que dans le code.
 FIELDS_WITH_LEGITIMATE_GAPS = {
+    # Conformité réglementaire
     "addressesHazard",   # les exigences de système ne visent aucun danger
     "supersedes",        # une première version ne remplace rien
     "validTo",           # une règle en vigueur n'a pas de date de fin
     "appliesToSector",   # beaucoup d'obligations sont transversales
+
+    # Chaîne d'approvisionnement
+    "appliesToConcept",  # beaucoup de règles de planif sont transversales
+    "champTechnique",    # inconnu tant que le concept n'est pas câblé
+    "proprietaire",      # souvent vide au moment de l'inventaire
 }
 
 #: Champs coûteux à remplir correctement, donc candidats au remplissage

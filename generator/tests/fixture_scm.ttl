@@ -1,0 +1,194 @@
+@prefix scm: <https://agenticx5.com/ont/scm#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# =====================================================================
+# BANC D'ESSAI — SÉMANTIQUE MULTI-SYSTÈMES
+#
+# Mêmes défauts que le banc d'essai SST, transposés. Le test ne vérifie
+# pas que ce graphe est valide : il vérifie que les shapes générées
+# attrapent exactement les défauts plantés.
+# =====================================================================
+
+scm:SAP a scm:SystemeSource ;
+    scm:nom "SAP ECC" ; scm:code "SAP" ; scm:proprietaire "Équipe ERP" .
+
+scm:WMS a scm:SystemeSource ;
+    scm:nom "Manhattan WMS" ; scm:code "WMS" .
+
+scm:SFDC a scm:SystemeSource ;
+    scm:nom "Salesforce" ; scm:code "SFDC" .
+
+
+### ANCRAGES MÉTIER — entrées d'index, sans autorité #################
+
+scm:ANC-Site a scm:AncrageMetier ;
+    scm:libelle "Site" ;
+    scm:definition "Un lieu où l'on produit, stocke ou expédie." .
+
+scm:ANC-LeadTime a scm:AncrageMetier ;
+    scm:libelle "Délai d'approvisionnement" ;
+    scm:definition "Temps entre la commande et la disponibilité." .
+
+
+### CONCEPTS PROPRES À CHAQUE SYSTÈME ################################
+# Le coeur de la démonstration : « site » ne veut PAS dire la même
+# chose dans SAP et dans le WMS. Deux fiches, jamais fusionnées.
+
+scm:SAP-Werk a scm:ConceptSysteme ;
+    scm:libelle "Site (Werk)" ;
+    scm:scopedTo scm:SAP ;
+    scm:definition "Entité de valorisation et de planification. Peut regrouper plusieurs bâtiments, ou n'en couvrir aucun." ;
+    scm:champTechnique "T001W.WERKS" .
+
+scm:WMS-Facility a scm:ConceptSysteme ;
+    scm:libelle "Site (Facility)" ;
+    scm:scopedTo scm:WMS ;
+    scm:definition "Bâtiment physique doté de quais et d'emplacements." ;
+    scm:champTechnique "FACILITY.FACILITY_ID" .
+
+scm:SAP-PlndDelry a scm:ConceptSysteme ;
+    scm:libelle "Délai prévu (Plnd Deliv. Time)" ;
+    scm:scopedTo scm:SAP ;
+    scm:definition "Délai fournisseur en jours calendrier. EXCLUT le transit interne." ;
+    scm:champTechnique "MARC.PLIFZ" .
+
+scm:WMS-InboundLead a scm:ConceptSysteme ;
+    scm:libelle "Délai entrant" ;
+    scm:scopedTo scm:WMS ;
+    scm:definition "Délai en jours ouvrables. INCLUT le transit jusqu'au quai." ;
+    scm:champTechnique "INBOUND.LEAD_DAYS" .
+
+scm:SAP-Werk-Alt a scm:ConceptSysteme ;
+    scm:libelle "Division (autre usage de Werk)" ;
+    scm:scopedTo scm:SAP ;
+    scm:definition "Deuxième usage du même champ dans un autre module." .
+
+
+### CAS DE RÉFÉRENCE — ne doit rien déclencher ########################
+# closeMatch et non exactMatch : jours calendrier contre jours
+# ouvrables, transit inclus d'un côté seulement. L'agent DOIT être
+# averti de l'approximation.
+
+scm:RAP-OK a scm:Rapprochement ;
+    scm:source scm:SAP-PlndDelry ;
+    scm:cible scm:WMS-InboundLead ;
+    scm:ancrage scm:ANC-LeadTime ;
+    scm:mappingRelation "closeMatch" ;
+    scm:confidence 0.75 ;
+    scm:basis "Analyse comparée des définitions et de 200 commandes échantillonnées." ;
+    scm:wasAttributedTo "M. Deshaies" ;
+    scm:recordedAt "2026-08-30T09:00:00"^^xsd:dateTime .
+
+
+### DÉFAUT 1 — exactMatch à faible confiance  =>  Violation ##########
+# Le défaut le plus coûteux du lot. exactMatch autorise un agent à
+# substituer un champ à l'autre SANS prévenir. Ici, ça reviendrait à
+# planifier en jours ouvrables une donnée en jours calendrier.
+
+scm:RAP-FAUX-EXACT a scm:Rapprochement ;
+    scm:source scm:SAP-Werk ;
+    scm:cible scm:WMS-Facility ;
+    scm:ancrage scm:ANC-Site ;
+    scm:mappingRelation "exactMatch" ;
+    scm:confidence 0.60 ;
+    scm:basis "Les deux s'appellent « site »." ;
+    scm:wasAttributedTo "Import automatique" ;
+    scm:recordedAt "2026-08-30T09:00:00"^^xsd:dateTime .
+
+
+### DÉFAUT 2 — rapprochement intra-système  =>  Violation ############
+# La preuve n'est pas dans la fiche : il faut traverser deux arcs et
+# comparer les systèmes trouvés au bout.
+
+scm:RAP-INTRA a scm:Rapprochement ;
+    scm:source scm:SAP-Werk ;
+    scm:cible scm:SAP-Werk-Alt ;
+    scm:ancrage scm:ANC-Site ;
+    scm:mappingRelation "closeMatch" ;
+    scm:confidence 0.80 ;
+    scm:basis "Deux usages du même champ SAP." ;
+    scm:wasAttributedTo "M. Deshaies" ;
+    scm:recordedAt "2026-08-30T09:00:00"^^xsd:dateTime .
+
+
+### DÉFAUT 3 — sans base ni auteur  =>  2 Violations #################
+# Un rapprochement non attribué est indéfendable quand un chiffre de
+# planification est contesté.
+
+scm:RAP-ANONYME a scm:Rapprochement ;
+    scm:source scm:SAP-PlndDelry ;
+    scm:cible scm:WMS-InboundLead ;
+    scm:ancrage scm:ANC-LeadTime ;
+    scm:mappingRelation "closeMatch" ;
+    scm:confidence 0.70 ;
+    scm:recordedAt "2026-08-30T09:00:00"^^xsd:dateTime .
+
+
+### DÉFAUT 4 — confiance hors bornes  =>  Violation ##################
+
+scm:RAP-HORS-BORNES a scm:Rapprochement ;
+    scm:source scm:SAP-Werk ;
+    scm:cible scm:WMS-Facility ;
+    scm:ancrage scm:ANC-Site ;
+    scm:mappingRelation "closeMatch" ;
+    scm:confidence 1.4 ;
+    scm:basis "Confiance impossible." ;
+    scm:wasAttributedTo "M. Deshaies" ;
+    scm:recordedAt "2026-08-30T09:00:00"^^xsd:dateTime .
+
+
+### DÉFAUT 5 — concept sans système  =>  Violation ###################
+# « Capacité » sans système est ininterprétable : capacité de quoi,
+# mesurée comment, par qui ?
+
+scm:CONCEPT-ORPHELIN a scm:ConceptSysteme ;
+    scm:libelle "Capacité" ;
+    scm:definition "Quelque chose au sujet de la capacité." .
+
+
+### RÈGLES DE PLANIFICATION ##########################################
+
+scm:REGLE-OK a scm:RegleDePlanif ;
+    scm:enonce "Le délai fournisseur exclut le transit interne." ;
+    scm:citation "Décision comité S&OP 2025-11-04" ;
+    scm:statedIn scm:SAP ;
+    scm:validFrom "2025-11-04"^^xsd:date ;
+    scm:recordedAt "2026-08-30T09:00:00"^^xsd:dateTime ;
+    scm:appliesToConcept scm:SAP-PlndDelry .
+
+
+### DÉFAUT 6 — règle sans source  =>  Violation ######################
+# Une règle de planification sans source est incontestable, donc
+# inutilisable quand un chiffre est remis en question.
+
+scm:REGLE-SANS-SOURCE a scm:RegleDePlanif ;
+    scm:enonce "Arrondir les délais à la semaine supérieure." ;
+    scm:statedIn scm:SAP ;
+    scm:validFrom "2025-01-01"^^xsd:date ;
+    scm:recordedAt "2026-08-30T09:00:00"^^xsd:dateTime ;
+    scm:appliesToConcept scm:SAP-PlndDelry .
+
+
+### DÉFAUT 7 — dates inversées  =>  Violation ########################
+
+scm:REGLE-DATES a scm:RegleDePlanif ;
+    scm:enonce "Règle aux dates incohérentes." ;
+    scm:citation "Ticket PLAN-4412" ;
+    scm:statedIn scm:WMS ;
+    scm:validFrom "2026-01-01"^^xsd:date ;
+    scm:validTo   "2025-06-01"^^xsd:date ;
+    scm:recordedAt "2026-08-30T09:00:00"^^xsd:dateTime ;
+    scm:appliesToConcept scm:WMS-InboundLead .
+
+
+### DÉFAUT 8 — règle transversale  =>  Warning seulement #############
+# « Geler l'horizon à 4 semaines » ne vise aucun concept en
+# particulier. Bloquer rejetterait une règle parfaitement valide, ou
+# pousserait quelqu'un à inventer un rattachement bidon.
+
+scm:REGLE-TRANSVERSALE a scm:RegleDePlanif ;
+    scm:enonce "Horizon gelé à 4 semaines pour toutes les familles." ;
+    scm:citation "Politique de planification v3, §2.1" ;
+    scm:statedIn scm:SAP ;
+    scm:validFrom "2026-01-01"^^xsd:date ;
+    scm:recordedAt "2026-08-30T09:00:00"^^xsd:dateTime .

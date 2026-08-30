@@ -1,0 +1,171 @@
+@prefix scm:  <https://agenticx5.com/ont/scm#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix dct:  <http://purl.org/dc/terms/> .
+
+#####################################################################
+# Sémantique multi-systèmes — chaîne d'approvisionnement
+# Généré par ax5-onto/generator — version 0.1.0
+#
+# Ce fichier est GÉNÉRÉ. Modifier le spec, pas le fichier.
+#####################################################################
+
+scm: a owl:Ontology ;
+    dct:title "Sémantique multi-systèmes — chaîne d'approvisionnement"@fr ;
+    owl:versionInfo "0.1.0" .
+
+#--------------------------------------------------------------------
+# Un système qui détient de la donnée et impose ses propres
+# définitions. SAP ECC, un WMS, Salesforce, un TMS. L'équivalent
+# d'une juridiction : il a autorité sur le sens des termes à
+# l'intérieur de son périmètre, et nulle part ailleurs.
+#--------------------------------------------------------------------
+scm:SystemeSource a owl:Class ;
+    rdfs:label "SystemeSource"@fr .
+
+scm:nom a owl:DatatypeProperty ;
+    rdfs:label "Nom du système"@fr ;
+    rdfs:domain scm:SystemeSource ;
+    rdfs:range xsd:string .
+
+scm:code a owl:DatatypeProperty ;
+    rdfs:label "Code court (SAP, WMS, SFDC)"@fr ;
+    rdfs:domain scm:SystemeSource ;
+    rdfs:range xsd:string .
+
+scm:proprietaire a owl:DatatypeProperty ;
+    rdfs:label "Équipe responsable"@fr ;
+    rdfs:domain scm:SystemeSource ;
+    rdfs:range xsd:string .
+
+#--------------------------------------------------------------------
+# Un terme tel que défini par UN système. « Site » au sens de SAP
+# est une fiche; « site » au sens du WMS en est une autre. Dans
+# SAP un site peut être une entité de valorisation; dans le WMS
+# c'est un bâtiment physique. Même mot, réalités différentes. On
+# ne les fusionne jamais.
+#--------------------------------------------------------------------
+scm:ConceptSysteme a owl:Class ;
+    rdfs:label "ConceptSysteme"@fr .
+
+scm:libelle a owl:DatatypeProperty ;
+    rdfs:label "Terme employé"@fr ;
+    rdfs:domain scm:ConceptSysteme ;
+    rdfs:range xsd:string .
+
+scm:scopedTo a owl:ObjectProperty ;
+    rdfs:label "Système qui le définit"@fr ;
+    rdfs:domain scm:ConceptSysteme ;
+    rdfs:range scm:SystemeSource .
+
+scm:definition a owl:DatatypeProperty ;
+    rdfs:label "Définition dans ce système"@fr ;
+    rdfs:domain scm:ConceptSysteme ;
+    rdfs:range xsd:string .
+
+scm:champTechnique a owl:DatatypeProperty ;
+    rdfs:label "Champ physique (table.colonne)"@fr ;
+    rdfs:domain scm:ConceptSysteme ;
+    rdfs:range xsd:string .
+
+#--------------------------------------------------------------------
+# Le terme du langage commun. « Site », « délai
+# d'approvisionnement », « capacité ». Sert de pivot pour
+# retrouver les définitions de chaque système. AUCUNE AUTORITÉ :
+# ce n'est pas une réponse, c'est une entrée d'index. La réponse
+# est toujours dans un ConceptSysteme.
+#--------------------------------------------------------------------
+scm:AncrageMetier a owl:Class ;
+    rdfs:label "AncrageMetier"@fr .
+
+#--------------------------------------------------------------------
+# La fiche qu'un analyste écrit à la main pour dire « dans SAP on
+# appelle ça ceci, dans le WMS on appelle ça cela, et voici à quel
+# point c'est la même chose ». Elle a un auteur, une justification
+# et un niveau de confiance. Ce n'est PAS un simple trait entre
+# deux colonnes : un trait ne s'audite pas. Quand un chiffre de
+# planification est contesté, c'est cette fiche qu'on ouvre.
+#--------------------------------------------------------------------
+scm:Rapprochement a owl:Class ;
+    rdfs:label "Rapprochement"@fr .
+
+scm:source a owl:ObjectProperty ;
+    rdfs:label "Concept de départ"@fr ;
+    rdfs:domain scm:Rapprochement ;
+    rdfs:range scm:ConceptSysteme .
+
+scm:cible a owl:ObjectProperty ;
+    rdfs:label "Concept d'arrivée"@fr ;
+    rdfs:domain scm:Rapprochement ;
+    rdfs:range scm:ConceptSysteme .
+
+scm:ancrage a owl:ObjectProperty ;
+    rdfs:label "Terme métier commun"@fr ;
+    rdfs:domain scm:Rapprochement ;
+    rdfs:range scm:AncrageMetier .
+
+scm:mappingRelation a owl:DatatypeProperty ;
+    rdfs:label "Degré d'équivalence"@fr ;
+    rdfs:domain scm:Rapprochement ;
+    rdfs:range xsd:string .
+
+scm:confidence a owl:DatatypeProperty ;
+    rdfs:label "Niveau de confiance (0 à 1)"@fr ;
+    rdfs:domain scm:Rapprochement ;
+    rdfs:range xsd:decimal .
+
+scm:basis a owl:DatatypeProperty ;
+    rdfs:label "Sur quelle base"@fr ;
+    rdfs:domain scm:Rapprochement ;
+    rdfs:range xsd:string .
+
+scm:wasAttributedTo a owl:DatatypeProperty ;
+    rdfs:label "Qui l'affirme"@fr ;
+    rdfs:domain scm:Rapprochement ;
+    rdfs:range xsd:string .
+
+scm:recordedAt a owl:DatatypeProperty ;
+    rdfs:label "Saisi au système le"@fr ;
+    rdfs:domain scm:Rapprochement ;
+    rdfs:range xsd:dateTime .
+
+#--------------------------------------------------------------------
+# Une règle de planification qui dépend d'une définition précise.
+# « Le délai fournisseur inclut le transit » est vrai dans un
+# système et faux dans un autre. La règle doit dire de quel
+# système elle tient sa définition, sinon elle n'est pas
+# interprétable.
+#--------------------------------------------------------------------
+scm:RegleDePlanif a owl:Class ;
+    rdfs:label "RegleDePlanif"@fr .
+
+scm:enonce a owl:DatatypeProperty ;
+    rdfs:label "Énoncé de la règle"@fr ;
+    rdfs:domain scm:RegleDePlanif ;
+    rdfs:range xsd:string .
+
+scm:citation a owl:DatatypeProperty ;
+    rdfs:label "Source (document, ticket, décision)"@fr ;
+    rdfs:domain scm:RegleDePlanif ;
+    rdfs:range xsd:string .
+
+scm:statedIn a owl:ObjectProperty ;
+    rdfs:label "Système de référence"@fr ;
+    rdfs:domain scm:RegleDePlanif ;
+    rdfs:range scm:SystemeSource .
+
+scm:validFrom a owl:DatatypeProperty ;
+    rdfs:label "En vigueur depuis"@fr ;
+    rdfs:domain scm:RegleDePlanif ;
+    rdfs:range xsd:date .
+
+scm:validTo a owl:DatatypeProperty ;
+    rdfs:label "En vigueur jusqu'à"@fr ;
+    rdfs:domain scm:RegleDePlanif ;
+    rdfs:range xsd:date .
+
+scm:appliesToConcept a owl:ObjectProperty ;
+    rdfs:label "Concept concerné"@fr ;
+    rdfs:domain scm:RegleDePlanif ;
+    rdfs:range scm:ConceptSysteme .
