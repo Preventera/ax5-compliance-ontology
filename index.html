@@ -5,16 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>OntoX5 — Ontologie de conformité SST multi-juridictionnelle | AgenticX5</title>
 <meta name="description" content="Un modèle de conformité qui refuse de fusionner les définitions juridictionnelles. Trois domaines générés par un seul moteur, cent questions terrain, et les limites écrites noir sur blanc.">
+<link rel="icon" href="logo-agenticx5.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=Inter:wght@400;500&family=Spectral:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 /* ==== OntoX5 — portail vitrine ========================================
    Jetons repris de ax5-explorer/index.html : le portail et l'explorateur
-   doivent se lire comme un seul produit.
+   se lisent comme un seul produit.
    Soumis a la meme doctrine de rendu (.claude/skills/ontox5-rendu) :
    aucun verdict de conformite, aucun etat porte par la couleur seule,
-   provenance visible, survit au noir et blanc.
+   provenance visible, parite FR/EN stricte, survit au noir et blanc.
    ===================================================================== */
 
 :root{
@@ -49,17 +50,25 @@ a{color:var(--seal)}
 
 /* ---------- barre de tete ---------- */
 .top{background:var(--cover);color:var(--cover-ink);position:sticky;top:0;z-index:40}
-.top .wrap{display:flex;align-items:center;gap:18px;height:60px}
+.top .wrap{display:flex;align-items:center;gap:14px;height:64px}
+.home{display:flex;align-items:center;gap:11px;text-decoration:none;flex-shrink:0}
+.home img{width:34px;height:34px;border-radius:7px;display:block}
 .wordmark{font-family:var(--display);font-size:15px;font-weight:500;letter-spacing:-.01em;
-  color:var(--cover-ink);text-decoration:none;white-space:nowrap}
+  color:var(--cover-ink);white-space:nowrap}
 .wordmark b{font-weight:600;color:#B18CF0}
-.topnav{margin-left:auto;display:flex;gap:20px;align-items:center}
+.wordmark span{color:var(--cover-dim);font-weight:400}
+.topnav{margin-left:auto;display:flex;gap:18px;align-items:center}
 .topnav a{color:var(--cover-dim);font-size:14px;text-decoration:none;white-space:nowrap}
 .topnav a:hover{color:var(--cover-ink)}
 .topnav .live{color:var(--cover-ink);border:1px solid #3B2C55;border-radius:3px;
   padding:6px 13px;font-family:var(--data);font-size:12.5px}
 .topnav .live:hover{border-color:#B18CF0}
-@media(max-width:760px){.topnav a:not(.live){display:none}}
+.lang{display:flex;border:1px solid #3B2C55;border-radius:3px;overflow:hidden;flex-shrink:0}
+.lang button{background:none;border:0;color:var(--cover-dim);font-family:var(--data);
+  font-size:12px;padding:6px 11px;cursor:pointer}
+.lang button[aria-pressed=true]{background:#B18CF0;color:var(--cover);font-weight:500}
+@media(max-width:860px){.topnav a:not(.live){display:none}}
+@media(max-width:520px){.wordmark span{display:none}.topnav .live{display:none}}
 
 /* ---------- heros : le conflit de seuil ---------- */
 .hero{padding:74px 0 64px;border-bottom:1px solid var(--rule2)}
@@ -69,12 +78,11 @@ a{color:var(--seal)}
 .hero .sub{font-family:var(--serif);font-size:19px;line-height:1.62;color:var(--muted);
   max-width:58ch;margin-top:20px}
 
-/* le mot, puis sa division */
 .split{margin-top:44px;border-top:1px solid var(--rule2)}
 .split .term{font-family:var(--display);font-size:clamp(21px,3vw,29px);font-weight:500;
   letter-spacing:-.015em;padding:18px 0 4px}
 .split .termnote{font-family:var(--data);font-size:12.5px;color:var(--dim);padding-bottom:20px}
-.cols{display:grid;grid-template-columns:1fr 1fr;gap:0;border-top:1px solid var(--rule)}
+.cols{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--rule)}
 .col{padding:24px 26px 26px;background:var(--raised);border-right:1px solid var(--rule)}
 .col:last-child{border-right:0;background:var(--sunk)}
 .col .reg{font-family:var(--data);font-size:12.5px;color:var(--seal);margin-bottom:14px}
@@ -102,13 +110,11 @@ h3{font-family:var(--display);font-size:18px;font-weight:500;letter-spacing:-.01
 .lede{font-family:var(--serif);font-size:19px;line-height:1.6;color:var(--muted);
   max-width:60ch;margin-bottom:26px}
 
-/* la regle centrale, mise en exergue */
 .rule-box{background:var(--cover);color:var(--cover-ink);padding:34px 32px;margin:32px 0}
 .rule-box p{font-family:var(--serif);font-size:21px;line-height:1.5;max-width:46ch;margin:0}
 .rule-box .why{font-family:var(--body);font-size:15px;line-height:1.6;color:var(--cover-dim);
   max-width:56ch;margin-top:18px}
 
-/* trait ou fiche */
 .compare{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:28px}
 .cbox{border:1px solid var(--rule);background:var(--raised);padding:22px}
 .cbox.on{border-color:var(--violet);background:var(--violet-soft)}
@@ -130,8 +136,8 @@ h3{font-family:var(--display);font-size:18px;font-weight:500;letter-spacing:-.01
 .tbl td{font-family:var(--data);font-size:13.5px}
 .tbl td:first-child{font-family:var(--body);font-size:14.5px;color:var(--muted)}
 .tbl tbody tr:last-child td{border-bottom:0}
-.tbl .flag td{background:var(--ochre-soft)}
-.tbl .flag td:first-child{color:var(--ink)}
+.tbl tr.flag td{background:var(--ochre-soft)}
+.tbl tr.flag td:first-child{color:var(--ink)}
 .aside{border-left:3px solid var(--ochre);background:var(--ochre-soft);
   padding:20px 22px;margin-top:24px;max-width:var(--measure)}
 .aside p{font-family:var(--serif);font-size:17px;line-height:1.6;margin-bottom:12px}
@@ -159,7 +165,7 @@ h3{font-family:var(--display);font-size:18px;font-weight:500;letter-spacing:-.01
 
 /* ---------- les sept angles ---------- */
 .angles{margin-top:26px;border-top:1px solid var(--rule2)}
-.angle{display:grid;grid-template-columns:150px minmax(0,1fr) 118px;gap:18px;
+.angle{display:grid;grid-template-columns:158px minmax(0,1fr) 122px;gap:18px;
   padding:14px 0;border-bottom:1px solid var(--rule);align-items:baseline}
 .angle .nom{font-family:var(--display);font-size:16px;font-weight:500}
 .angle .q{font-family:var(--serif);font-size:16.5px;color:var(--muted)}
@@ -191,7 +197,7 @@ h3{font-family:var(--display);font-size:18px;font-weight:500;letter-spacing:-.01
 .spec b{color:var(--ink);font-weight:500}
 
 /* ---------- portes de sortie ---------- */
-.doors{display:grid;grid-template-columns:repeat(auto-fit,minmax(238px,1fr));gap:0;
+.doors{display:grid;grid-template-columns:repeat(auto-fit,minmax(238px,1fr));
   border-top:1px solid var(--rule2)}
 .door{padding:26px 24px 28px;border-right:1px solid var(--rule);
   border-bottom:1px solid var(--rule);text-decoration:none;color:var(--ink);display:block}
@@ -215,6 +221,8 @@ footer{background:var(--cover);color:var(--cover-dim);padding:44px 0 52px;
   font-size:14px;line-height:1.85}
 footer a{color:var(--cover-ink)}
 footer .frow{display:flex;gap:34px;flex-wrap:wrap;justify-content:space-between}
+footer .fbrand{display:flex;align-items:flex-start;gap:14px}
+footer .fbrand img{width:44px;height:44px;border-radius:9px;flex-shrink:0}
 footer .prov{font-family:var(--data);font-size:11.5px;color:#6E6188;margin-top:26px;
   padding-top:18px;border-top:1px solid #2C2140}
 
@@ -226,7 +234,7 @@ footer .prov{font-family:var(--data);font-size:11.5px;color:#6E6188;margin-top:2
         --rule:#999;--rule2:#000;--cover:#fff;--cover-ink:#000;--cover-dim:#333}
   body{font-size:10.5pt}
   @page{margin:16mm}
-  .top,.btnrow,.skip{display:none}
+  .top,.btnrow,.skip,.lang{display:none}
   .rule-box{border:1.5pt solid #000}
   .col,.cbox,.st,.eco-item,.door{border:1pt solid #000}
   section{break-inside:avoid}
@@ -236,17 +244,24 @@ footer .prov{font-family:var(--data);font-size:11.5px;color:#6E6188;margin-top:2
 </head>
 <body>
 
-<a class="skip" href="#contenu">Passer au contenu</a>
+<a class="skip" href="#contenu" data-i18n="skip">Passer au contenu</a>
 
 <header class="top">
   <div class="wrap">
-    <a class="wordmark" href="#top">AGENTIC<b>X5</b> · OntoX5</a>
+    <a class="home" href="#top" aria-label="AgenticX5 OntoX5 — accueil">
+      <img src="logo-agenticx5.png" alt="AgenticX5">
+      <span class="wordmark">AGENTIC<b>X5</b> <span>· OntoX5</span></span>
+    </a>
     <nav class="topnav" aria-label="Sections">
-      <a href="#probleme">Le problème</a>
-      <a href="#preuve">La preuve</a>
-      <a href="#limites">Les limites</a>
-      <a class="live" href="ax5-explorer/index.html">Ouvrir l'explorateur</a>
+      <a href="#probleme" data-i18n="navProb">Le problème</a>
+      <a href="#preuve" data-i18n="navPreuve">La preuve</a>
+      <a href="#limites" data-i18n="navLim">Les limites</a>
+      <a class="live" href="ax5-explorer/index.html" data-i18n="navLive">Ouvrir l'explorateur</a>
     </nav>
+    <div class="lang" role="group" aria-label="Langue / Language">
+      <button id="bFr" aria-pressed="true" onclick="setLang('fr')">FR</button>
+      <button id="bEn" aria-pressed="false" onclick="setLang('en')">EN</button>
+    </div>
   </div>
 </header>
 
@@ -255,32 +270,28 @@ footer .prov{font-family:var(--data);font-size:11.5px;color:#6E6188;margin-top:2
 <!-- ============ HÉROS : le conflit de seuil ============ -->
 <div class="hero" id="top">
   <div class="wrap">
-    <p class="kicker">Ontologie de conformité SST multi-juridictionnelle · v0.3.0</p>
-    <h1>Le même mot, deux obligations qui se contredisent.</h1>
-    <p class="sub">Un modèle qui fusionne les définitions produit des réponses fluides
-    et fausses. Celui-ci refuse de fusionner, et rend l'écart interrogeable.</p>
+    <p class="kicker" data-i18n="kicker"></p>
+    <h1 data-i18n="h1"></h1>
+    <p class="sub" data-i18n="sub"></p>
 
     <div class="split">
-      <div class="term">Lésion enregistrable</div>
-      <div class="termnote">Un seul terme métier. Deux régimes. Deux seuils incompatibles.</div>
+      <div class="term" data-i18n="term"></div>
+      <div class="termnote" data-i18n="termnote"></div>
       <div class="cols">
         <div class="col">
-          <div class="reg">Québec · CNESST</div>
+          <div class="reg" data-i18n="regQC"></div>
           <div class="num">1</div>
-          <div class="unit">jour complet d'absence du travail, au-delà du jour de l'événement</div>
-          <div class="cite">LATMP, art. 265 · en vigueur depuis 1985-08-19</div>
+          <div class="unit" data-i18n="unitQC"></div>
+          <div class="cite" data-i18n="citeQC"></div>
         </div>
         <div class="col">
-          <div class="reg">États-Unis · OSHA</div>
+          <div class="reg" data-i18n="regUS"></div>
           <div class="num">0</div>
-          <div class="unit">jour d'absence exigé — un soin médical au-delà des premiers soins suffit</div>
-          <div class="cite">29 CFR 1904.4(a) · en vigueur depuis 2002-01-01</div>
+          <div class="unit" data-i18n="unitUS"></div>
+          <div class="cite" data-i18n="citeUS"></div>
         </div>
       </div>
-      <p class="verdict">Un travailleur soigné et remis au travail le jour même est
-      enregistrable aux États-Unis, et ne l'est pas au Québec. Comparer les statistiques
-      de deux sites sans le savoir mène à des conclusions fausses — et personne ne s'en
-      aperçoit avant l'audit.</p>
+      <p class="verdict" data-i18n="verdict"></p>
     </div>
   </div>
 </div>
@@ -288,148 +299,50 @@ footer .prov{font-family:var(--data);font-size:11.5px;color:#6E6188;margin-top:2
 <!-- ============ 1. LE PROBLÈME ============ -->
 <section id="probleme">
   <div class="wrap">
-    <p class="depth">Première profondeur · pour qui décide</p>
-    <h2>Le vocabulaire est un problème de conformité</h2>
-    <div class="prose">
-      <p>Une entreprise québécoise ouvre une usine au Texas. Son conseiller SST doit
-      répondre à une question simple : <strong>nos procédures d'espace clos sont-elles
-      valables là-bas ?</strong></p>
-      <p>La réponse ne l'est pas, parce que le mot ne désigne pas la même chose. Au
-      Québec, un espace clos se définit par l'enceinte et l'occupation non continue.
-      Chez OSHA, la catégorie qui déclenche les obligations lourdes ajoute un critère
-      de permis. Une procédure irréprochable au Québec peut laisser un travailleur
-      entrer sans permis dans un espace qui en exige un aux États-Unis.</p>
-      <p>Le réflexe habituel est de créer une définition maison qui couvre les deux.
-      C'est le piège : la définition fusionnée n'a d'autorité nulle part, et l'écart
-      entre les régimes — la seule information qui comptait — a disparu.</p>
-    </div>
+    <p class="depth" data-i18n="d1"></p>
+    <h2 data-i18n="h2prob"></h2>
+    <div class="prose" data-i18n="prob"></div>
 
     <div class="rule-box">
-      <p>On ne fusionne jamais un concept juridictionnel dans un concept canonique unique.</p>
-      <p class="why">La fusion détruit la spécificité légale, c'est-à-dire précisément
-      la seule chose qu'une réponse de conformité doit préserver. Chaque définition
-      reste dans son régime, avec son seuil et son article. Le rapport entre deux
-      définitions devient un objet à part entière.</p>
+      <p data-i18n="ruleMain"></p>
+      <p class="why" data-i18n="ruleWhy"></p>
     </div>
 
-    <h3>Un trait, ou une fiche</h3>
+    <h3 data-i18n="h3trait"></h3>
     <div class="compare">
       <div class="cbox">
-        <p class="lab">La plupart des modèles : un trait</p>
-        <ul>
-          <li>relie A à B</li>
-          <li>aucune preuve</li>
-          <li>aucun auteur</li>
-          <li>aucune date</li>
-          <li>ne s'audite pas</li>
-        </ul>
+        <p class="lab" data-i18n="labTrait"></p>
+        <ul id="uTrait"></ul>
       </div>
       <div class="cbox on">
-        <p class="lab">Ce modèle : une fiche</p>
-        <ul>
-          <li>degré d'équivalence</li>
-          <li>niveau de confiance</li>
-          <li>base documentée</li>
-          <li>auteur et date</li>
-          <li>statut de revue</li>
-        </ul>
+        <p class="lab" data-i18n="labFiche"></p>
+        <ul id="uFiche"></ul>
       </div>
     </div>
-    <div class="prose" style="margin-top:24px">
-      <p>Dès qu'une relation porte ses propres attributs et son propre cycle de vie,
-      ce n'est plus un trait entre deux cases. Quand un chiffre de conformité est
-      contesté, c'est cette fiche qu'on ouvre.</p>
-    </div>
+    <div class="prose" style="margin-top:24px" data-i18n="traitEnd"></div>
   </div>
 </section>
 
 <!-- ============ 2. LA PREUVE ============ -->
 <section id="preuve">
   <div class="wrap">
-    <p class="depth">Deuxième profondeur · pour qui évalue</p>
-    <h2>Le même moteur, trois domaines sans rapport</h2>
-    <p class="lede">Une spécification métier en YAML entre. Une ontologie, des
-    contraintes de qualité et un rapport expliquant chaque choix sortent. Trois fois,
-    sur trois domaines qui ne partagent rien — sans qu'une ligne du générateur change.</p>
-
-    <table class="tbl">
-      <caption>Sorties mesurées des trois générations, à partir de trois spécifications distinctes.</caption>
-      <thead>
-        <tr>
-          <th scope="col">Critère</th>
-          <th scope="col">Conformité SST</th>
-          <th scope="col">Chaîne d'approvisionnement</th>
-          <th scope="col">IA en SST</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr><td>Classes générées</td><td>9</td><td>5</td><td>8</td></tr>
-        <tr><td>Propriétés objet</td><td>9</td><td>6</td><td>7</td></tr>
-        <tr><td>Propriétés de données</td><td>17</td><td>15</td><td>17</td></tr>
-        <tr><td>Triplets d'ontologie</td><td>121</td><td>97</td><td>112</td></tr>
-        <tr><td>Triplets de contraintes</td><td>284</td><td>169</td><td>230</td></tr>
-        <tr><td>Règles SPARQL</td><td>6</td><td>3</td><td>2</td></tr>
-        <tr><td>Barrières bloquantes</td><td>33</td><td>20</td><td>27</td></tr>
-        <tr><td>Signaux d'avertissement</td><td>1</td><td>1</td><td>4</td></tr>
-        <tr class="flag"><td>Ratio bloquant / doux</td><td>33,0</td><td>20,0</td><td>6,8</td></tr>
-      </tbody>
-    </table>
-
-    <div class="aside">
-      <p><strong>Le ratio était le signal.</strong> Au deuxième portage, le générateur
-      a produit vingt barrières bloquantes pour un seul avertissement. Les heuristiques
-      de sévérité étaient peuplées du seul vocabulaire SST : elles ne reconnaissaient
-      plus rien. Un domaine sans aucun signal doux annonce un pipeline que l'équipe
-      d'ingestion va contourner.</p>
-      <p>Limite assumée, et elle tient toujours : les heuristiques par nom de champ ne
-      se portent pas seules. Le troisième domaine a révélé deux bogues présents depuis
-      le premier jour, qu'aucun banc d'essai antérieur n'exerçait.</p>
-    </div>
-
-    <div class="prose" style="margin-top:26px">
-      <p>Le modèle a par ailleurs été vérifié par quatre moteurs indépendants qui
-      concordent : rdflib, pySHACL, Protégé avec l'API OWL, et un moteur JavaScript
-      écrit pour la démonstration. Il ne dépend pas de l'outillage qui l'a produit.</p>
-    </div>
+    <p class="depth" data-i18n="d2"></p>
+    <h2 data-i18n="h2preuve"></h2>
+    <p class="lede" data-i18n="ledePreuve"></p>
+    <table class="tbl" id="tDom"></table>
+    <div class="aside" data-i18n="ratio"></div>
+    <div class="prose" style="margin-top:26px" data-i18n="moteurs"></div>
   </div>
 </section>
 
 <!-- ============ 3. CENT QUESTIONS ============ -->
 <section id="cas">
   <div class="wrap">
-    <p class="depth">Deuxième profondeur · pour qui évalue</p>
-    <h2>Cent questions telles qu'elles se posent sur le terrain</h2>
-    <p class="lede">Pas des fonctionnalités retournées en questions. En face de chacune :
-    ce que le modèle change, la décision de modélisation qui le permet, et le statut
-    honnête de cette capacité. Vingt et une sont adossées à une requête exécutable dont
-    le résultat réel s'affiche sous la carte.</p>
-
-    <div class="statuses">
-      <div class="st demo">
-        <span class="pill">Démontré</span>
-        <p>Exercé par le dépôt et couvert par les quarante-sept tests. Se montre en direct.</p>
-      </div>
-      <div class="st struct">
-        <span class="pill">Structurel</span>
-        <p>La structure le permet directement, mais aucun banc d'essai ne l'exerce encore.</p>
-      </div>
-      <div class="st extra">
-        <span class="pill">Extrapolé</span>
-        <p>Usage plausible de la structure. Jamais construit, jamais livré à un client.</p>
-      </div>
-      <div class="st absent">
-        <span class="pill">Absent</span>
-        <p>Le modèle ne sait pas le faire. C'est écrit, et ça reste écrit tant que ce n'est pas construit.</p>
-      </div>
-    </div>
-
-    <div class="prose" style="margin-top:28px">
-      <p>La question phare est celle qu'aucun système de gestion ne peut poser :
-      <strong>quelles obligations ne sont couvertes par rien ?</strong> Un SGSST liste
-      les procédures qui existent. Il ne peut pas lister celles qui manquent, parce
-      qu'il n'a aucun modèle de ce qui devrait exister — il ne connaît que ce qu'on lui
-      a saisi.</p>
-    </div>
+    <p class="depth" data-i18n="d2"></p>
+    <h2 data-i18n="h2cas"></h2>
+    <p class="lede" data-i18n="ledeCas"></p>
+    <div class="statuses" id="sList"></div>
+    <div class="prose" style="margin-top:28px" data-i18n="phare"></div>
   </div>
 </section>
 
@@ -437,30 +350,17 @@ footer .prov{font-family:var(--data);font-size:11.5px;color:#6E6188;margin-top:2
 <div class="demo-band">
   <section id="demo" style="border-bottom:0">
     <div class="wrap">
-      <p class="depth">Troisième profondeur · pour qui vérifie</p>
+      <p class="depth" data-i18n="d3"></p>
       <div class="demo-grid">
         <div>
-          <h2>Ne me croyez pas sur parole. Interrogez.</h2>
-          <p class="lede">L'explorateur est une vue en lecture seule du modèle réel :
-          les définitions juridictionnelles côte à côte, les correspondances avec leur
-          provenance, les violations avec leur justification. La console SPARQL tourne
-          dans votre navigateur, sur les triplets du modèle. Aucune installation,
-          aucune inscription.</p>
+          <h2 data-i18n="h2demo"></h2>
+          <p class="lede" data-i18n="ledeDemo"></p>
           <div class="btnrow">
-            <a class="btn" href="ax5-explorer/index.html">Ouvrir l'explorateur</a>
-            <a class="btn ghost" href="https://github.com/Preventera/ax5-compliance-ontology">Lire le dépôt</a>
+            <a class="btn" href="ax5-explorer/index.html" data-i18n="navLive"></a>
+            <a class="btn ghost" href="https://github.com/Preventera/ax5-compliance-ontology" data-i18n="btnRepo"></a>
           </div>
         </div>
-        <div class="spec">
-          <b>4</b> ancres, <b>8</b> concepts juridictionnels<br>
-          <b>6</b> correspondances réifiées<br>
-          <b>8</b> exigences citées à l'article<br>
-          <b>292</b> triplets interrogeables<br>
-          <b>11</b> requêtes de compétence chargées<br>
-          <b>47</b> tests sur les contraintes<br>
-          <b>6</b> violations, <b>1</b> avertissement — délibérés<br>
-          <b>FR / EN</b> intégral
-        </div>
+        <div class="spec" id="spec"></div>
       </div>
     </div>
   </section>
@@ -469,82 +369,31 @@ footer .prov{font-family:var(--data);font-size:11.5px;color:#6E6188;margin-top:2
 <!-- ============ 5. LES LIMITES ============ -->
 <section id="limites">
   <div class="wrap">
-    <p class="depth">Quatrième profondeur · ce que le modèle ne sait pas faire</p>
-    <h2>Sept angles, et trois qui restent à construire</h2>
-    <p class="lede">Une ontologie n'est pas « complète » ou « incomplète ». Elle répond
-    solidement à certaines questions, partiellement à d'autres, et pas du tout au reste.
-    Chaque angle exige un mécanisme technique distinct : aucun ne se déduit d'un autre.</p>
-
-    <div class="angles">
-      <div class="angle ok">
-        <div class="nom">Portée</div>
-        <div class="q">Qui a autorité ici ?</div>
-        <div class="etat">acquis</div>
-      </div>
-      <div class="angle ok">
-        <div class="nom">Temps</div>
-        <div class="q">Quand la règle était-elle en vigueur, et que savions-nous alors ?</div>
-        <div class="etat">acquis</div>
-      </div>
-      <div class="angle ok">
-        <div class="nom">Provenance</div>
-        <div class="q">Comment le savons-nous, et qui le signe ?</div>
-        <div class="etat">acquis</div>
-      </div>
-      <div class="angle part">
-        <div class="nom">Identité</div>
-        <div class="q">Est-ce la même chose ?</div>
-        <div class="etat">partiel</div>
-      </div>
-      <div class="angle non">
-        <div class="nom">Composition</div>
-        <div class="q">De quoi est-ce fait ?</div>
-        <div class="etat">absent</div>
-      </div>
-      <div class="angle non">
-        <div class="nom">Inférence</div>
-        <div class="q">Qu'est-ce qui en découle ?</div>
-        <div class="etat">absent</div>
-      </div>
-      <div class="angle non">
-        <div class="nom">Désaccord</div>
-        <div class="q">Que faire de deux sources opposées sur la même exigence ?</div>
-        <div class="etat">absent</div>
-      </div>
-    </div>
-
-    <div class="prose" style="margin-top:26px">
-      <p>Le désaccord est le manque le plus visible. Plusieurs revendications peuvent
-      coexister sur une même paire de concepts, et rien ne tranche entre elles. Un
-      modèle de conformité qui ne sait pas dire ce qu'il ignore n'est pas un modèle de
-      conformité — alors nous le disons.</p>
-    </div>
+    <p class="depth" data-i18n="d4"></p>
+    <h2 data-i18n="h2lim"></h2>
+    <p class="lede" data-i18n="ledeLim"></p>
+    <div class="angles" id="aList"></div>
+    <div class="prose" style="margin-top:26px" data-i18n="desaccord"></div>
   </div>
 </section>
 
 <!-- ============ 6. ÉCOSYSTÈME ============ -->
 <section id="ecosysteme">
   <div class="wrap">
-    <h2>OntoX5 dans l'écosystème AgenticX5</h2>
-    <p class="lede">Deux niveaux qui se répondent : apprendre le vocabulaire, puis voir
-    ce qui se passe quand on prend un de ces mots au sérieux jusqu'au bout.</p>
-
+    <h2 data-i18n="h2eco"></h2>
+    <p class="lede" data-i18n="ledeEco"></p>
     <div class="eco">
       <div class="eco-item">
-        <p class="role">Le vocabulaire</p>
-        <h3>Portail AgenticX5</h3>
-        <p>Cinquante-sept concepts d'IA et d'agentique, bilingues, avec présentations
-        et podcasts. Un outil d'amorçage pour aligner direction, métiers et DSI avant
-        de lancer un projet.</p>
-        <a href="https://lexique-ia-agenticx5.netlify.app/">Ouvrir le lexique</a>
+        <p class="role" data-i18n="ecoRole1"></p>
+        <h3 data-i18n="ecoTitre1"></h3>
+        <p data-i18n="ecoTexte1"></p>
+        <a href="https://lexique-ia-agenticx5.netlify.app/" data-i18n="ecoLien1"></a>
       </div>
       <div class="eco-item">
-        <p class="role">La démonstration</p>
-        <h3>OntoX5</h3>
-        <p>Un mot du lexique — la sémantique partagée — poussé jusqu'à l'ontologie
-        exécutable, aux contraintes de qualité et aux tests. Ce que le vocabulaire
-        devient quand on refuse d'approximer.</p>
-        <a href="ax5-explorer/index.html">Ouvrir l'explorateur</a>
+        <p class="role" data-i18n="ecoRole2"></p>
+        <h3 data-i18n="ecoTitre2"></h3>
+        <p data-i18n="ecoTexte2"></p>
+        <a href="ax5-explorer/index.html" data-i18n="navLive"></a>
       </div>
     </div>
   </div>
@@ -553,33 +402,10 @@ footer .prov{font-family:var(--data);font-size:11.5px;color:#6E6188;margin-top:2
 <!-- ============ 7. PORTES DE SORTIE ============ -->
 <section id="contact" style="padding-bottom:0;border-bottom:0">
   <div class="wrap">
-    <h2>Par où continuer</h2>
-    <p class="lede">Quatre entrées selon ce que vous cherchez.</p>
+    <h2 data-i18n="h2portes"></h2>
+    <p class="lede" data-i18n="ledePortes"></p>
   </div>
-  <div class="wrap">
-    <div class="doors">
-      <a class="door" href="ax5-explorer/index.html">
-        <h3>Voir le modèle</h3>
-        <p>L'explorateur en lecture seule, la console SPARQL, les cent cas d'usage.</p>
-        <span class="go">Ouvrir l'explorateur</span>
-      </a>
-      <a class="door" href="mailto:team@agenticx5.com?subject=OntoX5%20-%20demande%20de%20d%C3%A9monstration">
-        <h3>Demander une démonstration</h3>
-        <p>Quatre-vingt-dix secondes sur votre propre écart de conformité, à partir de deux régimes que vous nommez.</p>
-        <span class="go">team@agenticx5.com</span>
-      </a>
-      <a class="door" href="https://github.com/Preventera/ax5-compliance-ontology">
-        <h3>Auditer le code</h3>
-        <p>Ontologie, contraintes SHACL, générateur, tests et intégration continue. Licence MIT.</p>
-        <span class="go">Dépôt GitHub</span>
-      </a>
-      <a class="door" href="mailto:team@agenticx5.com?subject=OntoX5%20-%20partenariat">
-        <h3>Porter un domaine</h3>
-        <p>Le générateur a été porté trois fois. Le quatrième domaine peut être le vôtre.</p>
-        <span class="go">team@agenticx5.com</span>
-      </a>
-    </div>
-  </div>
+  <div class="wrap"><div class="doors" id="dList"></div></div>
 </section>
 
 </main>
@@ -587,24 +413,265 @@ footer .prov{font-family:var(--data);font-size:11.5px;color:#6E6188;margin-top:2
 <footer>
   <div class="wrap">
     <div class="frow">
-      <div>
-        <strong style="color:var(--cover-ink);font-weight:500">AGENTICX5 — OntoX5</strong><br>
-        Ontologie et contrats de données pour le raisonnement de conformité SST
-        multi-juridictionnel.<br>
-        <a href="mailto:team@agenticx5.com">team@agenticx5.com</a>
+      <div class="fbrand">
+        <img src="logo-agenticx5.png" alt="">
+        <div>
+          <strong style="color:var(--cover-ink);font-weight:500">AGENTICX5 — OntoX5</strong><br>
+          <span data-i18n="footDesc"></span><br>
+          <a href="mailto:team@agenticx5.com">team@agenticx5.com</a>
+        </div>
       </div>
       <div>
-        <a href="ax5-explorer/index.html">Explorateur</a><br>
-        <a href="https://github.com/Preventera/ax5-compliance-ontology">Dépôt GitHub</a><br>
-        <a href="https://lexique-ia-agenticx5.netlify.app/">Lexique AgenticX5</a>
+        <a href="#top" data-i18n="footHome"></a><br>
+        <a href="ax5-explorer/index.html" data-i18n="footExpl"></a><br>
+        <a href="https://github.com/Preventera/ax5-compliance-ontology" data-i18n="footRepo"></a><br>
+        <a href="https://lexique-ia-agenticx5.netlify.app/" data-i18n="footLex"></a>
       </div>
     </div>
-    <p class="prov">Les chiffres de cette page proviennent de ax5-compliance-ontology
-      v0.3.0 · générés le 2026-04-11 · code publié sous licence MIT.
-      Vue documentaire : aucune donnée saisie, aucune décision automatisée.
-      La décision SST reste humaine.</p>
+    <p class="prov" data-i18n="prov"></p>
   </div>
 </footer>
 
+<script>
+/* Parite FR/EN stricte : toute cle existe dans les deux blocs.
+   Les listes repetitives sont rendues depuis des tableaux plutot que
+   dupliquees en HTML, ce qui rend la parite structurelle. */
+const T = {
+ fr:{
+  skip:"Passer au contenu",
+  navProb:"Le problème", navPreuve:"La preuve", navLim:"Les limites",
+  navLive:"Ouvrir l'explorateur", btnRepo:"Lire le dépôt",
+
+  kicker:"Ontologie de conformité SST multi-juridictionnelle · v0.3.0",
+  h1:"Le même mot, deux obligations qui se contredisent.",
+  sub:"Un modèle qui fusionne les définitions produit des réponses fluides et fausses. Celui-ci refuse de fusionner, et rend l'écart interrogeable.",
+  term:"Lésion enregistrable",
+  termnote:"Un seul terme métier. Deux régimes. Deux seuils incompatibles.",
+  regQC:"Québec · CNESST", regUS:"États-Unis · OSHA",
+  unitQC:"jour complet d'absence du travail, au-delà du jour de l'événement",
+  unitUS:"jour d'absence exigé — un soin médical au-delà des premiers soins suffit",
+  citeQC:"LATMP, art. 265 · en vigueur depuis 1985-08-19",
+  citeUS:"29 CFR 1904.4(a) · en vigueur depuis 2002-01-01",
+  verdict:"Un travailleur soigné et remis au travail le jour même est enregistrable aux États-Unis, et ne l'est pas au Québec. Comparer les statistiques de deux sites sans le savoir mène à des conclusions fausses — et personne ne s'en aperçoit avant l'audit.",
+
+  d1:"Première profondeur · pour qui décide",
+  d2:"Deuxième profondeur · pour qui évalue",
+  d3:"Troisième profondeur · pour qui vérifie",
+  d4:"Quatrième profondeur · ce que le modèle ne sait pas faire",
+
+  h2prob:"Le vocabulaire est un problème de conformité",
+  prob:"<p>Une entreprise québécoise ouvre une usine au Texas. Son conseiller SST doit répondre à une question simple : <strong>nos procédures d'espace clos sont-elles valables là-bas ?</strong></p><p>La réponse ne l'est pas, parce que le mot ne désigne pas la même chose. Au Québec, un espace clos se définit par l'enceinte et l'occupation non continue. Chez OSHA, la catégorie qui déclenche les obligations lourdes ajoute un critère de permis. Une procédure irréprochable au Québec peut laisser un travailleur entrer sans permis dans un espace qui en exige un aux États-Unis.</p><p>Le réflexe habituel est de créer une définition maison qui couvre les deux. C'est le piège : la définition fusionnée n'a d'autorité nulle part, et l'écart entre les régimes — la seule information qui comptait — a disparu.</p>",
+  ruleMain:"On ne fusionne jamais un concept juridictionnel dans un concept canonique unique.",
+  ruleWhy:"La fusion détruit la spécificité légale, c'est-à-dire précisément la seule chose qu'une réponse de conformité doit préserver. Chaque définition reste dans son régime, avec son seuil et son article. Le rapport entre deux définitions devient un objet à part entière.",
+  h3trait:"Un trait, ou une fiche",
+  labTrait:"La plupart des modèles : un trait",
+  labFiche:"Ce modèle : une fiche",
+  trait:["relie A à B","aucune preuve","aucun auteur","aucune date","ne s'audite pas"],
+  fiche:["degré d'équivalence","niveau de confiance","base documentée","auteur et date","statut de revue"],
+  traitEnd:"<p>Dès qu'une relation porte ses propres attributs et son propre cycle de vie, ce n'est plus un trait entre deux cases. Quand un chiffre de conformité est contesté, c'est cette fiche qu'on ouvre.</p>",
+
+  h2preuve:"Le même moteur, trois domaines sans rapport",
+  ledePreuve:"Une spécification métier en YAML entre. Une ontologie, des contraintes de qualité et un rapport expliquant chaque choix sortent. Trois fois, sur trois domaines qui ne partagent rien — sans qu'une ligne du générateur change.",
+  capDom:"Sorties mesurées des trois générations, à partir de trois spécifications distinctes.",
+  colCrit:"Critère", colSst:"Conformité SST", colScm:"Chaîne d'approvisionnement", colIa:"IA en SST",
+  rows:["Classes générées","Propriétés objet","Propriétés de données","Triplets d'ontologie","Triplets de contraintes","Règles SPARQL","Barrières bloquantes","Signaux d'avertissement","Ratio bloquant / doux"],
+  ratio:"<p><strong>Le ratio était le signal.</strong> Au deuxième portage, le générateur a produit vingt barrières bloquantes pour un seul avertissement. Les heuristiques de sévérité étaient peuplées du seul vocabulaire SST : elles ne reconnaissaient plus rien. Un domaine sans aucun signal doux annonce un pipeline que l'équipe d'ingestion va contourner.</p><p>Limite assumée, et elle tient toujours : les heuristiques par nom de champ ne se portent pas seules. Le troisième domaine a révélé deux bogues présents depuis le premier jour, qu'aucun banc d'essai antérieur n'exerçait.</p>",
+  moteurs:"<p>Le modèle a par ailleurs été vérifié par quatre moteurs indépendants qui concordent : rdflib, pySHACL, Protégé avec l'API OWL, et un moteur JavaScript écrit pour la démonstration. Il ne dépend pas de l'outillage qui l'a produit.</p>",
+
+  h2cas:"Cent questions telles qu'elles se posent sur le terrain",
+  ledeCas:"Pas des fonctionnalités retournées en questions. En face de chacune : ce que le modèle change, la décision de modélisation qui le permet, et le statut honnête de cette capacité. Vingt et une sont adossées à une requête exécutable dont le résultat réel s'affiche sous la carte.",
+  stats:[["demo","Démontré","Exercé par le dépôt et couvert par les quarante-sept tests. Se montre en direct."],
+         ["struct","Structurel","La structure le permet directement, mais aucun banc d'essai ne l'exerce encore."],
+         ["extra","Extrapolé","Usage plausible de la structure. Jamais construit, jamais livré à un client."],
+         ["absent","Absent","Le modèle ne sait pas le faire. C'est écrit, et ça reste écrit tant que ce n'est pas construit."]],
+  phare:"<p>La question phare est celle qu'aucun système de gestion ne peut poser : <strong>quelles obligations ne sont couvertes par rien ?</strong> Un SGSST liste les procédures qui existent. Il ne peut pas lister celles qui manquent, parce qu'il n'a aucun modèle de ce qui devrait exister — il ne connaît que ce qu'on lui a saisi.</p>",
+
+  h2demo:"Ne me croyez pas sur parole. Interrogez.",
+  ledeDemo:"L'explorateur est une vue en lecture seule du modèle réel : les définitions juridictionnelles côte à côte, les correspondances avec leur provenance, les violations avec leur justification. La console SPARQL tourne dans votre navigateur, sur les triplets du modèle. Aucune installation, aucune inscription.",
+  spec:[["4","ancres"],["8","concepts juridictionnels"],["6","correspondances réifiées"],["8","exigences citées à l'article"],["292","triplets interrogeables"],["11","requêtes de compétence chargées"],["47","tests sur les contraintes"],["6","violations et 1 avertissement, délibérés"],["FR / EN","intégral"]],
+
+  h2lim:"Sept angles, et trois qui restent à construire",
+  ledeLim:"Une ontologie n'est pas « complète » ou « incomplète ». Elle répond solidement à certaines questions, partiellement à d'autres, et pas du tout au reste. Chaque angle exige un mécanisme technique distinct : aucun ne se déduit d'un autre.",
+  angles:[["ok","Portée","Qui a autorité ici ?","acquis"],
+          ["ok","Temps","Quand la règle était-elle en vigueur, et que savions-nous alors ?","acquis"],
+          ["ok","Provenance","Comment le savons-nous, et qui le signe ?","acquis"],
+          ["part","Identité","Est-ce la même chose ?","partiel"],
+          ["non","Composition","De quoi est-ce fait ?","absent"],
+          ["non","Inférence","Qu'est-ce qui en découle ?","absent"],
+          ["non","Désaccord","Que faire de deux sources opposées sur la même exigence ?","absent"]],
+  desaccord:"<p>Le désaccord est le manque le plus visible. Plusieurs revendications peuvent coexister sur une même paire de concepts, et rien ne tranche entre elles. Un modèle de conformité qui ne sait pas dire ce qu'il ignore n'est pas un modèle de conformité — alors nous le disons.</p>",
+
+  h2eco:"OntoX5 dans l'écosystème AgenticX5",
+  ledeEco:"Deux niveaux qui se répondent : apprendre le vocabulaire, puis voir ce qui se passe quand on prend un de ces mots au sérieux jusqu'au bout.",
+  ecoRole1:"Le vocabulaire", ecoTitre1:"Portail AgenticX5",
+  ecoTexte1:"Cinquante-sept concepts d'IA et d'agentique, bilingues, avec présentations et podcasts. Un outil d'amorçage pour aligner direction, métiers et DSI avant de lancer un projet.",
+  ecoLien1:"Ouvrir le lexique",
+  ecoRole2:"La démonstration", ecoTitre2:"OntoX5",
+  ecoTexte2:"Un mot du lexique — la sémantique partagée — poussé jusqu'à l'ontologie exécutable, aux contraintes de qualité et aux tests. Ce que le vocabulaire devient quand on refuse d'approximer.",
+
+  h2portes:"Par où continuer",
+  ledePortes:"Quatre entrées selon ce que vous cherchez.",
+  doors:[["ax5-explorer/index.html","Voir le modèle","L'explorateur en lecture seule, la console SPARQL, les cent cas d'usage.","Ouvrir l'explorateur"],
+         ["mailto:team@agenticx5.com?subject=OntoX5%20-%20demande%20de%20demonstration","Demander une démonstration","Quatre-vingt-dix secondes sur votre propre écart de conformité, à partir de deux régimes que vous nommez.","team@agenticx5.com"],
+         ["https://github.com/Preventera/ax5-compliance-ontology","Auditer le code","Ontologie, contraintes SHACL, générateur, tests et intégration continue. Licence MIT.","Dépôt GitHub"],
+         ["mailto:team@agenticx5.com?subject=OntoX5%20-%20partenariat","Porter un domaine","Le générateur a été porté trois fois. Le quatrième domaine peut être le vôtre.","team@agenticx5.com"]],
+
+  footDesc:"Ontologie et contrats de données pour le raisonnement de conformité SST multi-juridictionnel.",
+  footHome:"Accueil du portail", footExpl:"Explorateur", footRepo:"Dépôt GitHub", footLex:"Lexique AgenticX5",
+  prov:"Les chiffres de cette page proviennent de ax5-compliance-ontology v0.3.0 · générés le 2026-04-11 · code publié sous licence MIT. Vue documentaire : aucune donnée saisie, aucune décision automatisée. La décision SST reste humaine."
+ },
+ en:{
+  skip:"Skip to content",
+  navProb:"The problem", navPreuve:"The evidence", navLim:"The limits",
+  navLive:"Open the explorer", btnRepo:"Read the repository",
+
+  kicker:"Multi-jurisdictional OHS compliance ontology · v0.3.0",
+  h1:"One word, two obligations that contradict each other.",
+  sub:"A model that merges definitions produces fluent, wrong answers. This one refuses to merge, and makes the gap queryable.",
+  term:"Recordable injury",
+  termnote:"One business term. Two regimes. Two incompatible thresholds.",
+  regQC:"Québec · CNESST", regUS:"United States · OSHA",
+  unitQC:"full day away from work, beyond the day of the event",
+  unitUS:"days away required — medical treatment beyond first aid is enough",
+  citeQC:"LATMP, s. 265 · in force since 1985-08-19",
+  citeUS:"29 CFR 1904.4(a) · in force since 2002-01-01",
+  verdict:"A worker treated and back at work the same day is recordable in the United States, and is not in Québec. Comparing two sites' statistics without knowing this leads to false conclusions — and nobody notices until the audit.",
+
+  d1:"First depth · for whoever decides",
+  d2:"Second depth · for whoever evaluates",
+  d3:"Third depth · for whoever verifies",
+  d4:"Fourth depth · what the model cannot do",
+
+  h2prob:"Vocabulary is a compliance problem",
+  prob:"<p>A Québec company opens a plant in Texas. Its OHS adviser has to answer a simple question: <strong>do our confined-space procedures hold up over there?</strong></p><p>The answer does not, because the word does not designate the same thing. In Québec, a confined space is defined by enclosure and non-continuous occupancy. Under OSHA, the category that triggers the heavy obligations adds a permit criterion. A procedure that is beyond reproach in Québec can let a worker enter without a permit into a space that requires one in the United States.</p><p>The usual reflex is to build an in-house definition covering both. That is the trap: the merged definition has authority nowhere, and the gap between the regimes — the one piece of information that mattered — has disappeared.</p>",
+  ruleMain:"We never merge a jurisdictional concept into a single canonical concept.",
+  ruleWhy:"Merging destroys legal specificity, which is precisely the only thing a compliance answer must preserve. Each definition stays inside its own regime, with its threshold and its clause. The relation between two definitions becomes an object in its own right.",
+  h3trait:"A line, or a record",
+  labTrait:"Most models: a line",
+  labFiche:"This model: a record",
+  trait:["links A to B","no evidence","no author","no date","cannot be audited"],
+  fiche:["degree of equivalence","confidence level","documented basis","author and date","review status"],
+  traitEnd:"<p>Once a relation carries its own attributes and its own lifecycle, it is no longer a line between two boxes. When a compliance figure is challenged, this is the record you open.</p>",
+
+  h2preuve:"The same generator, three unrelated domains",
+  ledePreuve:"A business specification in YAML goes in. An ontology, quality constraints and a report explaining every choice come out. Three times, across three domains that share nothing — without a single line of the generator changing.",
+  capDom:"Measured outputs of the three generations, from three distinct specifications.",
+  colCrit:"Criterion", colSst:"OHS compliance", colScm:"Supply chain", colIa:"AI in OHS",
+  rows:["Generated classes","Object properties","Datatype properties","Ontology triples","Constraint triples","SPARQL rules","Hard constraints","Warning signals","Hard / soft ratio"],
+  ratio:"<p><strong>The ratio was the signal.</strong> On the second port, the generator produced twenty hard constraints and a single warning. The severity heuristics were populated with OHS vocabulary only: they no longer recognized anything. A domain with no soft signal at all announces a pipeline the ingestion team will route around.</p><p>An acknowledged limit, and it still holds: field-name heuristics do not port on their own. The third domain surfaced two bugs present since day one that no earlier test bench exercised.</p>",
+  moteurs:"<p>The model has also been verified by four independent engines that agree: rdflib, pySHACL, Protégé with the OWL API, and a JavaScript engine written for the demonstration. It does not depend on the tooling that produced it.</p>",
+
+  h2cas:"One hundred questions the way they come up in the field",
+  ledeCas:"Not features turned back into questions. Against each one: what the model changes, the modeling decision that makes it possible, and the honest status of that capability. Twenty-one are backed by an executable query whose real result appears under the card.",
+  stats:[["demo","Demonstrated","Exercised by the repository and covered by the forty-seven tests. Can be shown live."],
+         ["struct","Structural","The structure supports it directly, but no test bench exercises it yet."],
+         ["extra","Extrapolated","A plausible use of the structure. Never built, never delivered to a client."],
+         ["absent","Absent","The model cannot do this. It says so, and it keeps saying so until it is built."]],
+  phare:"<p>The flagship question is the one no management system can ask: <strong>which obligations are covered by nothing?</strong> An OHS management system lists the procedures that exist. It cannot list the ones that are missing, because it has no model of what ought to exist — it only knows what was entered into it.</p>",
+
+  h2demo:"Don't take my word for it. Query it.",
+  ledeDemo:"The explorer is a read-only view of the real model: jurisdictional definitions side by side, mappings with their provenance, violations with their justification. The SPARQL console runs in your browser, over the model's triples. No installation, no sign-up.",
+  spec:[["4","anchors"],["8","jurisdictional concepts"],["6","reified mappings"],["8","requirements cited to the clause"],["292","queryable triples"],["11","competency queries loaded"],["47","tests on the constraints"],["6","violations and 1 warning, deliberate"],["FR / EN","throughout"]],
+
+  h2lim:"Seven angles, and three still to be built",
+  ledeLim:"An ontology is not \u00ab complete \u00bb or \u00ab incomplete \u00bb. It answers some questions solidly, others partially, and the rest not at all. Each angle demands a distinct technical mechanism: none follows from another.",
+  angles:[["ok","Scope","Who has authority here?","acquired"],
+          ["ok","Time","When was the rule in force, and what did we know then?","acquired"],
+          ["ok","Provenance","How do we know, and who signs it?","acquired"],
+          ["part","Identity","Is it the same thing?","partial"],
+          ["non","Composition","What is it made of?","absent"],
+          ["non","Inference","What follows from it?","absent"],
+          ["non","Disagreement","What to do with two opposing sources on the same requirement?","absent"]],
+  desaccord:"<p>Disagreement is the most visible gap. Several claims can coexist on the same pair of concepts, and nothing arbitrates between them. A compliance model that cannot say what it does not know is not a compliance model — so we say it.</p>",
+
+  h2eco:"OntoX5 inside the AgenticX5 ecosystem",
+  ledeEco:"Two levels that answer each other: learn the vocabulary, then see what happens when one of those words is taken seriously all the way down.",
+  ecoRole1:"The vocabulary", ecoTitre1:"AgenticX5 portal",
+  ecoTexte1:"Fifty-seven AI and agentic concepts, bilingual, with decks and podcasts. A starting tool to align leadership, business lines and IT before launching a project.",
+  ecoLien1:"Open the lexicon",
+  ecoRole2:"The demonstration", ecoTitre2:"OntoX5",
+  ecoTexte2:"One word from the lexicon — shared semantics — pushed all the way to an executable ontology, quality constraints and tests. What vocabulary becomes when you refuse to approximate.",
+
+  h2portes:"Where to go next",
+  ledePortes:"Four entry points, depending on what you are after.",
+  doors:[["ax5-explorer/index.html","See the model","The read-only explorer, the SPARQL console, the hundred use cases.","Open the explorer"],
+         ["mailto:team@agenticx5.com?subject=OntoX5%20-%20demo%20request","Request a demonstration","Ninety seconds on your own compliance gap, from two regimes you name.","team@agenticx5.com"],
+         ["https://github.com/Preventera/ax5-compliance-ontology","Audit the code","Ontology, SHACL constraints, generator, tests and continuous integration. MIT licence.","GitHub repository"],
+         ["mailto:team@agenticx5.com?subject=OntoX5%20-%20partnership","Port a domain","The generator has been ported three times. The fourth domain could be yours.","team@agenticx5.com"]],
+
+  footDesc:"Ontology and data contracts for multi-jurisdictional OHS compliance reasoning.",
+  footHome:"Portal home", footExpl:"Explorer", footRepo:"GitHub repository", footLex:"AgenticX5 lexicon",
+  prov:"The figures on this page come from ax5-compliance-ontology v0.3.0 · generated 2026-04-11 · code released under the MIT licence. Documentary view: no data entry, no automated decisions. The OHS decision stays with a human."
+ }
+};
+
+/* Chiffres invariants : ils ne se traduisent pas. */
+const DOM_ROWS = [
+  [9,5,8],[9,6,7],[17,15,17],[121,97,112],[284,169,230],
+  [6,3,2],[33,20,27],[1,1,4],["33,0","20,0","6,8"]
+];
+
+const TITLES = {
+  fr:"OntoX5 — Ontologie de conformité SST multi-juridictionnelle | AgenticX5",
+  en:"OntoX5 — Multi-jurisdictional OHS compliance ontology | AgenticX5"
+};
+
+let lang = "fr";
+const t = k => T[lang][k];
+const esc = s => String(s).replace(/[&<>"]/g,
+  c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+function setLang(l){
+  lang = l;
+  document.documentElement.lang = l;
+  document.title = TITLES[l];
+  bFr.setAttribute("aria-pressed", l === "fr");
+  bEn.setAttribute("aria-pressed", l === "en");
+  document.querySelectorAll("[data-i18n]").forEach(el => {
+    el.innerHTML = t(el.dataset.i18n);
+  });
+  render();
+}
+
+function render(){
+  uTrait.innerHTML = t("trait").map(x => `<li>${esc(x)}</li>`).join("");
+  uFiche.innerHTML = t("fiche").map(x => `<li>${esc(x)}</li>`).join("");
+
+  const dec = lang === "fr" ? "," : ".";
+  tDom.innerHTML =
+    `<caption>${esc(t("capDom"))}</caption>` +
+    `<thead><tr><th scope="col">${esc(t("colCrit"))}</th>` +
+    `<th scope="col">${esc(t("colSst"))}</th>` +
+    `<th scope="col">${esc(t("colScm"))}</th>` +
+    `<th scope="col">${esc(t("colIa"))}</th></tr></thead><tbody>` +
+    t("rows").map((nom, i) => {
+      const last = i === DOM_ROWS.length - 1;
+      const cells = DOM_ROWS[i]
+        .map(v => `<td>${esc(String(v).replace(",", dec))}</td>`).join("");
+      return `<tr${last ? ' class="flag"' : ""}><td>${esc(nom)}</td>${cells}</tr>`;
+    }).join("") + `</tbody>`;
+
+  sList.innerHTML = t("stats").map(([cls, nom, txt]) =>
+    `<div class="st ${cls}"><span class="pill">${esc(nom)}</span><p>${esc(txt)}</p></div>`
+  ).join("");
+
+  spec.innerHTML = t("spec")
+    .map(([n, lab]) => `<b>${esc(n)}</b> ${esc(lab)}`).join("<br>");
+
+  aList.innerHTML = t("angles").map(([cls, nom, q, etat]) =>
+    `<div class="angle ${cls}"><div class="nom">${esc(nom)}</div>` +
+    `<div class="q">${esc(q)}</div><div class="etat">${esc(etat)}</div></div>`
+  ).join("");
+
+  dList.innerHTML = t("doors").map(([href, titre, txt, go]) =>
+    `<a class="door" href="${href}"><h3>${esc(titre)}</h3><p>${esc(txt)}</p>` +
+    `<span class="go">${esc(go)}</span></a>`
+  ).join("");
+}
+
+/* La langue du navigateur decide de l'ouverture, sans jamais l'imposer :
+   la bascule reste visible et la preference n'est pas memorisee. */
+setLang((navigator.language || "fr").toLowerCase().startsWith("en") ? "en" : "fr");
+</script>
 </body>
 </html>
