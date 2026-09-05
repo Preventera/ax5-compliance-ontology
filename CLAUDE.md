@@ -303,3 +303,12 @@ Le modèle a été vérifié par quatre moteurs distincts, qui concordent :
 
 C'est la preuve de portabilité : le modèle ne dépend pas de l'outillage qui
 l'a produit.
+
+---
+
+## Avant de toucher à ax5-explorer/index.html
+
+Lire `.claude/skills/ontox5-rendu/SKILL.md` en entier — quatorze règles
+vérifiées par `tests/test_rendu_explorateur.py`.
+
+Toute régénération doit passer les tests avant d'être déposée.
