@@ -424,6 +424,8 @@ footer .rights{margin-top:10px}
 .covbar .gap,
 .covbar .noneval-n{background:none;border:0;padding:0;margin:0}
 .covbar .gap b{color:var(--ochre)}
+.covbar .prov{flex-basis:100%;font-family:var(--data);font-size:10.5px;
+  color:var(--dim);border-top:1px solid var(--rule);padding-top:9px;margin-top:2px}
 
 
 #s-sparql .qbool b::before{font-family:var(--serif);margin-right:.35em;font-weight:700}
@@ -1203,7 +1205,8 @@ function render(){
     <div><b>${couvertes.size}</b>${t('cCouv')}</div>
     <div class="gap"><b>${trous.length}</b>${t('cGap')}</div>
     <div class="noneval-n"><b>${nonEval.length}</b>${t('cNonEval')}</div>
-    <div class="unrev"><b>${nonRevues.length}</b>${t('cUnrev')}</div>`;
+        <div class="unrev"><b>${nonRevues.length}</b>${t('cUnrev')}</div>
+    <div class="prov">${reqsA.length} ${t('cTotal')} · ${SOURCE} · ${AS_OF}</div>`;
 
   covs.innerHTML =
     nonEval.map(r=>`<div class="noneval">
