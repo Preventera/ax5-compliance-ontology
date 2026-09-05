@@ -401,6 +401,55 @@ footer .rights{margin-top:10px}
 #s-sparql .qlimit{margin-top:14px;padding:12px 14px;background:var(--sunk);border:1px solid var(--rule);
   border-radius:3px;font-family:var(--serif);font-size:14.5px;line-height:1.6;color:var(--muted)}
 @media(max-width:900px){#s-graph svg{height:400px}#s-sparql select.qpick{min-width:100%}}
+/* ==== ontox5-rendu v2 =================================================
+   R1  : aucun etat porte par la couleur seule (glyphe + libelle).
+   R2  : LACUNE et NON_EVALUE ont deux rendus distincts.
+   R11 : survit au noir et blanc et a l'impression.
+   ===================================================================== */
+/* R1 — le oui/non de la console de cas ne peut pas non plus tenir a la couleur */
+#s-cases .cbool b::before{margin-right:.35em;font-weight:700}
+#s-cases .cbool.no  b::before{content:"\2717"}
+#s-cases .cbool.yes b::before{content:"\2713"}
+
+/* R2 — trois absences, trois rendus. Le disque plein signale une lacune
+   reelle ; le cercle vide signale que le systeme n'a pas regarde. */
+.gap .g-title::before{content:"\25CF";margin-right:.45em;color:var(--ochre)}
+.noneval{background:var(--sunk);border:1px dashed var(--rule2);
+  border-left:3px dashed var(--dim);border-radius:3px;padding:14px 17px;margin-top:10px}
+.noneval .g-title{font-family:var(--display);font-size:14.5px;font-weight:500;color:var(--ink)}
+.noneval .g-title::before{content:"\25CB";margin-right:.45em;color:var(--dim)}
+.noneval .g-cite{font-family:var(--data);font-size:12px;color:var(--dim);margin-top:4px}
+.noneval .g-why{font-size:13px;color:var(--muted);margin-top:8px;line-height:1.55}
+.covbar .noneval-n b{color:var(--dim)}
+.covbar .gap,
+.covbar .noneval-n{background:none;border:0;padding:0;margin:0}
+.covbar .gap b{color:var(--ochre)}
+
+
+#s-sparql .qbool b::before{font-family:var(--serif);margin-right:.35em;font-weight:700}
+#s-sparql .qbool.no  b::before{content:"\2717"}
+#s-sparql .qbool.yes b::before{content:"\2713"}
+
+.sev::before{margin-right:.35em;font-weight:700}
+.sev.v::before{content:"\25B2"}
+.sev.w::before{content:"\25CF"}
+
+
+@media print{
+  :root{--ink:#000;--muted:#333;--rule:#000;--rule2:#666;--sunk:#fff;
+        --oxide:#000;--verdigris:#000}
+  body{background:#fff;color:#000;font-size:10pt;line-height:1.45}
+  @page{margin:15mm}
+  .sev,.pb,.badge,.pill,.hstat span{border:1pt solid #000;background:none;padding:0 3pt}
+  details{display:block}
+  details>summary{display:none}
+  .qttl,.qlimit,.lineage,.iwhy{overflow:visible;white-space:pre-wrap}
+  a[href^="http"]::after{content:" (" attr(href) ")";font-size:8pt;color:#333;word-break:break-all}
+  .skip,button,select,nav{display:none}
+  .mark{filter:grayscale(1)}
+  .noneval{border:1pt dashed #000;background:none}
+  .card,.fiche,#insp>*{break-inside:avoid}
+}
 </style>
 </head>
 <body>
@@ -413,7 +462,7 @@ footer .rights{margin-top:10px}
     <h1 data-i18n="brand">Explorateur d'ontologie de conformité</h1>
     <p>ax5-compliance-ontology · v0.3.0</p>
   </div>
-  <div class="hstat" aria-live="polite">
+  <div class="hstat" aria-live="polite" data-denominator="0" data-source="data/instances.ttl" data-asof="">
     <span><b class="v" id="nv">6</b> <span data-i18n="tViol">violations</span></span>
     <span><b class="w" id="nw">1</b> <span data-i18n="tWarn">avertissement</span></span>
   </div>
@@ -510,7 +559,7 @@ footer .rights{margin-top:10px}
       <p class="lede" data-i18n="l2"></p>
       <div class="ed" data-i18n="e2"></div>
       <div id="bridges"></div>
-      <button class="tbtn" id="tgl" aria-expanded="false" aria-controls="mtable" onclick="toggleTable()"></button>
+      <button class="tbtn" id="tgl" aria-expanded="false" aria-controls="mtable" onclick="toggleTable()" aria-label="Afficher ou masquer le tableau" data-i18n-aria="aTgl"></button>
       <div class="tblwrap" id="mtable" hidden></div>
       <div class="expbar">
         <span class="lbl" data-i18n="expLbl"></span>
@@ -534,7 +583,8 @@ footer .rights{margin-top:10px}
       <h2 data-i18n="h4"></h2>
       <p class="lede" data-i18n="l4"></p>
       <div class="ed" data-i18n="e4"></div>
-      <div class="covbar" id="covbar"></div>
+      <div class="covbar" id="covbar"
+           data-denominator="0" data-source="data/instances.ttl" data-asof=""></div>
       <div id="covs"></div>
     </section>
 
@@ -564,7 +614,7 @@ footer .rights{margin-top:10px}
       <h2 data-i18n="sparqlTitle"></h2>
       <p class="lede" data-i18n="sparqlLede"></p>
       <div class="qbar">
-        <select class="qpick" id="qPick"></select>
+        <select class="qpick" id="qPick" aria-label="Choisir une requête SPARQL" data-i18n-aria="aQPick"></select>
         <button class="qrun" id="qRun" data-i18n="qRunLabel">Exécuter</button>
       </div>
       <textarea id="qText" spellcheck="false"></textarea>
@@ -581,9 +631,9 @@ footer .rights{margin-top:10px}
         <div class="cgrp"><span class="clab" data-i18n="cfStatus">Statut</span>
           <div class="cseg" id="cSeg" role="group"></div></div>
         <div class="cgrp"><span class="clab" data-i18n="cfFam">Famille</span>
-          <select class="cfam" id="cFam"></select></div>
+          <select class="cfam" id="cFam" aria-label="Filtrer par famille de concepts" data-i18n-aria="aCFam"></select></div>
         <div class="cgrp"><span class="clab" data-i18n="cfSearch">Recherche</span>
-          <input class="cq" type="search" id="cQ"></div>
+          <input class="cq" type="search" id="cQ" aria-label="Rechercher un concept" data-i18n-aria="aCQ"></div>
         <div class="ccount" id="cCount"></div>
       </div>
       <div id="cList"></div>
@@ -618,7 +668,7 @@ footer .rights{margin-top:10px}
 
 <script>
 const T = {
- fr:{
+ fr:{aTgl:'Afficher ou masquer le tableau',aQPick:'Choisir une requête SPARQL',aCFam:'Filtrer par famille de concepts',aCQ:'Rechercher un concept',
   nDomains:'Trois domaines', nGraph:'Le graphe', nSparql:'Console SPARQL',
   ebDom:'Portabilit\u00e9 du g\u00e9n\u00e9rateur',
   domTitle:"Le m\u00eame g\u00e9n\u00e9rateur, <em>trois</em> domaines sans rapport.",
@@ -730,6 +780,12 @@ const T = {
   l4:"Une procédure ne satisfait pas une obligation. Quelqu'un affirme qu'elle la satisfait — et cette affirmation a un auteur, une base et une date.",
   e4:"<p>C'est la bascule qui rend la question possible. Un lien entre une procédure et un article ne peut pas être faux. Une <strong>revendication</strong> le peut : elle peut être trop optimiste, périmée, ou n'avoir jamais été revue.</p><p>De là découle la question qu'aucun système de gestion ne peut poser : <strong>quelles obligations ne sont couvertes par rien?</strong> Un SGSST liste les procédures qui existent. Il ne peut pas lister celles qui manquent, parce qu'il n'a aucun modèle de ce qui devrait exister — il ne connaît que ce qu'on lui a saisi.</p>",
   cTotal:'obligations', cCouv:'couvertes', cGap:'sans couverture', cUnrev:'non revues',
+  cNonEval:'non évaluées', cNonEvalLbl:'Non évalué',
+  kNonEval:'Obligation non évaluée',
+  nonEvalWhy:"Aucun document interne n'existe pour ce régime. Le système n'a pas "+
+    "cherché : ce n'est ni une lacune ni une conformité, c'est une absence "+
+    "d'évaluation. Un trou de couverture engage le client; un non-évalué engage "+
+    "le corpus. Les confondre produit une fausse assurance.",
   kCov:'Fiche de couverture', kGap:'Trou de couverture',
   covers:'couvre', by:'par',
   gapWhy:"Aucun document interne ne prétend mettre en oeuvre cette obligation. Ce n'est pas une erreur de donnée : l'obligation est correctement encodée. C'est le référentiel qui est incomplet — et c'est l'information utile.",
@@ -766,7 +822,7 @@ const T = {
     ex:'Sans citation → violation'}
   ]
  },
- en:{
+ en:{aTgl:'Show or hide the table',aQPick:'Choose a SPARQL query',aCFam:'Filter by concept family',aCQ:'Search for a concept',
   nDomains:'Three domains', nGraph:'The graph', nSparql:'SPARQL console',
   ebDom:'Generator portability',
   domTitle:"The same generator, <em>three</em> unrelated domains.",
@@ -878,6 +934,12 @@ const T = {
   l4:'A procedure does not satisfy an obligation. Someone asserts that it does — and that assertion has an author, a basis and a date.',
   e4:"<p>This is the switch that makes the question possible. A link between a procedure and a clause cannot be wrong. A <strong>claim</strong> can: it may be too optimistic, out of date, or never reviewed.</p><p>From it follows the question no management system can ask: <strong>which obligations are covered by nothing?</strong> An OHS management system lists the procedures that exist. It cannot list the ones that are missing, because it has no model of what ought to exist — it only knows what was entered into it.</p>",
   cTotal:'obligations', cCouv:'covered', cGap:'uncovered', cUnrev:'unreviewed',
+  cNonEval:'not evaluated', cNonEvalLbl:'Not evaluated',
+  kNonEval:'Obligation not evaluated',
+  nonEvalWhy:'No internal document exists for this regime. The system did not '+
+    'look: this is neither a gap nor compliance, it is an absence of evaluation. '+
+    'A coverage gap implicates the client; a not-evaluated implicates the corpus. '+
+    'Conflating them produces false assurance.',
   kCov:'Coverage record', kGap:'Coverage gap',
   covers:'covers', by:'by',
   gapWhy:'No internal document claims to implement this obligation. This is not a data error: the obligation is correctly encoded. It is the reference set that is incomplete — and that is the useful information.',
@@ -1029,6 +1091,15 @@ const COVS = [
 ];
 
 let lang='fr', anchor='ri', sel=null, tblOpen=false;
+
+/* R3 — la date affichee n'est pas celle du navigateur mais celle de la
+   derniere assertion du jeu de donnees. Un compteur sans date ne dit pas
+   de quand il parle. */
+const AS_OF = [].concat(
+  COVS.map(function(c){return c.date}),
+  MAPS.map(function(m){return m.date})
+).filter(Boolean).sort().pop() || '';
+const SOURCE = 'data/instances.ttl';
 const t = k => T[lang][k];
 const esc = s => String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const cname = id => {const c=CONCEPTS.find(x=>x.id===id); return c?c.label[lang]:id};
@@ -1053,6 +1124,13 @@ function badge(status){
 }
 
 function render(){
+  /* R3 — le bandeau de tete dit sur quoi il compte et de quand il parle. */
+  const hs = document.querySelector('.hstat');
+  if(hs){
+    hs.dataset.denominator = CONCEPTS.length + MAPS.length + REQS.length + COVS.length;
+    hs.dataset.source = SOURCE;
+    hs.dataset.asof = AS_OF;
+  }
   const counts = {};
   Object.keys(T[lang].anchors).forEach(k=>{
     counts[k] = CONCEPTS.filter(c=>c.anchor===k).length;
@@ -1107,16 +1185,32 @@ function render(){
   const cvs = COVS.filter(c=>c.anchor===anchor);
   const reqsA = REQS.filter(r=>r.anchor===anchor);
   const couvertes = new Set(cvs.map(c=>c.req));
-  const trous = reqsA.filter(r=>!couvertes.has(r.id));
+  /* R2 — trois situations, pas deux.
+     Une obligation sans revendication dans un regime ou AUCUN document
+     interne n'existe n'est pas une lacune : le systeme n'a pas regarde.
+     Confondre les deux produit une fausse assurance. */
+  const regimesDocumentes = new Set(DOCS.map(d=>d.jur));
+  const sansClaim = reqsA.filter(r=>!couvertes.has(r.id));
+  const trous   = sansClaim.filter(r=>regimesDocumentes.has(r.jur));
+  const nonEval = sansClaim.filter(r=>!regimesDocumentes.has(r.jur));
   const nonRevues = cvs.filter(c=>c.status!=='human-reviewed');
 
+  covbar.dataset.denominator = reqsA.length;
+  covbar.dataset.source = SOURCE;
+  covbar.dataset.asof = AS_OF;
   covbar.innerHTML = `
     <div><b>${reqsA.length}</b>${t('cTotal')}</div>
     <div><b>${couvertes.size}</b>${t('cCouv')}</div>
     <div class="gap"><b>${trous.length}</b>${t('cGap')}</div>
+    <div class="noneval-n"><b>${nonEval.length}</b>${t('cNonEval')}</div>
     <div class="unrev"><b>${nonRevues.length}</b>${t('cUnrev')}</div>`;
 
   covs.innerHTML =
+    nonEval.map(r=>`<div class="noneval">
+      <div class="g-title">${esc(r.label[lang])}</div>
+      <div class="g-cite">${r.cite?esc(r.cite):'\u26a0 '+t('noCite')} \u00b7 ${esc(JUR[r.jur])} \u00b7 ${t('cNonEvalLbl')}</div>
+      <div class="g-why">${t('nonEvalWhy')}</div>
+    </div>`).join('') +
     trous.map(r=>`<div class="gap">
       <div class="g-title">${esc(r.label[lang])}</div>
       <div class="g-cite">${r.cite?esc(r.cite):'\u26a0 '+t('noCite')} \u00b7 ${esc(JUR[r.jur])}</div>
@@ -1969,6 +2063,19 @@ function execQuery(){
   });
   out.innerHTML=h+'</tbody></table>';
 }
+
+/* ontox5-rendu : R10 — les noms accessibles suivent la langue */
+function applyAria(l){
+  document.querySelectorAll('[data-i18n-aria]').forEach(function(el){
+    var k = el.getAttribute('data-i18n-aria');
+    if (T[l] && T[l][k]) el.setAttribute('aria-label', T[l][k]);
+  });
+}
+if (typeof setLang === 'function') {
+  var _setLangBase = setLang;
+  setLang = function(l){ _setLangBase(l); applyAria(l); };
+}
+
 
 
 setLang('fr');
