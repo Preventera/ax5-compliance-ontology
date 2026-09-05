@@ -4,6 +4,14 @@ name: Validate ontology
 # Toute modification de l'ontologie, des données ou des shapes est validée
 # avant fusion — c'est ce qui empêche une shape de se relâcher silencieusement
 # d'une version à l'autre.
+#
+# Deux régimes cohabitent, et la distinction est délibérée :
+#   · validate.py produit un RAPPORT. Le jeu de démonstration contient des
+#     défauts voulus, donc un rapport non vide est le comportement normal.
+#   · les tests BLOQUENT. Ils vérifient que les shapes attrapent bien ces
+#     défauts, et que l'explorateur respecte la doctrine de rendu.
+# Une validation SHACL qui n'échoue jamais ne prouve rien; c'est test_shapes.py
+# qui fait le travail d'opposabilité.
 
 on:
   push:
@@ -31,7 +39,14 @@ jobs:
         continue-on-error: true   # le rapport est informatif
 
       - name: Test that shapes catch known defects
-        run: pytest tests/ -v
+        run: pytest tests/test_shapes.py -v
+
+      # Doctrine de rendu — .claude/skills/ontox5-rendu/SKILL.md
+      # Vingt contrôles sur ax5-explorer/index.html : second canal sur les
+      # états, distinction LACUNE / NON_EVALUE, compteurs qualifiés, contraste
+      # AA, noms accessibles, parité FR/EN, absence de verdict de conformité.
+      - name: Test rendering doctrine (ontox5-rendu)
+        run: pytest tests/test_rendu_explorateur.py -v
 
       - name: Run competency questions
         run: python queries/competency.py
