@@ -7,3 +7,6 @@ venv/
 *.log
 
 ax5-explorer/*.bak*
+
+# Sauvegardes des scripts de correctif
+ax5-explorer/*.bak*
