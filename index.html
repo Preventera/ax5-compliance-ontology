@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OntoX5 — Ontologie de conformité SST multi-juridictionnelle | AgenticX5</title>
+<meta name="description" content="Un modèle de conformité qui refuse de fusionner les définitions juridictionnelles. Trois domaines générés par un seul moteur, cent questions terrain, et les limites écrites noir sur blanc.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=Inter:wght@400;500&family=Spectral:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ==== OntoX5 — portail vitrine ========================================
+   Jetons repris de ax5-explorer/index.html : le portail et l'explorateur
+   doivent se lire comme un seul produit.
+   Soumis a la meme doctrine de rendu (.claude/skills/ontox5-rendu) :
+   aucun verdict de conformite, aucun etat porte par la couleur seule,
+   provenance visible, survit au noir et blanc.
+   ===================================================================== */
+
+:root{
+  --paper:#EDECE6; --raised:#F7F6F2; --sunk:#E4E3DC;
+  --rule:#D3D2C9; --rule2:#BCBAAF;
+  --ink:#1B1E24; --muted:#4E535B; --dim:#7C8189;
+  --cover:#191024; --cover-ink:#EDE9F5; --cover-dim:#9B8FB2;
+  --violet:#5E3FA6; --violet-soft:#EDE7F8;
+  --oxide:#9E3527; --oxide-soft:#F6E4E1;
+  --ochre:#96660A; --ochre-soft:#F7EDD8;
+  --verdigris:#2A6250; --verdigris-soft:#E2EFE9;
+  --seal:#1F4E79;
+  --display:'Space Grotesk',sans-serif; --body:'Inter',sans-serif;
+  --serif:'Spectral',Georgia,serif; --data:'JetBrains Mono',monospace;
+  --measure:64ch;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--paper);color:var(--ink);font-family:var(--body);
+  font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:var(--seal)}
+:focus-visible{outline:2px solid var(--seal);outline-offset:3px;border-radius:2px}
+.skip{position:absolute;left:-9999px;top:0;background:var(--violet);color:#fff;
+  padding:10px 16px;z-index:100}
+.skip:focus{left:0}
+
+.wrap{max-width:1040px;margin:0 auto;padding:0 28px}
+.prose{max-width:var(--measure)}
+.prose p{font-family:var(--serif);font-size:18px;line-height:1.68;margin-bottom:16px}
+.prose p:last-child{margin-bottom:0}
+.prose strong{font-weight:500}
+
+/* ---------- barre de tete ---------- */
+.top{background:var(--cover);color:var(--cover-ink);position:sticky;top:0;z-index:40}
+.top .wrap{display:flex;align-items:center;gap:18px;height:60px}
+.wordmark{font-family:var(--display);font-size:15px;font-weight:500;letter-spacing:-.01em;
+  color:var(--cover-ink);text-decoration:none;white-space:nowrap}
+.wordmark b{font-weight:600;color:#B18CF0}
+.topnav{margin-left:auto;display:flex;gap:20px;align-items:center}
+.topnav a{color:var(--cover-dim);font-size:14px;text-decoration:none;white-space:nowrap}
+.topnav a:hover{color:var(--cover-ink)}
+.topnav .live{color:var(--cover-ink);border:1px solid #3B2C55;border-radius:3px;
+  padding:6px 13px;font-family:var(--data);font-size:12.5px}
+.topnav .live:hover{border-color:#B18CF0}
+@media(max-width:760px){.topnav a:not(.live){display:none}}
+
+/* ---------- heros : le conflit de seuil ---------- */
+.hero{padding:74px 0 64px;border-bottom:1px solid var(--rule2)}
+.hero .kicker{font-family:var(--data);font-size:12.5px;color:var(--dim);margin-bottom:26px}
+.hero h1{font-family:var(--display);font-weight:500;letter-spacing:-.025em;
+  font-size:clamp(30px,5.2vw,56px);line-height:1.06;max-width:15ch}
+.hero .sub{font-family:var(--serif);font-size:19px;line-height:1.62;color:var(--muted);
+  max-width:58ch;margin-top:20px}
+
+/* le mot, puis sa division */
+.split{margin-top:44px;border-top:1px solid var(--rule2)}
+.split .term{font-family:var(--display);font-size:clamp(21px,3vw,29px);font-weight:500;
+  letter-spacing:-.015em;padding:18px 0 4px}
+.split .termnote{font-family:var(--data);font-size:12.5px;color:var(--dim);padding-bottom:20px}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:0;border-top:1px solid var(--rule)}
+.col{padding:24px 26px 26px;background:var(--raised);border-right:1px solid var(--rule)}
+.col:last-child{border-right:0;background:var(--sunk)}
+.col .reg{font-family:var(--data);font-size:12.5px;color:var(--seal);margin-bottom:14px}
+.col .num{font-family:var(--display);font-size:58px;font-weight:500;line-height:1;
+  letter-spacing:-.04em;color:var(--ink)}
+.col .unit{font-family:var(--serif);font-size:17px;line-height:1.45;color:var(--muted);
+  margin-top:10px;max-width:26ch}
+.col .cite{font-family:var(--data);font-size:11.5px;color:var(--dim);margin-top:16px;
+  padding-top:12px;border-top:1px solid var(--rule)}
+.verdict{border-top:1px solid var(--rule2);padding:22px 0 0;font-family:var(--serif);
+  font-size:18px;line-height:1.6;max-width:62ch}
+@media(max-width:680px){
+  .cols{grid-template-columns:1fr}
+  .col{border-right:0;border-bottom:1px solid var(--rule)}
+  .col .num{font-size:46px}
+}
+
+/* ---------- sections ---------- */
+section{padding:62px 0;border-bottom:1px solid var(--rule)}
+.depth{font-family:var(--data);font-size:12px;color:var(--dim);margin-bottom:12px}
+h2{font-family:var(--display);font-size:clamp(23px,3.2vw,32px);font-weight:500;
+  letter-spacing:-.022em;line-height:1.16;max-width:20ch;margin-bottom:18px}
+h3{font-family:var(--display);font-size:18px;font-weight:500;letter-spacing:-.015em;
+  margin-bottom:8px}
+.lede{font-family:var(--serif);font-size:19px;line-height:1.6;color:var(--muted);
+  max-width:60ch;margin-bottom:26px}
+
+/* la regle centrale, mise en exergue */
+.rule-box{background:var(--cover);color:var(--cover-ink);padding:34px 32px;margin:32px 0}
+.rule-box p{font-family:var(--serif);font-size:21px;line-height:1.5;max-width:46ch;margin:0}
+.rule-box .why{font-family:var(--body);font-size:15px;line-height:1.6;color:var(--cover-dim);
+  max-width:56ch;margin-top:18px}
+
+/* trait ou fiche */
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:28px}
+.cbox{border:1px solid var(--rule);background:var(--raised);padding:22px}
+.cbox.on{border-color:var(--violet);background:var(--violet-soft)}
+.cbox .lab{font-family:var(--data);font-size:11.5px;color:var(--dim);margin-bottom:14px}
+.cbox.on .lab{color:var(--violet)}
+.cbox ul{list-style:none;font-family:var(--data);font-size:13px;line-height:2;color:var(--muted)}
+.cbox li::before{content:"\2014";margin-right:.55em;color:var(--rule2)}
+.cbox.on li::before{content:"\2713";color:var(--violet)}
+@media(max-width:680px){.compare{grid-template-columns:1fr}}
+
+/* ---------- tableau des domaines ---------- */
+.tbl{width:100%;border-collapse:collapse;margin-top:26px;font-size:14.5px}
+.tbl caption{text-align:left;font-family:var(--data);font-size:12px;color:var(--dim);
+  padding-bottom:12px}
+.tbl th,.tbl td{text-align:left;padding:11px 13px;border-bottom:1px solid var(--rule)}
+.tbl thead th{font-family:var(--display);font-size:14px;font-weight:500;
+  border-bottom:1px solid var(--rule2)}
+.tbl thead th:first-child{font-family:var(--body);font-weight:400;color:var(--dim);font-size:13px}
+.tbl td{font-family:var(--data);font-size:13.5px}
+.tbl td:first-child{font-family:var(--body);font-size:14.5px;color:var(--muted)}
+.tbl tbody tr:last-child td{border-bottom:0}
+.tbl .flag td{background:var(--ochre-soft)}
+.tbl .flag td:first-child{color:var(--ink)}
+.aside{border-left:3px solid var(--ochre);background:var(--ochre-soft);
+  padding:20px 22px;margin-top:24px;max-width:var(--measure)}
+.aside p{font-family:var(--serif);font-size:17px;line-height:1.6;margin-bottom:12px}
+.aside p:last-child{margin-bottom:0}
+
+/* ---------- statuts ---------- */
+.statuses{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+  gap:16px;margin-top:28px}
+.st{border:1px solid var(--rule);background:var(--raised);padding:18px 19px}
+.st .pill{display:inline-flex;align-items:center;gap:6px;font-family:var(--data);
+  font-size:11.5px;padding:3px 9px;border-radius:3px;font-weight:500;margin-bottom:12px}
+.st.demo{border-left:3px solid var(--verdigris)}
+.st.demo .pill{border:1px solid var(--verdigris);color:var(--verdigris);background:var(--verdigris-soft)}
+.st.demo .pill::before{content:"\25CF"}
+.st.struct{border-left:3px solid var(--seal)}
+.st.struct .pill{border:1px solid var(--seal);color:var(--seal);background:#E3ECF4}
+.st.struct .pill::before{content:"\25D0"}
+.st.extra{border-left:3px solid var(--ochre)}
+.st.extra .pill{border:1px solid var(--ochre);color:var(--ochre);background:var(--ochre-soft)}
+.st.extra .pill::before{content:"\25CB"}
+.st.absent{border-left:3px solid var(--oxide);background:var(--oxide-soft)}
+.st.absent .pill{border:1px solid var(--oxide);color:var(--oxide);background:var(--raised)}
+.st.absent .pill::before{content:"\2717"}
+.st p{font-size:14.5px;line-height:1.55;color:var(--muted)}
+
+/* ---------- les sept angles ---------- */
+.angles{margin-top:26px;border-top:1px solid var(--rule2)}
+.angle{display:grid;grid-template-columns:150px minmax(0,1fr) 118px;gap:18px;
+  padding:14px 0;border-bottom:1px solid var(--rule);align-items:baseline}
+.angle .nom{font-family:var(--display);font-size:16px;font-weight:500}
+.angle .q{font-family:var(--serif);font-size:16.5px;color:var(--muted)}
+.angle .etat{font-family:var(--data);font-size:12px;text-align:right;white-space:nowrap}
+.angle .etat::before{margin-right:.5em}
+.angle.ok .etat{color:var(--verdigris)} .angle.ok .etat::before{content:"\25CF"}
+.angle.part .etat{color:var(--ochre)}   .angle.part .etat::before{content:"\25D0"}
+.angle.non .etat{color:var(--oxide)}    .angle.non .etat::before{content:"\25CB"}
+.angle.non .nom{color:var(--oxide)}
+@media(max-width:680px){
+  .angle{grid-template-columns:1fr auto;gap:6px 14px}
+  .angle .q{grid-column:1 / -1}
+}
+
+/* ---------- demonstration ---------- */
+.demo-band{background:var(--sunk);border-top:1px solid var(--rule2);
+  border-bottom:1px solid var(--rule2)}
+.demo-grid{display:grid;grid-template-columns:1.25fr 1fr;gap:40px;align-items:start}
+@media(max-width:820px){.demo-grid{grid-template-columns:1fr;gap:28px}}
+.btn{display:inline-block;font-family:var(--data);font-size:14px;text-decoration:none;
+  padding:13px 22px;border-radius:3px;background:var(--ink);color:var(--paper);
+  border:1px solid var(--ink)}
+.btn:hover{background:var(--violet);border-color:var(--violet)}
+.btn.ghost{background:none;color:var(--ink);border-color:var(--rule2)}
+.btn.ghost:hover{background:var(--raised);border-color:var(--seal);color:var(--ink)}
+.btnrow{display:flex;gap:12px;flex-wrap:wrap;margin-top:26px}
+.spec{font-family:var(--data);font-size:13px;line-height:2.1;color:var(--muted);
+  border-left:1px solid var(--rule2);padding-left:20px}
+.spec b{color:var(--ink);font-weight:500}
+
+/* ---------- portes de sortie ---------- */
+.doors{display:grid;grid-template-columns:repeat(auto-fit,minmax(238px,1fr));gap:0;
+  border-top:1px solid var(--rule2)}
+.door{padding:26px 24px 28px;border-right:1px solid var(--rule);
+  border-bottom:1px solid var(--rule);text-decoration:none;color:var(--ink);display:block}
+.door:last-child{border-right:0}
+.door:hover{background:var(--raised)}
+.door h3{margin-bottom:6px}
+.door p{font-size:14.5px;line-height:1.55;color:var(--muted)}
+.door .go{font-family:var(--data);font-size:12.5px;color:var(--seal);margin-top:14px;display:block}
+@media(max-width:760px){.door{border-right:0}}
+
+/* ---------- ecosysteme ---------- */
+.eco{display:grid;grid-template-columns:1fr 1fr;gap:26px;margin-top:26px}
+.eco-item{border:1px solid var(--rule);background:var(--raised);padding:22px 23px}
+.eco-item .role{font-family:var(--data);font-size:11.5px;color:var(--dim);margin-bottom:10px}
+.eco-item p{font-size:14.5px;line-height:1.6;color:var(--muted);margin-top:8px}
+.eco-item a{font-family:var(--data);font-size:13px;display:inline-block;margin-top:14px}
+@media(max-width:680px){.eco{grid-template-columns:1fr}}
+
+/* ---------- pied ---------- */
+footer{background:var(--cover);color:var(--cover-dim);padding:44px 0 52px;
+  font-size:14px;line-height:1.85}
+footer a{color:var(--cover-ink)}
+footer .frow{display:flex;gap:34px;flex-wrap:wrap;justify-content:space-between}
+footer .prov{font-family:var(--data);font-size:11.5px;color:#6E6188;margin-top:26px;
+  padding-top:18px;border-top:1px solid #2C2140}
+
+/* ---------- mouvement et impression ---------- */
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto}}
+
+@media print{
+  :root{--ink:#000;--muted:#222;--dim:#444;--paper:#fff;--raised:#fff;--sunk:#fff;
+        --rule:#999;--rule2:#000;--cover:#fff;--cover-ink:#000;--cover-dim:#333}
+  body{font-size:10.5pt}
+  @page{margin:16mm}
+  .top,.btnrow,.skip{display:none}
+  .rule-box{border:1.5pt solid #000}
+  .col,.cbox,.st,.eco-item,.door{border:1pt solid #000}
+  section{break-inside:avoid}
+  a[href^="http"]::after{content:" (" attr(href) ")";font-size:8pt;word-break:break-all}
+}
+</style>
+</head>
+<body>
+
+<a class="skip" href="#contenu">Passer au contenu</a>
+
+<header class="top">
+  <div class="wrap">
+    <a class="wordmark" href="#top">AGENTIC<b>X5</b> · OntoX5</a>
+    <nav class="topnav" aria-label="Sections">
+      <a href="#probleme">Le problème</a>
+      <a href="#preuve">La preuve</a>
+      <a href="#limites">Les limites</a>
+      <a class="live" href="ax5-explorer/index.html">Ouvrir l'explorateur</a>
+    </nav>
+  </div>
+</header>
+
+<main id="contenu">
+
+<!-- ============ HÉROS : le conflit de seuil ============ -->
+<div class="hero" id="top">
+  <div class="wrap">
+    <p class="kicker">Ontologie de conformité SST multi-juridictionnelle · v0.3.0</p>
+    <h1>Le même mot, deux obligations qui se contredisent.</h1>
+    <p class="sub">Un modèle qui fusionne les définitions produit des réponses fluides
+    et fausses. Celui-ci refuse de fusionner, et rend l'écart interrogeable.</p>
+
+    <div class="split">
+      <div class="term">Lésion enregistrable</div>
+      <div class="termnote">Un seul terme métier. Deux régimes. Deux seuils incompatibles.</div>
+      <div class="cols">
+        <div class="col">
+          <div class="reg">Québec · CNESST</div>
+          <div class="num">1</div>
+          <div class="unit">jour complet d'absence du travail, au-delà du jour de l'événement</div>
+          <div class="cite">LATMP, art. 265 · en vigueur depuis 1985-08-19</div>
+        </div>
+        <div class="col">
+          <div class="reg">États-Unis · OSHA</div>
+          <div class="num">0</div>
+          <div class="unit">jour d'absence exigé — un soin médical au-delà des premiers soins suffit</div>
+          <div class="cite">29 CFR 1904.4(a) · en vigueur depuis 2002-01-01</div>
+        </div>
+      </div>
+      <p class="verdict">Un travailleur soigné et remis au travail le jour même est
+      enregistrable aux États-Unis, et ne l'est pas au Québec. Comparer les statistiques
+      de deux sites sans le savoir mène à des conclusions fausses — et personne ne s'en
+      aperçoit avant l'audit.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 1. LE PROBLÈME ============ -->
+<section id="probleme">
+  <div class="wrap">
+    <p class="depth">Première profondeur · pour qui décide</p>
+    <h2>Le vocabulaire est un problème de conformité</h2>
+    <div class="prose">
+      <p>Une entreprise québécoise ouvre une usine au Texas. Son conseiller SST doit
+      répondre à une question simple : <strong>nos procédures d'espace clos sont-elles
+      valables là-bas ?</strong></p>
+      <p>La réponse ne l'est pas, parce que le mot ne désigne pas la même chose. Au
+      Québec, un espace clos se définit par l'enceinte et l'occupation non continue.
+      Chez OSHA, la catégorie qui déclenche les obligations lourdes ajoute un critère
+      de permis. Une procédure irréprochable au Québec peut laisser un travailleur
+      entrer sans permis dans un espace qui en exige un aux États-Unis.</p>
+      <p>Le réflexe habituel est de créer une définition maison qui couvre les deux.
+      C'est le piège : la définition fusionnée n'a d'autorité nulle part, et l'écart
+      entre les régimes — la seule information qui comptait — a disparu.</p>
+    </div>
+
+    <div class="rule-box">
+      <p>On ne fusionne jamais un concept juridictionnel dans un concept canonique unique.</p>
+      <p class="why">La fusion détruit la spécificité légale, c'est-à-dire précisément
+      la seule chose qu'une réponse de conformité doit préserver. Chaque définition
+      reste dans son régime, avec son seuil et son article. Le rapport entre deux
+      définitions devient un objet à part entière.</p>
+    </div>
+
+    <h3>Un trait, ou une fiche</h3>
+    <div class="compare">
+      <div class="cbox">
+        <p class="lab">La plupart des modèles : un trait</p>
+        <ul>
+          <li>relie A à B</li>
+          <li>aucune preuve</li>
+          <li>aucun auteur</li>
+          <li>aucune date</li>
+          <li>ne s'audite pas</li>
+        </ul>
+      </div>
+      <div class="cbox on">
+        <p class="lab">Ce modèle : une fiche</p>
+        <ul>
+          <li>degré d'équivalence</li>
+          <li>niveau de confiance</li>
+          <li>base documentée</li>
+          <li>auteur et date</li>
+          <li>statut de revue</li>
+        </ul>
+      </div>
+    </div>
+    <div class="prose" style="margin-top:24px">
+      <p>Dès qu'une relation porte ses propres attributs et son propre cycle de vie,
+      ce n'est plus un trait entre deux cases. Quand un chiffre de conformité est
+      contesté, c'est cette fiche qu'on ouvre.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 2. LA PREUVE ============ -->
+<section id="preuve">
+  <div class="wrap">
+    <p class="depth">Deuxième profondeur · pour qui évalue</p>
+    <h2>Le même moteur, trois domaines sans rapport</h2>
+    <p class="lede">Une spécification métier en YAML entre. Une ontologie, des
+    contraintes de qualité et un rapport expliquant chaque choix sortent. Trois fois,
+    sur trois domaines qui ne partagent rien — sans qu'une ligne du générateur change.</p>
+
+    <table class="tbl">
+      <caption>Sorties mesurées des trois générations, à partir de trois spécifications distinctes.</caption>
+      <thead>
+        <tr>
+          <th scope="col">Critère</th>
+          <th scope="col">Conformité SST</th>
+          <th scope="col">Chaîne d'approvisionnement</th>
+          <th scope="col">IA en SST</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Classes générées</td><td>9</td><td>5</td><td>8</td></tr>
+        <tr><td>Propriétés objet</td><td>9</td><td>6</td><td>7</td></tr>
+        <tr><td>Propriétés de données</td><td>17</td><td>15</td><td>17</td></tr>
+        <tr><td>Triplets d'ontologie</td><td>121</td><td>97</td><td>112</td></tr>
+        <tr><td>Triplets de contraintes</td><td>284</td><td>169</td><td>230</td></tr>
+        <tr><td>Règles SPARQL</td><td>6</td><td>3</td><td>2</td></tr>
+        <tr><td>Barrières bloquantes</td><td>33</td><td>20</td><td>27</td></tr>
+        <tr><td>Signaux d'avertissement</td><td>1</td><td>1</td><td>4</td></tr>
+        <tr class="flag"><td>Ratio bloquant / doux</td><td>33,0</td><td>20,0</td><td>6,8</td></tr>
+      </tbody>
+    </table>
+
+    <div class="aside">
+      <p><strong>Le ratio était le signal.</strong> Au deuxième portage, le générateur
+      a produit vingt barrières bloquantes pour un seul avertissement. Les heuristiques
+      de sévérité étaient peuplées du seul vocabulaire SST : elles ne reconnaissaient
+      plus rien. Un domaine sans aucun signal doux annonce un pipeline que l'équipe
+      d'ingestion va contourner.</p>
+      <p>Limite assumée, et elle tient toujours : les heuristiques par nom de champ ne
+      se portent pas seules. Le troisième domaine a révélé deux bogues présents depuis
+      le premier jour, qu'aucun banc d'essai antérieur n'exerçait.</p>
+    </div>
+
+    <div class="prose" style="margin-top:26px">
+      <p>Le modèle a par ailleurs été vérifié par quatre moteurs indépendants qui
+      concordent : rdflib, pySHACL, Protégé avec l'API OWL, et un moteur JavaScript
+      écrit pour la démonstration. Il ne dépend pas de l'outillage qui l'a produit.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 3. CENT QUESTIONS ============ -->
+<section id="cas">
+  <div class="wrap">
+    <p class="depth">Deuxième profondeur · pour qui évalue</p>
+    <h2>Cent questions telles qu'elles se posent sur le terrain</h2>
+    <p class="lede">Pas des fonctionnalités retournées en questions. En face de chacune :
+    ce que le modèle change, la décision de modélisation qui le permet, et le statut
+    honnête de cette capacité. Vingt et une sont adossées à une requête exécutable dont
+    le résultat réel s'affiche sous la carte.</p>
+
+    <div class="statuses">
+      <div class="st demo">
+        <span class="pill">Démontré</span>
+        <p>Exercé par le dépôt et couvert par les quarante-sept tests. Se montre en direct.</p>
+      </div>
+      <div class="st struct">
+        <span class="pill">Structurel</span>
+        <p>La structure le permet directement, mais aucun banc d'essai ne l'exerce encore.</p>
+      </div>
+      <div class="st extra">
+        <span class="pill">Extrapolé</span>
+        <p>Usage plausible de la structure. Jamais construit, jamais livré à un client.</p>
+      </div>
+      <div class="st absent">
+        <span class="pill">Absent</span>
+        <p>Le modèle ne sait pas le faire. C'est écrit, et ça reste écrit tant que ce n'est pas construit.</p>
+      </div>
+    </div>
+
+    <div class="prose" style="margin-top:28px">
+      <p>La question phare est celle qu'aucun système de gestion ne peut poser :
+      <strong>quelles obligations ne sont couvertes par rien ?</strong> Un SGSST liste
+      les procédures qui existent. Il ne peut pas lister celles qui manquent, parce
+      qu'il n'a aucun modèle de ce qui devrait exister — il ne connaît que ce qu'on lui
+      a saisi.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 4. DÉMONSTRATION ============ -->
+<div class="demo-band">
+  <section id="demo" style="border-bottom:0">
+    <div class="wrap">
+      <p class="depth">Troisième profondeur · pour qui vérifie</p>
+      <div class="demo-grid">
+        <div>
+          <h2>Ne me croyez pas sur parole. Interrogez.</h2>
+          <p class="lede">L'explorateur est une vue en lecture seule du modèle réel :
+          les définitions juridictionnelles côte à côte, les correspondances avec leur
+          provenance, les violations avec leur justification. La console SPARQL tourne
+          dans votre navigateur, sur les triplets du modèle. Aucune installation,
+          aucune inscription.</p>
+          <div class="btnrow">
+            <a class="btn" href="ax5-explorer/index.html">Ouvrir l'explorateur</a>
+            <a class="btn ghost" href="https://github.com/Preventera/ax5-compliance-ontology">Lire le dépôt</a>
+          </div>
+        </div>
+        <div class="spec">
+          <b>4</b> ancres, <b>8</b> concepts juridictionnels<br>
+          <b>6</b> correspondances réifiées<br>
+          <b>8</b> exigences citées à l'article<br>
+          <b>292</b> triplets interrogeables<br>
+          <b>11</b> requêtes de compétence chargées<br>
+          <b>47</b> tests sur les contraintes<br>
+          <b>6</b> violations, <b>1</b> avertissement — délibérés<br>
+          <b>FR / EN</b> intégral
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ============ 5. LES LIMITES ============ -->
+<section id="limites">
+  <div class="wrap">
+    <p class="depth">Quatrième profondeur · ce que le modèle ne sait pas faire</p>
+    <h2>Sept angles, et trois qui restent à construire</h2>
+    <p class="lede">Une ontologie n'est pas « complète » ou « incomplète ». Elle répond
+    solidement à certaines questions, partiellement à d'autres, et pas du tout au reste.
+    Chaque angle exige un mécanisme technique distinct : aucun ne se déduit d'un autre.</p>
+
+    <div class="angles">
+      <div class="angle ok">
+        <div class="nom">Portée</div>
+        <div class="q">Qui a autorité ici ?</div>
+        <div class="etat">acquis</div>
+      </div>
+      <div class="angle ok">
+        <div class="nom">Temps</div>
+        <div class="q">Quand la règle était-elle en vigueur, et que savions-nous alors ?</div>
+        <div class="etat">acquis</div>
+      </div>
+      <div class="angle ok">
+        <div class="nom">Provenance</div>
+        <div class="q">Comment le savons-nous, et qui le signe ?</div>
+        <div class="etat">acquis</div>
+      </div>
+      <div class="angle part">
+        <div class="nom">Identité</div>
+        <div class="q">Est-ce la même chose ?</div>
+        <div class="etat">partiel</div>
+      </div>
+      <div class="angle non">
+        <div class="nom">Composition</div>
+        <div class="q">De quoi est-ce fait ?</div>
+        <div class="etat">absent</div>
+      </div>
+      <div class="angle non">
+        <div class="nom">Inférence</div>
+        <div class="q">Qu'est-ce qui en découle ?</div>
+        <div class="etat">absent</div>
+      </div>
+      <div class="angle non">
+        <div class="nom">Désaccord</div>
+        <div class="q">Que faire de deux sources opposées sur la même exigence ?</div>
+        <div class="etat">absent</div>
+      </div>
+    </div>
+
+    <div class="prose" style="margin-top:26px">
+      <p>Le désaccord est le manque le plus visible. Plusieurs revendications peuvent
+      coexister sur une même paire de concepts, et rien ne tranche entre elles. Un
+      modèle de conformité qui ne sait pas dire ce qu'il ignore n'est pas un modèle de
+      conformité — alors nous le disons.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 6. ÉCOSYSTÈME ============ -->
+<section id="ecosysteme">
+  <div class="wrap">
+    <h2>OntoX5 dans l'écosystème AgenticX5</h2>
+    <p class="lede">Deux niveaux qui se répondent : apprendre le vocabulaire, puis voir
+    ce qui se passe quand on prend un de ces mots au sérieux jusqu'au bout.</p>
+
+    <div class="eco">
+      <div class="eco-item">
+        <p class="role">Le vocabulaire</p>
+        <h3>Portail AgenticX5</h3>
+        <p>Cinquante-sept concepts d'IA et d'agentique, bilingues, avec présentations
+        et podcasts. Un outil d'amorçage pour aligner direction, métiers et DSI avant
+        de lancer un projet.</p>
+        <a href="https://lexique-ia-agenticx5.netlify.app/">Ouvrir le lexique</a>
+      </div>
+      <div class="eco-item">
+        <p class="role">La démonstration</p>
+        <h3>OntoX5</h3>
+        <p>Un mot du lexique — la sémantique partagée — poussé jusqu'à l'ontologie
+        exécutable, aux contraintes de qualité et aux tests. Ce que le vocabulaire
+        devient quand on refuse d'approximer.</p>
+        <a href="ax5-explorer/index.html">Ouvrir l'explorateur</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 7. PORTES DE SORTIE ============ -->
+<section id="contact" style="padding-bottom:0;border-bottom:0">
+  <div class="wrap">
+    <h2>Par où continuer</h2>
+    <p class="lede">Quatre entrées selon ce que vous cherchez.</p>
+  </div>
+  <div class="wrap">
+    <div class="doors">
+      <a class="door" href="ax5-explorer/index.html">
+        <h3>Voir le modèle</h3>
+        <p>L'explorateur en lecture seule, la console SPARQL, les cent cas d'usage.</p>
+        <span class="go">Ouvrir l'explorateur</span>
+      </a>
+      <a class="door" href="mailto:team@agenticx5.com?subject=OntoX5%20-%20demande%20de%20d%C3%A9monstration">
+        <h3>Demander une démonstration</h3>
+        <p>Quatre-vingt-dix secondes sur votre propre écart de conformité, à partir de deux régimes que vous nommez.</p>
+        <span class="go">team@agenticx5.com</span>
+      </a>
+      <a class="door" href="https://github.com/Preventera/ax5-compliance-ontology">
+        <h3>Auditer le code</h3>
+        <p>Ontologie, contraintes SHACL, générateur, tests et intégration continue. Licence MIT.</p>
+        <span class="go">Dépôt GitHub</span>
+      </a>
+      <a class="door" href="mailto:team@agenticx5.com?subject=OntoX5%20-%20partenariat">
+        <h3>Porter un domaine</h3>
+        <p>Le générateur a été porté trois fois. Le quatrième domaine peut être le vôtre.</p>
+        <span class="go">team@agenticx5.com</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="frow">
+      <div>
+        <strong style="color:var(--cover-ink);font-weight:500">AGENTICX5 — OntoX5</strong><br>
+        Ontologie et contrats de données pour le raisonnement de conformité SST
+        multi-juridictionnel.<br>
+        <a href="mailto:team@agenticx5.com">team@agenticx5.com</a>
+      </div>
+      <div>
+        <a href="ax5-explorer/index.html">Explorateur</a><br>
+        <a href="https://github.com/Preventera/ax5-compliance-ontology">Dépôt GitHub</a><br>
+        <a href="https://lexique-ia-agenticx5.netlify.app/">Lexique AgenticX5</a>
+      </div>
+    </div>
+    <p class="prov">Les chiffres de cette page proviennent de ax5-compliance-ontology
+      v0.3.0 · générés le 2026-04-11 · code publié sous licence MIT.
+      Vue documentaire : aucune donnée saisie, aucune décision automatisée.
+      La décision SST reste humaine.</p>
+  </div>
+</footer>
+
+</body>
+</html>
