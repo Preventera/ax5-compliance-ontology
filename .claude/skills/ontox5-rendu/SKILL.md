@@ -151,6 +151,15 @@ avec sa provenance, ou n'est pas affichée.
 un état vide se lit comme un état neutre — c'est une violation de R2 par
 un autre chemin.
 
+**R14 — Le code produit est valide, pas seulement présent.** Un commentaire
+CSS n'en contient jamais un autre; les accolades s'équilibrent. Un commentaire
+imbriqué se referme au premier `*/` et le navigateur ignore silencieusement
+tout ce qui suit — sans erreur, sans avertissement. Une règle écrite mais
+jamais appliquée satisfait un contrôle de présence tout en ne produisant rien.
+C'est le mode de défaillance le plus dangereux d'une vérification mécanique :
+elle rassure sans garantir. R1 est resté au vert pendant plusieurs itérations
+alors qu'aucun glyphe n'était rendu.
+
 ---
 
 ## 4. Anti-patrons nommés

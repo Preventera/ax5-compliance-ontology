@@ -521,3 +521,74 @@ def test_r13_cles_data_i18n_declarees(html):
     assert not orphelines, (
         f"R13 — clés data-i18n sans traduction : {orphelines}"
     )
+
+# --------------------------------------------------------------------------
+# R14 — le code produit est syntaxiquement valide, pas seulement present
+# --------------------------------------------------------------------------
+
+
+def _hors_chaine(css: str):
+    """Parcourt le CSS en signalant la position des marqueurs de commentaire,
+    en ignorant ce qui se trouve dans une chaine ou une URL."""
+    i, n = 0, len(css)
+    guillemet = None
+    while i < n:
+        c = css[i]
+        if guillemet:
+            if c == "\\":
+                i += 2
+                continue
+            if c == guillemet:
+                guillemet = None
+            i += 1
+            continue
+        if c in "\"'":
+            guillemet = c
+            i += 1
+            continue
+        if css.startswith("/*", i):
+            yield i, "ouvre"
+            i += 2
+            continue
+        if css.startswith("*/", i):
+            yield i, "ferme"
+            i += 2
+            continue
+        i += 1
+
+
+def test_r14_commentaires_css_non_imbriques(html):
+    """Un commentaire CSS ne peut pas en contenir un autre. Imbriqué, il se
+    referme trop tôt et tout ce qui suit est ignoré par le navigateur — sans
+    la moindre erreur visible. C'est ainsi que R1 est resté au vert alors
+    qu'aucun glyphe n'était rendu."""
+    css = blocs_style(html)
+    profondeur = 0
+    for pos, quoi in _hors_chaine(css):
+        ligne = css[:pos].count("\n") + 1
+        if quoi == "ouvre":
+            profondeur += 1
+            assert profondeur <= 1, (
+                f"R14 — commentaire CSS imbriqué à la ligne {ligne} du bloc "
+                "<style>. Le commentaire englobant se referme au premier */ "
+                "et les règles suivantes sont silencieusement ignorées."
+            )
+        else:
+            profondeur -= 1
+            assert profondeur >= 0, (
+                f"R14 — */ sans /* correspondant à la ligne {ligne}."
+            )
+    assert profondeur == 0, "R14 — commentaire CSS non refermé."
+
+
+def test_r14_accolades_css_equilibrees(html):
+    """Une accolade manquante fait avaler les règles suivantes par le bloc
+    précédent. Le fichier reste 'valide' pour un test de présence."""
+    css = blocs_style(html)
+    sans_com = re.sub(r"/\*.*?\*/", "", css, flags=re.S)
+    sans_str = re.sub(r"\"[^\"]*\"|'[^']*'", "", sans_com)
+    ouvertes, fermees = sans_str.count("{"), sans_str.count("}")
+    assert ouvertes == fermees, (
+        f"R14 — accolades déséquilibrées dans <style> : "
+        f"{ouvertes} ouvrantes, {fermees} fermantes."
+    )
